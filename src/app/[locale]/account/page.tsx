@@ -142,7 +142,7 @@ export default async function AccountPage({
                 </tr>
               </thead>
               <tbody>
-                {user.bookings.map((booking) => {
+                {user.bookings.map((booking: typeof user.bookings[number]) => {
                   const participants = [booking.person1Name, booking.person2Name, booking.person3Name, booking.person4Name, booking.person5Name].filter(Boolean);
                   const eventTitle = locale === "de" ? booking.event.titleDe : booking.event.titleEn;
                   return (
