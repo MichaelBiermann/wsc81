@@ -19,12 +19,12 @@ export default async function HomePage({
       where: { startDate: { gte: new Date() } },
       orderBy: { startDate: "asc" },
       take: 6,
-    }),
+    }).catch(() => []),
     prisma.newsPost.findMany({
       where: { status: "PUBLISHED" },
       orderBy: { publishedAt: "desc" },
       take: 4,
-    }),
+    }).catch(() => []),
   ]);
 
   return (
