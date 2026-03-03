@@ -1,0 +1,281 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum Gender {
+  HERR
+  FRAU
+  DIVERS
+}
+
+enum MembershipCategory {
+  FAMILIE
+  ERWACHSENE
+  JUGENDLICHE
+  SENIOREN
+  GDB
+}
+
+enum ContentStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum NewsletterStatus {
+  DRAFT
+  SENT
+}
+
+// ─── Auth ─────────────────────────────────────────────────────────────────────
+
+model AdminUser {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  createdAt    DateTime @default(now())
+}
+
+// ─── Membership ───────────────────────────────────────────────────────────────
+
+model PendingMembership {
+  id                  String             @id @default(cuid())
+  category            MembershipCategory
+  // Person 1 (required)
+  person1Name         String
+  person1Dob          DateTime           @db.Date
+  // Person 2–5 (optional: partner + up to 3 children)
+  person2Name         String?
+  person2Dob          DateTime?          @db.Date
+  person3Name         String?
+  person3Dob          DateTime?          @db.Date
+  person4Name         String?
+  person4Dob          DateTime?          @db.Date
+  person5Name         String?
+  person5Dob          DateTime?          @db.Date
+  // Contact
+  street              String
+  postalCode          String
+  city                String
+  phone               String
+  email               String             @unique
+  // Bank details (SEPA direct debit)
+  bankName            String
+  ibanEncrypted       String
+  ibanLast4           String
+  bic                 String
+  // Consents
+  consentData         Boolean
+  consentCancellation Boolean
+  consentBylaws       Boolean
+  // Activation
+  activationToken     String             @unique
+  tokenExpiresAt      DateTime
+  locale              String             @default("de")
+  createdAt           DateTime           @default(now())
+
+  @@index([tokenExpiresAt])
+  @@index([email])
+}
+
+model Member {
+  id                  String             @id @default(cuid())
+  memberNumber        Int                @unique @default(autoincrement())
+  category            MembershipCategory
+  // Person 1 (required)
+  person1Name         String
+  person1Dob          DateTime           @db.Date
+  // Person 2–5 (optional)
+  person2Name         String?
+  person2Dob          DateTime?          @db.Date
+  person3Name         String?
+  person3Dob          DateTime?          @db.Date
+  person4Name         String?
+  person4Dob          DateTime?          @db.Date
+  person5Name         String?
+  person5Dob          DateTime?          @db.Date
+  // Contact
+  street              String
+  postalCode          String
+  city                String
+  phone               String
+  email               String             @unique
+  // Bank details (SEPA direct debit)
+  bankName            String
+  ibanEncrypted       String
+  ibanLast4           String
+  bic                 String
+  // Membership state
+  feesPaid            Boolean            @default(false)
+  locale              String             @default("de")
+  activatedAt         DateTime           @default(now())
+  createdAt           DateTime           @default(now())
+  user                User?
+
+  @@index([email])
+}
+
+// ─── Events & Bookings ────────────────────────────────────────────────────────
+
+model Event {
+  id                   String         @id @default(cuid())
+  titleDe              String
+  titleEn              String
+  descriptionDe        String         @db.Text
+  descriptionEn        String         @db.Text
+  location             String
+  startDate            DateTime
+  endDate              DateTime
+  depositAmount        Decimal        @db.Decimal(8, 2)
+  totalAmount          Decimal        @db.Decimal(8, 2)
+  maxParticipants      Int?
+  registrationDeadline DateTime?
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
+  bookings             EventBooking[]
+
+  @@index([startDate])
+}
+
+model EventBooking {
+  id          String    @id @default(cuid())
+  event       Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId     String
+  // Participants (up to 5: primary + partner + 3 children)
+  person1Name String
+  person1Dob  DateTime  @db.Date
+  person2Name String?
+  person2Dob  DateTime? @db.Date
+  person3Name String?
+  person3Dob  DateTime? @db.Date
+  person4Name String?
+  person4Dob  DateTime? @db.Date
+  person5Name String?
+  person5Dob  DateTime? @db.Date
+  // Contact
+  street      String
+  postalCode  String
+  city        String
+  phone       String
+  email       String
+  isMember    Boolean   @default(false)
+  remarks     String?   @db.Text
+  locale      String    @default("de")
+  createdAt   DateTime  @default(now())
+  // Optional link to registered User account
+  userId      String?
+  user        User?     @relation(fields: [userId], references: [id])
+
+  @@index([eventId])
+  @@index([email])
+  @@index([userId])
+}
+
+// ─── Sponsors ─────────────────────────────────────────────────────────────────
+
+model Sponsor {
+  id           String   @id @default(cuid())
+  name         String
+  websiteUrl   String
+  imageUrl     String
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([displayOrder])
+}
+
+// ─── Content (News & Pages) ───────────────────────────────────────────────────
+
+model NewsPost {
+  id          String        @id @default(cuid())
+  slug        String        @unique
+  titleDe     String
+  titleEn     String
+  bodyDe      String        @db.Text
+  bodyEn      String        @db.Text
+  status      ContentStatus @default(DRAFT)
+  publishedAt DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([status, publishedAt])
+}
+
+model Page {
+  id          String        @id @default(cuid())
+  slug        String        @unique
+  titleDe     String
+  titleEn     String
+  bodyDe      String        @db.Text
+  bodyEn      String        @db.Text
+  status      ContentStatus @default(DRAFT)
+  publishedAt DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+// ─── Newsletter ───────────────────────────────────────────────────────────────
+
+model Newsletter {
+  id             String           @id @default(cuid())
+  subjectDe      String
+  subjectEn      String
+  bodyDe         String           @db.Text
+  bodyEn         String           @db.Text
+  status         NewsletterStatus @default(DRAFT)
+  sentAt         DateTime?
+  recipientCount Int?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+}
+
+// ─── Club Settings ────────────────────────────────────────────────────────────
+
+model ClubSettings {
+  id                 String   @id @default(cuid())
+  // WSC81 bank account (for receiving SEPA direct debits)
+  bankName           String   @default("")
+  ibanEncrypted      String   @default("")
+  ibanLast4          String   @default("")
+  bic                String   @default("")
+  // Annual fee collection date
+  feeCollectionDay   Int      @default(1)
+  feeCollectionMonth Int      @default(10)
+  updatedAt          DateTime @updatedAt
+}
+
+// ─── User Accounts ────────────────────────────────────────────────────────────
+
+model User {
+  id                String         @id @default(cuid())
+  email             String         @unique
+  passwordHash      String
+  firstName         String
+  lastName          String
+  dob               DateTime       @db.Date
+  street            String
+  postalCode        String
+  city              String
+  phone             String
+  emailVerified     Boolean        @default(false)
+  verificationToken String?        @unique
+  tokenExpiresAt    DateTime?
+  locale            String         @default("de")
+  createdAt         DateTime       @default(now())
+  memberId               String?        @unique
+  member                 Member?        @relation(fields: [memberId], references: [id])
+  bookings               EventBooking[]
+  // Pending email change
+  pendingEmail           String?
+  pendingEmailToken      String?        @unique
+  pendingEmailExpiresAt  DateTime?
+
+  @@index([email])
+}

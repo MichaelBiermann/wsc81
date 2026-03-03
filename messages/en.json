@@ -1,0 +1,300 @@
+{
+  "Nav": {
+    "home": "Home",
+    "club": "WSC 81",
+    "events": "Events",
+    "recaps": "Recaps",
+    "forms": "Forms",
+    "general": "General",
+    "sponsors": "Our Sponsors",
+    "clubAbout": "Our Club",
+    "clubBoard": "Board of Directors",
+    "clubInstructors": "Instructors",
+    "clubSupporters": "Our Supporters",
+    "clubAgb": "Terms & Conditions",
+    "clubSatzung": "Articles of Association",
+    "membership": "Become a Member",
+    "search": "Search",
+    "login": "Sign in",
+    "register": "Register",
+    "hello": "Hello, {name}",
+    "myAccount": "My Account",
+    "signOut": "Sign out"
+  },
+  "Hero": {
+    "welcome": "Welcome to Walldorfer Ski-Club 81 e.V.",
+    "subtitle": "Ski Fitness Gymnastics · Nordic Walking · Ski Trips"
+  },
+  "Events": {
+    "title": "Events",
+    "upcoming": "Upcoming Events",
+    "noEvents": "No events currently planned.",
+    "bookNow": "Book now",
+    "details": "Details",
+    "from": "From",
+    "memberPrice": "Member price",
+    "nonMemberSurcharge": "Non-member surcharge",
+    "deposit": "Deposit",
+    "total": "Total",
+    "deadline": "Registration deadline",
+    "location": "Location",
+    "participants": "Participants"
+  },
+  "Booking": {
+    "pageTitle": "Registration",
+    "subtitle": "Register for: {eventTitle}",
+    "person1": "Person 1 (Primary registrant)",
+    "person2": "Person 2 (Partner)",
+    "person3": "Person 3 (Child)",
+    "person4": "Person 4 (Child)",
+    "person5": "Person 5 (Child)",
+    "addPerson": "Add another person",
+    "removePerson": "Remove",
+    "fields": {
+      "name": "Name (First Last)",
+      "dob": "Date of birth",
+      "street": "Street and house number",
+      "postalCode": "Postal code",
+      "city": "City",
+      "phone": "Phone",
+      "email": "Email address",
+      "isMember": "I am a member of WSC 81",
+      "remarks": "Remarks"
+    },
+    "payment": {
+      "title": "Payment",
+      "info": "Please transfer the deposit to the following account:",
+      "bank": "Volksbank Wiesloch",
+      "iban": "IBAN: DE27 6729 2200 0010 3294 00",
+      "bic": "BIC: GENODE61WIE",
+      "depositNote": "The remaining balance is due at least 4 weeks before the trip starts."
+    },
+    "priceSummary": "Price summary",
+    "basePrice": "Base price",
+    "deposit": "Deposit",
+    "surcharge": "+ €40 non-member surcharge",
+    "totalPrice": "Total",
+    "terms": "By submitting I accept the WSC81 travel terms.",
+    "submit": "Register now",
+    "submitting": "Sending...",
+    "success": {
+      "title": "Registration successful!",
+      "message": "We have received your registration and sent a confirmation to {email}."
+    },
+    "errors": {
+      "eventNotFound": "Event not found.",
+      "deadlinePassed": "The registration deadline has passed.",
+      "generic": "Registration failed. Please try again."
+    }
+  },
+  "Membership": {
+    "pageTitle": "Apply for Membership",
+    "subtitle": "Join the Walldorfer Ski-Club 81 e.V.",
+    "categories": {
+      "title": "Membership category",
+      "FAMILIE": "Family (adults + children up to age 25)",
+      "ERWACHSENE": "Adults",
+      "JUGENDLICHE": "Youth (up to 17) / Students (with ID)",
+      "SENIOREN": "Seniors (with ID)",
+      "GDB": "Disability ≥50% (with ID)"
+    },
+    "fees": {
+      "FAMILIE": "€47.00 / year",
+      "ERWACHSENE": "€32.00 / year",
+      "JUGENDLICHE": "€17.00 / year",
+      "SENIOREN": "€27.00 / year",
+      "GDB": "€22.00 / year"
+    },
+    "persons": {
+      "person1": "Person 1 (Member)",
+      "person2": "Person 2 (Partner) – optional",
+      "person3": "Person 3 (Child) – optional",
+      "person4": "Person 4 (Child) – optional",
+      "person5": "Person 5 (Child) – optional",
+      "addPerson": "Add another person",
+      "removePerson": "Remove"
+    },
+    "fields": {
+      "name": "Name (First Last)",
+      "dob": "Date of birth",
+      "street": "Street and house number",
+      "postalCode": "Postal code",
+      "city": "City",
+      "phone": "Phone",
+      "email": "Email address",
+      "bankName": "Bank name",
+      "iban": "IBAN",
+      "ibanHint": "For annual membership fee via SEPA direct debit",
+      "bic": "BIC",
+      "showIban": "Show IBAN",
+      "hideIban": "Hide IBAN"
+    },
+    "consents": {
+      "data": "I consent to the electronic storage of my membership data.",
+      "cancellation": "I agree that any cancellation fees incurred by WSC will be charged to me.",
+      "bylaws": "I acknowledge the statutes (Satzung) of WSC 81."
+    },
+    "fiscalYear": "Fiscal year: 1 July – 30 June",
+    "submit": "Apply for membership",
+    "submitting": "Sending...",
+    "success": {
+      "title": "Application submitted!",
+      "message": "We have sent a confirmation email to {email}. Please click the activation link.",
+      "expiry": "The link is valid for 7 days."
+    },
+    "errors": {
+      "emailTaken": "This email address is already registered.",
+      "generic": "Application failed. Please try again."
+    }
+  },
+  "Activation": {
+    "pageTitle": "Activate Membership",
+    "success": {
+      "title": "Membership activated!",
+      "message": "Welcome to WSC 81, {name}! Your member number: {memberNumber}"
+    },
+    "invalid": {
+      "title": "Invalid link",
+      "message": "This activation link is invalid."
+    },
+    "expired": {
+      "title": "Link expired",
+      "message": "This activation link has expired. Please apply again."
+    },
+    "registerAgain": "Apply again"
+  },
+  "Search": {
+    "placeholder": "Search...",
+    "pageTitle": "Search results",
+    "resultsFor": "Results for: \"{q}\"",
+    "noResults": "No results found.",
+    "typeEvent": "Event",
+    "typeNews": "News",
+    "typePage": "Page"
+  },
+  "Sponsors": {
+    "pageTitle": "Our Sponsors",
+    "subtitle": "We thank our sponsors for their support."
+  },
+  "Footer": {
+    "imprint": "Imprint",
+    "privacy": "Privacy",
+    "contact": "Contact",
+    "rights": "All rights reserved"
+  },
+  "Common": {
+    "siteTitle": "Walldorfer Ski-Club 81 e.V.",
+    "loading": "Loading...",
+    "error": "An error occurred.",
+    "back": "Back",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "confirm": "Confirm"
+  },
+  "Register": {
+    "pageTitle": "Create account",
+    "subtitle": "Register with Walldorfer Ski-Club 81.",
+    "fields": {
+      "firstName": "First name",
+      "lastName": "Last name",
+      "dob": "Date of birth",
+      "street": "Street and house number",
+      "postalCode": "Postal code",
+      "city": "City",
+      "phone": "Phone",
+      "email": "Email address",
+      "password": "Password",
+      "confirmPassword": "Confirm password",
+      "showPassword": "Show",
+      "hidePassword": "Hide"
+    },
+    "submit": "Create account",
+    "submitting": "Sending...",
+    "hasAccount": "Already have an account?",
+    "loginLink": "Sign in",
+    "success": {
+      "title": "Verification email sent!",
+      "message": "We have sent a verification email to {email}. Please click the link to activate your account (valid for 24 hours)."
+    },
+    "errors": {
+      "passwordMismatch": "Passwords do not match.",
+      "generic": "Registration failed. Please try again."
+    }
+  },
+  "Login": {
+    "pageTitle": "Sign in",
+    "subtitle": "Sign in to your account.",
+    "fields": {
+      "email": "Email address",
+      "password": "Password"
+    },
+    "submit": "Sign in",
+    "submitting": "Signing in...",
+    "noAccount": "Don't have an account?",
+    "registerLink": "Register now",
+    "errors": {
+      "invalidCredentials": "Invalid email address or password.",
+      "notVerified": "Please verify your email address first."
+    }
+  },
+  "Account": {
+    "pageTitle": "My Account",
+    "profile": "Profile",
+    "fields": {
+      "name": "Name",
+      "email": "Email",
+      "address": "Address",
+      "phone": "Phone",
+      "street": "Street",
+      "postalCode": "Postal code",
+      "city": "City"
+    },
+    "edit": "Edit",
+    "save": "Save",
+    "cancel": "Cancel",
+    "saved": "Saved ✓",
+    "memberStatus": "Membership status",
+    "statusMember": "Active member",
+    "statusUser": "Not a member",
+    "memberNumber": "Member number: {number}",
+    "applyForMembership": "Become a member",
+    "bookings": "My bookings",
+    "noBookings": "No bookings yet.",
+    "bookingEvent": "Event",
+    "bookingDate": "Date",
+    "bookingParticipants": "Persons",
+    "signOut": "Sign out",
+    "emailChange": {
+      "edit": "Change email",
+      "newEmail": "New email address",
+      "save": "Send confirmation",
+      "cancel": "Cancel",
+      "cancelPending": "Cancel change",
+      "pendingBanner": "Confirmation pending for {email}",
+      "success": "Email address successfully updated.",
+      "expired": "The confirmation link has expired.",
+      "invalid": "Invalid confirmation link.",
+      "sent": "Confirmation email sent to {email}.",
+      "emailTaken": "This email address is already in use.",
+      "error": "Failed to change email address."
+    }
+  },
+  "Verification": {
+    "success": {
+      "title": "Email verified!",
+      "message": "Your account has been successfully activated. You can now sign in.",
+      "loginLink": "Sign in now"
+    },
+    "expired": {
+      "title": "Link expired",
+      "message": "This verification link has expired. Please register again.",
+      "registerAgain": "Register again"
+    },
+    "invalid": {
+      "title": "Invalid link",
+      "message": "This verification link is invalid."
+    }
+  }
+}

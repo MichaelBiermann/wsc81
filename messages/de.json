@@ -1,0 +1,300 @@
+{
+  "Nav": {
+    "home": "Startseite",
+    "club": "WSC 81",
+    "events": "Veranstaltungen",
+    "recaps": "Rückblicke",
+    "forms": "Formulare",
+    "general": "Allgemeines",
+    "sponsors": "Unsere Sponsoren",
+    "clubAbout": "Unser Verein",
+    "clubBoard": "Vorstandsteam",
+    "clubInstructors": "Übungsleiter",
+    "clubSupporters": "Unsere Unterstützer",
+    "clubAgb": "AGB",
+    "clubSatzung": "Satzung",
+    "membership": "Mitglied werden",
+    "search": "Suche",
+    "login": "Anmelden",
+    "register": "Registrieren",
+    "hello": "Hallo, {name}",
+    "myAccount": "Mein Konto",
+    "signOut": "Abmelden"
+  },
+  "Hero": {
+    "welcome": "Willkommen beim Walldorfer Ski-Club 81 e.V.",
+    "subtitle": "Ski- und Fitnessgymnastik · Nordic Walking · Skifreizeiten"
+  },
+  "Events": {
+    "title": "Veranstaltungen",
+    "upcoming": "Kommende Veranstaltungen",
+    "noEvents": "Aktuell keine Veranstaltungen geplant.",
+    "bookNow": "Jetzt buchen",
+    "details": "Details",
+    "from": "Ab",
+    "memberPrice": "Mitgliederpreis",
+    "nonMemberSurcharge": "Nichtmitglieder-Aufpreis",
+    "deposit": "Anzahlung",
+    "total": "Gesamtbetrag",
+    "deadline": "Anmeldeschluss",
+    "location": "Ort",
+    "participants": "Teilnehmer"
+  },
+  "Booking": {
+    "pageTitle": "Anmeldung",
+    "subtitle": "Anmeldung für: {eventTitle}",
+    "person1": "Person 1 (Anmelder/in)",
+    "person2": "Person 2 (PartnerIn)",
+    "person3": "Person 3 (Kind)",
+    "person4": "Person 4 (Kind)",
+    "person5": "Person 5 (Kind)",
+    "addPerson": "Weitere Person hinzufügen",
+    "removePerson": "Entfernen",
+    "fields": {
+      "name": "Name (Vorname Nachname)",
+      "dob": "Geburtsdatum",
+      "street": "Straße und Hausnummer",
+      "postalCode": "Postleitzahl",
+      "city": "Stadt",
+      "phone": "Telefon",
+      "email": "E-Mail-Adresse",
+      "isMember": "Ich bin Mitglied beim WSC 81",
+      "remarks": "Bemerkungen"
+    },
+    "payment": {
+      "title": "Zahlung",
+      "info": "Bitte überweisen Sie die Anzahlung auf folgendes Konto:",
+      "bank": "Volksbank Wiesloch",
+      "iban": "IBAN: DE27 6729 2200 0010 3294 00",
+      "bic": "BIC: GENODE61WIE",
+      "depositNote": "Die Restzahlung ist spätestens 4 Wochen vor Reisebeginn fällig."
+    },
+    "priceSummary": "Preisübersicht",
+    "basePrice": "Grundpreis",
+    "deposit": "Anzahlung",
+    "surcharge": "+ €40 Nichtmitglieder-Aufschlag",
+    "totalPrice": "Gesamtbetrag",
+    "terms": "Mit der Anmeldung akzeptiere ich die WSC81 Reisebedingungen.",
+    "submit": "Jetzt anmelden",
+    "submitting": "Wird gesendet...",
+    "success": {
+      "title": "Anmeldung erfolgreich!",
+      "message": "Wir haben Ihre Anmeldung erhalten und eine Bestätigung an {email} gesendet."
+    },
+    "errors": {
+      "eventNotFound": "Veranstaltung nicht gefunden.",
+      "deadlinePassed": "Die Anmeldefrist ist abgelaufen.",
+      "generic": "Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut."
+    }
+  },
+  "Membership": {
+    "pageTitle": "Mitgliedschaft beantragen",
+    "subtitle": "Werden Sie Mitglied beim Walldorfer Ski-Club 81 e.V.",
+    "categories": {
+      "title": "Mitgliedschaftskategorie",
+      "FAMILIE": "Familie (Erwachsene + Kinder bis 25 Jahre)",
+      "ERWACHSENE": "Erwachsene",
+      "JUGENDLICHE": "Jugendliche (bis 17 J.) / Schüler / Studenten",
+      "SENIOREN": "Senioren (mit Ausweis)",
+      "GDB": "GdB ab 50% (mit Ausweis)"
+    },
+    "fees": {
+      "FAMILIE": "€ 47,00 / Jahr",
+      "ERWACHSENE": "€ 32,00 / Jahr",
+      "JUGENDLICHE": "€ 17,00 / Jahr",
+      "SENIOREN": "€ 27,00 / Jahr",
+      "GDB": "€ 22,00 / Jahr"
+    },
+    "persons": {
+      "person1": "Person 1 (Mitglied)",
+      "person2": "Person 2 (PartnerIn) – optional",
+      "person3": "Person 3 (Kind) – optional",
+      "person4": "Person 4 (Kind) – optional",
+      "person5": "Person 5 (Kind) – optional",
+      "addPerson": "Weitere Person hinzufügen",
+      "removePerson": "Entfernen"
+    },
+    "fields": {
+      "name": "Name (Vorname Nachname)",
+      "dob": "Geburtsdatum",
+      "street": "Straße und Hausnummer",
+      "postalCode": "Postleitzahl",
+      "city": "Wohnort",
+      "phone": "Telefon",
+      "email": "E-Mail-Adresse",
+      "bankName": "Kreditinstitut",
+      "iban": "IBAN",
+      "ibanHint": "Für den Mitgliedsbeitrag per SEPA-Lastschrift",
+      "bic": "BIC",
+      "showIban": "IBAN anzeigen",
+      "hideIban": "IBAN ausblenden"
+    },
+    "consents": {
+      "data": "Ich stimme der elektronischen Datenspeicherung meiner Mitgliedsdaten zu.",
+      "cancellation": "Ich bin damit einverstanden, dass dem WSC entstehende Stornokosten zu meinen Lasten gehen.",
+      "bylaws": "Ich erkenne die Satzung des WSC 81 an."
+    },
+    "fiscalYear": "Geschäftsjahr: 1. Juli – 30. Juni",
+    "submit": "Mitgliedschaft beantragen",
+    "submitting": "Wird gesendet...",
+    "success": {
+      "title": "Antrag erfolgreich eingereicht!",
+      "message": "Wir haben eine Bestätigungs-E-Mail an {email} gesendet. Bitte klicken Sie auf den Aktivierungslink.",
+      "expiry": "Der Link ist 7 Tage gültig."
+    },
+    "errors": {
+      "emailTaken": "Diese E-Mail-Adresse ist bereits registriert.",
+      "generic": "Antrag fehlgeschlagen. Bitte versuchen Sie es erneut."
+    }
+  },
+  "Activation": {
+    "pageTitle": "Mitgliedschaft aktivieren",
+    "success": {
+      "title": "Mitgliedschaft aktiviert!",
+      "message": "Herzlich willkommen beim WSC 81, {name}! Ihre Mitgliedsnummer: {memberNumber}"
+    },
+    "invalid": {
+      "title": "Ungültiger Link",
+      "message": "Dieser Aktivierungslink ist ungültig."
+    },
+    "expired": {
+      "title": "Link abgelaufen",
+      "message": "Dieser Aktivierungslink ist abgelaufen. Bitte registrieren Sie sich erneut."
+    },
+    "registerAgain": "Erneut bewerben"
+  },
+  "Search": {
+    "placeholder": "Suchen...",
+    "pageTitle": "Suchergebnisse",
+    "resultsFor": "Ergebnisse für: \"{q}\"",
+    "noResults": "Keine Ergebnisse gefunden.",
+    "typeEvent": "Veranstaltung",
+    "typeNews": "Neuigkeit",
+    "typePage": "Seite"
+  },
+  "Sponsors": {
+    "pageTitle": "Unsere Sponsoren",
+    "subtitle": "Wir danken unseren Sponsoren für ihre Unterstützung."
+  },
+  "Footer": {
+    "imprint": "Impressum",
+    "privacy": "Datenschutz",
+    "contact": "Kontakt",
+    "rights": "Alle Rechte vorbehalten"
+  },
+  "Common": {
+    "siteTitle": "Walldorfer Ski-Club 81 e.V.",
+    "loading": "Lädt...",
+    "error": "Ein Fehler ist aufgetreten.",
+    "back": "Zurück",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "confirm": "Bestätigen"
+  },
+  "Register": {
+    "pageTitle": "Konto erstellen",
+    "subtitle": "Registrieren Sie sich beim Walldorfer Ski-Club 81.",
+    "fields": {
+      "firstName": "Vorname",
+      "lastName": "Nachname",
+      "dob": "Geburtsdatum",
+      "street": "Straße und Hausnummer",
+      "postalCode": "Postleitzahl",
+      "city": "Wohnort",
+      "phone": "Telefon",
+      "email": "E-Mail-Adresse",
+      "password": "Passwort",
+      "confirmPassword": "Passwort bestätigen",
+      "showPassword": "Anzeigen",
+      "hidePassword": "Verbergen"
+    },
+    "submit": "Konto erstellen",
+    "submitting": "Wird gesendet...",
+    "hasAccount": "Haben Sie bereits ein Konto?",
+    "loginLink": "Anmelden",
+    "success": {
+      "title": "Bestätigungs-E-Mail gesendet!",
+      "message": "Wir haben eine Bestätigungs-E-Mail an {email} gesendet. Bitte klicken Sie auf den Link, um Ihr Konto zu aktivieren (gültig für 24 Stunden)."
+    },
+    "errors": {
+      "passwordMismatch": "Die Passwörter stimmen nicht überein.",
+      "generic": "Registrierung fehlgeschlagen. Bitte versuchen Sie es erneut."
+    }
+  },
+  "Login": {
+    "pageTitle": "Anmelden",
+    "subtitle": "Melden Sie sich mit Ihrem Konto an.",
+    "fields": {
+      "email": "E-Mail-Adresse",
+      "password": "Passwort"
+    },
+    "submit": "Anmelden",
+    "submitting": "Wird angemeldet...",
+    "noAccount": "Noch kein Konto?",
+    "registerLink": "Jetzt registrieren",
+    "errors": {
+      "invalidCredentials": "E-Mail-Adresse oder Passwort ist falsch.",
+      "notVerified": "Bitte bestätigen Sie zuerst Ihre E-Mail-Adresse."
+    }
+  },
+  "Account": {
+    "pageTitle": "Mein Konto",
+    "profile": "Profil",
+    "fields": {
+      "name": "Name",
+      "email": "E-Mail",
+      "address": "Adresse",
+      "phone": "Telefon",
+      "street": "Straße",
+      "postalCode": "PLZ",
+      "city": "Ort"
+    },
+    "edit": "Bearbeiten",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "saved": "Gespeichert ✓",
+    "memberStatus": "Mitgliedschaftsstatus",
+    "statusMember": "Aktives Mitglied",
+    "statusUser": "Kein Mitglied",
+    "memberNumber": "Mitgliedsnummer: {number}",
+    "applyForMembership": "Mitglied werden",
+    "bookings": "Meine Buchungen",
+    "noBookings": "Noch keine Buchungen.",
+    "bookingEvent": "Veranstaltung",
+    "bookingDate": "Datum",
+    "bookingParticipants": "Personen",
+    "signOut": "Abmelden",
+    "emailChange": {
+      "edit": "E-Mail ändern",
+      "newEmail": "Neue E-Mail-Adresse",
+      "save": "Bestätigung senden",
+      "cancel": "Abbrechen",
+      "cancelPending": "Änderung abbrechen",
+      "pendingBanner": "Bestätigung ausstehend für {email}",
+      "success": "E-Mail-Adresse erfolgreich geändert.",
+      "expired": "Der Bestätigungslink ist abgelaufen.",
+      "invalid": "Ungültiger Bestätigungslink.",
+      "sent": "Bestätigungs-E-Mail gesendet an {email}.",
+      "emailTaken": "Diese E-Mail-Adresse wird bereits verwendet.",
+      "error": "Fehler beim Ändern der E-Mail-Adresse."
+    }
+  },
+  "Verification": {
+    "success": {
+      "title": "E-Mail bestätigt!",
+      "message": "Ihr Konto wurde erfolgreich aktiviert. Sie können sich jetzt anmelden.",
+      "loginLink": "Jetzt anmelden"
+    },
+    "expired": {
+      "title": "Link abgelaufen",
+      "message": "Dieser Bestätigungslink ist abgelaufen. Bitte registrieren Sie sich erneut.",
+      "registerAgain": "Erneut registrieren"
+    },
+    "invalid": {
+      "title": "Ungültiger Link",
+      "message": "Dieser Bestätigungslink ist ungültig."
+    }
+  }
+}
