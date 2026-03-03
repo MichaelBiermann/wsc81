@@ -1,15 +1,35 @@
-import { prisma } from "@/lib/prisma";
-import Link from "next/link";
+"use client";
 
-export default async function AdminNewsletterPage() {
-  const newsletters = await prisma.newsletter.findMany({ orderBy: { createdAt: "desc" } });
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useAdminI18n } from "@/components/admin/AdminI18nProvider";
+
+interface Newsletter {
+  id: string;
+  subjectDe: string;
+  status: "DRAFT" | "SENT";
+  sentAt: string | null;
+  recipientCount: number | null;
+}
+
+export default function AdminNewsletterPage() {
+  const { t } = useAdminI18n();
+  const [newsletters, setNewsletters] = useState<Newsletter[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/admin/newsletter").then((r) => r.json()).then((data) => {
+      setNewsletters(data);
+      setLoading(false);
+    });
+  }, []);
 
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Newsletter</h1>
+        <h1 className="text-2xl font-bold text-gray-900">{t.newsletter.title}</h1>
         <Link href="/admin/newsletter/new" className="rounded bg-[#4577ac] px-4 py-2 text-sm text-white hover:bg-[#2d5a8a] transition-colors">
-          + Neuer Newsletter
+          {t.newsletter.newNewsletter}
         </Link>
       </div>
 
@@ -17,11 +37,11 @@ export default async function AdminNewsletterPage() {
         <table className="w-full text-sm">
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
-              <th className="px-4 py-3 text-left font-medium text-gray-600">Betreff (DE)</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-600">Status</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-600">Gesendet</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-600">Empfänger</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-600">Aktionen</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-600">{t.newsletter.colSubject}</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-600">{t.newsletter.colStatus}</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-600">{t.newsletter.colSent}</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-600">{t.newsletter.colRecipients}</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-600">{t.newsletter.colActions}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -30,22 +50,22 @@ export default async function AdminNewsletterPage() {
                 <td className="px-4 py-3 font-medium text-gray-900">{n.subjectDe}</td>
                 <td className="px-4 py-3">
                   <span className={`rounded px-2 py-0.5 text-xs font-medium ${n.status === "SENT" ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}>
-                    {n.status === "SENT" ? "Gesendet" : "Entwurf"}
+                    {n.status === "SENT" ? t.newsletter.statusSent : t.newsletter.statusDraft}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-gray-600">{n.sentAt?.toLocaleDateString("de-DE") ?? "—"}</td>
+                <td className="px-4 py-3 text-gray-600">{n.sentAt ? new Date(n.sentAt).toLocaleDateString("de-DE") : "—"}</td>
                 <td className="px-4 py-3 text-gray-600">{n.recipientCount ?? "—"}</td>
                 <td className="px-4 py-3">
                   {n.status === "DRAFT" && (
-                    <Link href={`/admin/newsletter/${n.id}`} className="text-[#4577ac] hover:underline">Bearbeiten</Link>
+                    <Link href={`/admin/newsletter/${n.id}`} className="text-[#4577ac] hover:underline">{t.newsletter.edit}</Link>
                   )}
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
-        {newsletters.length === 0 && (
-          <p className="text-center text-gray-400 py-8">Noch keine Newsletter vorhanden.</p>
+        {!loading && newsletters.length === 0 && (
+          <p className="text-center text-gray-400 py-8">{t.newsletter.noNewsletters}</p>
         )}
       </div>
     </div>

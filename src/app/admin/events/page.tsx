@@ -1,18 +1,35 @@
-import { prisma } from "@/lib/prisma";
-import Link from "next/link";
+"use client";
 
-export default async function AdminEventsPage() {
-  const events = await prisma.event.findMany({
-    orderBy: { startDate: "desc" },
-    include: { _count: { select: { bookings: true } } },
-  });
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useAdminI18n } from "@/components/admin/AdminI18nProvider";
+
+interface Event {
+  id: string;
+  titleDe: string;
+  startDate: string;
+  location: string;
+  _count: { bookings: number };
+}
+
+export default function AdminEventsPage() {
+  const { t } = useAdminI18n();
+  const [events, setEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/admin/events").then((r) => r.json()).then((data) => {
+      setEvents(data);
+      setLoading(false);
+    });
+  }, []);
 
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Veranstaltungen</h1>
+        <h1 className="text-2xl font-bold text-gray-900">{t.events.title}</h1>
         <Link href="/admin/events/new" className="rounded bg-[#4577ac] px-4 py-2 text-sm text-white hover:bg-[#2d5a8a] transition-colors">
-          + Neue Veranstaltung
+          {t.events.newEvent}
         </Link>
       </div>
 
@@ -20,11 +37,11 @@ export default async function AdminEventsPage() {
         <table className="w-full text-sm">
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
-              <th className="px-4 py-3 text-left font-medium text-gray-600">Titel</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-600">Datum</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-600">Ort</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-600">Buchungen</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-600">Aktionen</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-600">{t.events.colTitle}</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-600">{t.events.colDate}</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-600">{t.events.colLocation}</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-600">{t.events.colBookings}</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-600">{t.events.colActions}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -32,23 +49,23 @@ export default async function AdminEventsPage() {
               <tr key={event.id} className="hover:bg-gray-50">
                 <td className="px-4 py-3 font-medium text-gray-900">{event.titleDe}</td>
                 <td className="px-4 py-3 text-gray-600">
-                  {event.startDate.toLocaleDateString("de-DE")}
+                  {new Date(event.startDate).toLocaleDateString("de-DE")}
                 </td>
                 <td className="px-4 py-3 text-gray-600">{event.location}</td>
                 <td className="px-4 py-3">
                   <Link href={`/admin/events/${event.id}`} className="text-[#4577ac] hover:underline">
-                    {event._count.bookings} Buchungen
+                    {event._count.bookings} {t.events.colBookings}
                   </Link>
                 </td>
                 <td className="px-4 py-3">
-                  <Link href={`/admin/events/${event.id}`} className="text-[#4577ac] hover:underline mr-3">Bearbeiten</Link>
+                  <Link href={`/admin/events/${event.id}`} className="text-[#4577ac] hover:underline mr-3">{t.events.edit}</Link>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
-        {events.length === 0 && (
-          <p className="text-center text-gray-400 py-8">Keine Veranstaltungen vorhanden.</p>
+        {!loading && events.length === 0 && (
+          <p className="text-center text-gray-400 py-8">{t.events.noEvents}</p>
         )}
       </div>
     </div>

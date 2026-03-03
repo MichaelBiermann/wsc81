@@ -7,6 +7,7 @@ import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
 import RichTextEditor from "@/components/admin/RichTextEditor";
+import { useAdminI18n } from "@/components/admin/AdminI18nProvider";
 
 interface EventFormData {
   titleDe: string; titleEn: string;
@@ -29,6 +30,7 @@ export default function EventForm({
   initial?: EventFormData;
   eventId?: string;
 }) {
+  const { t } = useAdminI18n();
   const router = useRouter();
   const [form, setForm] = useState(initial);
   const [status, setStatus] = useState<"idle" | "saving" | "error">("idle");
@@ -61,12 +63,12 @@ export default function EventForm({
       router.refresh();
     } else {
       setStatus("error");
-      setError("Fehler beim Speichern.");
+      setError(t.eventForm.saveError);
     }
   };
 
   const handleDelete = async () => {
-    if (!eventId || !confirm("Veranstaltung wirklich löschen? Alle Buchungen werden ebenfalls gelöscht.")) return;
+    if (!eventId || !confirm(t.eventForm.deleteConfirm)) return;
     await fetch(`/api/admin/events/${eventId}`, { method: "DELETE" });
     router.push("/admin/events");
     router.refresh();
@@ -75,15 +77,15 @@ export default function EventForm({
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5 max-w-2xl">
       <div className="grid gap-4 sm:grid-cols-2">
-        <FormField label="Titel (DE)" required>
+        <FormField label={t.eventForm.titleDe} required>
           <Input value={form.titleDe} onChange={set("titleDe")} required />
         </FormField>
-        <FormField label="Title (EN)" required>
+        <FormField label={t.eventForm.titleEn} required>
           <Input value={form.titleEn} onChange={set("titleEn")} required />
         </FormField>
       </div>
 
-      <FormField label="Beschreibung (DE)" required>
+      <FormField label={t.eventForm.descriptionDe} required>
         <RichTextEditor
           content={form.descriptionDe}
           onChange={(v) => setForm((f) => ({ ...f, descriptionDe: v }))}
@@ -91,7 +93,7 @@ export default function EventForm({
         />
       </FormField>
 
-      <FormField label="Description (EN)" required>
+      <FormField label={t.eventForm.descriptionEn} required>
         <RichTextEditor
           content={form.descriptionEn}
           onChange={(v) => setForm((f) => ({ ...f, descriptionEn: v }))}
@@ -100,25 +102,25 @@ export default function EventForm({
       </FormField>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <FormField label="Ort" required>
+        <FormField label={t.eventForm.location} required>
           <Input value={form.location} onChange={set("location")} required />
         </FormField>
-        <FormField label="Anmeldeschluss">
+        <FormField label={t.eventForm.registrationDeadline}>
           <Input type="datetime-local" value={form.registrationDeadline} onChange={set("registrationDeadline")} />
         </FormField>
-        <FormField label="Beginn" required>
+        <FormField label={t.eventForm.startDate} required>
           <Input type="datetime-local" value={form.startDate} onChange={set("startDate")} required />
         </FormField>
-        <FormField label="Ende" required>
+        <FormField label={t.eventForm.endDate} required>
           <Input type="datetime-local" value={form.endDate} onChange={set("endDate")} required />
         </FormField>
-        <FormField label="Anzahlung (€)" required>
+        <FormField label={t.eventForm.depositAmount} required>
           <Input type="number" min="0" step="0.01" value={form.depositAmount} onChange={set("depositAmount")} required />
         </FormField>
-        <FormField label="Gesamtbetrag (€)" required>
+        <FormField label={t.eventForm.totalAmount} required>
           <Input type="number" min="0" step="0.01" value={form.totalAmount} onChange={set("totalAmount")} required />
         </FormField>
-        <FormField label="Max. Teilnehmer">
+        <FormField label={t.eventForm.maxParticipants}>
           <Input type="number" min="1" value={form.maxParticipants} onChange={set("maxParticipants")} />
         </FormField>
       </div>
@@ -126,10 +128,10 @@ export default function EventForm({
       {status === "error" && <Alert variant="error">{error}</Alert>}
 
       <div className="flex gap-3">
-        <Button type="submit" loading={status === "saving"}>Speichern</Button>
-        <Button type="button" variant="secondary" onClick={() => router.back()}>Abbrechen</Button>
+        <Button type="submit" loading={status === "saving"}>{t.eventForm.save}</Button>
+        <Button type="button" variant="secondary" onClick={() => router.back()}>{t.eventForm.cancel}</Button>
         {eventId && (
-          <Button type="button" variant="danger" onClick={handleDelete} className="ml-auto">Löschen</Button>
+          <Button type="button" variant="danger" onClick={handleDelete} className="ml-auto">{t.eventForm.delete}</Button>
         )}
       </div>
     </form>

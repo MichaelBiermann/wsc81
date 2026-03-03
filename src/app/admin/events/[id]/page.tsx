@@ -1,20 +1,58 @@
-import { prisma } from "@/lib/prisma";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import { notFound } from "next/navigation";
 import EventForm from "../EventForm";
+import { useAdminI18n } from "@/components/admin/AdminI18nProvider";
 
-export default async function EditEventPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  const event = await prisma.event.findUnique({
-    where: { id },
-    include: { bookings: { orderBy: { createdAt: "desc" } } },
-  });
-  if (!event) notFound();
+interface Booking {
+  id: string;
+  person1Name: string;
+  email: string;
+  isMember: boolean;
+  createdAt: string;
+}
 
-  const toDatetimeLocal = (d: Date) => d.toISOString().slice(0, 16);
+interface EventDetail {
+  id: string;
+  titleDe: string;
+  titleEn: string;
+  descriptionDe: string;
+  descriptionEn: string;
+  location: string;
+  startDate: string;
+  endDate: string;
+  depositAmount: string;
+  totalAmount: string;
+  maxParticipants: number | null;
+  registrationDeadline: string | null;
+  bookings: Booking[];
+}
+
+const toDatetimeLocal = (d: string) => new Date(d).toISOString().slice(0, 16);
+
+export default function EditEventPage() {
+  const { t } = useAdminI18n();
+  const { id } = useParams<{ id: string }>();
+  const [event, setEvent] = useState<EventDetail | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch(`/api/admin/events/${id}`)
+      .then((r) => {
+        if (!r.ok) { notFound(); return null; }
+        return r.json();
+      })
+      .then((data) => { if (data) { setEvent(data); } setLoading(false); });
+  }, [id]);
+
+  if (loading) return <div className="text-gray-400">…</div>;
+  if (!event) return null;
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-900 mb-2">Veranstaltung bearbeiten</h1>
+      <h1 className="text-2xl font-bold text-gray-900 mb-2">{t.events.editTitle}</h1>
       <p className="text-gray-500 text-sm mb-6">{event.titleDe}</p>
 
       <EventForm
@@ -34,18 +72,17 @@ export default async function EditEventPage({ params }: { params: Promise<{ id: 
         }}
       />
 
-      {/* Bookings list */}
       {event.bookings.length > 0 && (
         <div className="mt-10">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">Buchungen ({event.bookings.length})</h2>
+          <h2 className="text-lg font-bold text-gray-900 mb-4">{t.events.bookings} ({event.bookings.length})</h2>
           <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
             <table className="w-full text-sm">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  <th className="px-4 py-3 text-left font-medium text-gray-600">Name</th>
-                  <th className="px-4 py-3 text-left font-medium text-gray-600">E-Mail</th>
-                  <th className="px-4 py-3 text-left font-medium text-gray-600">Mitglied</th>
-                  <th className="px-4 py-3 text-left font-medium text-gray-600">Datum</th>
+                  <th className="px-4 py-3 text-left font-medium text-gray-600">{t.events.colName}</th>
+                  <th className="px-4 py-3 text-left font-medium text-gray-600">{t.events.colEmail}</th>
+                  <th className="px-4 py-3 text-left font-medium text-gray-600">{t.events.colMember}</th>
+                  <th className="px-4 py-3 text-left font-medium text-gray-600">{t.events.colDate2}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -54,7 +91,7 @@ export default async function EditEventPage({ params }: { params: Promise<{ id: 
                     <td className="px-4 py-3">{b.person1Name}</td>
                     <td className="px-4 py-3 text-gray-600">{b.email}</td>
                     <td className="px-4 py-3">{b.isMember ? "✅" : "—"}</td>
-                    <td className="px-4 py-3 text-gray-600">{b.createdAt.toLocaleDateString("de-DE")}</td>
+                    <td className="px-4 py-3 text-gray-600">{new Date(b.createdAt).toLocaleDateString("de-DE")}</td>
                   </tr>
                 ))}
               </tbody>

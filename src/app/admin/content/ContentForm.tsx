@@ -8,6 +8,7 @@ import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
 import RichTextEditor from "@/components/admin/RichTextEditor";
+import { useAdminI18n } from "@/components/admin/AdminI18nProvider";
 
 type ContentType = "news" | "pages";
 
@@ -25,6 +26,7 @@ interface ContentFormProps {
 }
 
 export default function ContentForm({ type, contentId, initial }: ContentFormProps) {
+  const { t } = useAdminI18n();
   const router = useRouter();
   const [form, setForm] = useState({
     slug: initial?.slug ?? "",
@@ -40,7 +42,6 @@ export default function ContentForm({ type, contentId, initial }: ContentFormPro
 
   const apiBase = `/api/admin/content/${type}`;
   const backPath = `/admin/content/${type}`;
-  const typeLabel = type === "news" ? "Neuigkeit" : "Seite";
 
   const autoSlug = (title: string) =>
     title
@@ -86,7 +87,7 @@ export default function ContentForm({ type, contentId, initial }: ContentFormPro
     } else {
       const data = await res.json().catch(() => ({}));
       setStatus("error");
-      setError(data.errors ? JSON.stringify(data.errors.fieldErrors) : "Fehler beim Speichern.");
+      setError(data.errors ? JSON.stringify(data.errors.fieldErrors) : t.contentForm.saveError);
     }
   };
 
@@ -98,30 +99,30 @@ export default function ContentForm({ type, contentId, initial }: ContentFormPro
   return (
     <div className="flex flex-col gap-5 max-w-3xl">
       <div className="grid gap-4 sm:grid-cols-2">
-        <FormField label="Titel (DE)" required>
+        <FormField label={t.contentForm.titleDe} required>
           <Input
             value={form.titleDe}
             onChange={(e) => handleTitleDe(e.target.value)}
-            placeholder={`${typeLabel}titel auf Deutsch`}
+            placeholder={`${t.contentForm.titleDe}...`}
             required
           />
         </FormField>
-        <FormField label="Title (EN)" required>
+        <FormField label={t.contentForm.titleEn} required>
           <Input
             value={form.titleEn}
             onChange={(e) => setForm((f) => ({ ...f, titleEn: e.target.value }))}
-            placeholder={`${typeLabel} title in English`}
+            placeholder={`${t.contentForm.titleEn}...`}
             required
           />
         </FormField>
       </div>
 
       <FormField
-        label="URL-Slug"
+        label={t.contentForm.slug}
         required
         error={
           form.slug && !/^[a-z0-9-]+$/.test(form.slug)
-            ? "Nur Kleinbuchstaben, Ziffern und Bindestriche"
+            ? t.contentForm.slugError
             : undefined
         }
       >
@@ -136,17 +137,17 @@ export default function ContentForm({ type, contentId, initial }: ContentFormPro
         </div>
       </FormField>
 
-      <FormField label="Status">
+      <FormField label={t.contentForm.status}>
         <Select
           value={form.status}
           onChange={(e) => setForm((f) => ({ ...f, status: e.target.value as "DRAFT" | "PUBLISHED" }))}
         >
-          <option value="DRAFT">Entwurf</option>
-          <option value="PUBLISHED">Veröffentlicht</option>
+          <option value="DRAFT">{t.contentForm.statusDraft}</option>
+          <option value="PUBLISHED">{t.contentForm.statusPublished}</option>
         </Select>
       </FormField>
 
-      <FormField label="Inhalt (DE)" required>
+      <FormField label={t.contentForm.bodyDe} required>
         <RichTextEditor
           content={form.bodyDe}
           onChange={(v) => setForm((f) => ({ ...f, bodyDe: v }))}
@@ -154,7 +155,7 @@ export default function ContentForm({ type, contentId, initial }: ContentFormPro
         />
       </FormField>
 
-      <FormField label="Content (EN)" required>
+      <FormField label={t.contentForm.bodyEn} required>
         <RichTextEditor
           content={form.bodyEn}
           onChange={(v) => setForm((f) => ({ ...f, bodyEn: v }))}
@@ -163,24 +164,24 @@ export default function ContentForm({ type, contentId, initial }: ContentFormPro
       </FormField>
 
       {status === "error" && <Alert variant="error">{error}</Alert>}
-      {saved && <Alert variant="success">Gespeichert.</Alert>}
+      {saved && <Alert variant="success">{t.contentForm.saved}</Alert>}
 
       <div className="flex gap-3">
         <Button type="button" onClick={save} loading={status === "saving"} variant="secondary">
-          Als Entwurf speichern
+          {t.contentForm.saveDraft}
         </Button>
         {form.status !== "PUBLISHED" && (
           <Button type="button" onClick={publish} loading={status === "saving"}>
-            Veröffentlichen
+            {t.contentForm.publish}
           </Button>
         )}
         {form.status === "PUBLISHED" && contentId && (
           <Button type="button" onClick={save} loading={status === "saving"}>
-            Speichern
+            {t.contentForm.save}
           </Button>
         )}
         <Button type="button" variant="secondary" onClick={() => router.push(backPath)}>
-          Abbrechen
+          {t.contentForm.cancel}
         </Button>
       </div>
     </div>

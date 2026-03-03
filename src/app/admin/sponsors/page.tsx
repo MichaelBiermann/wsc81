@@ -1,16 +1,17 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Button from "@/components/ui/Button";
 import FormField from "@/components/ui/FormField";
 import Input from "@/components/ui/Input";
 import Alert from "@/components/ui/Alert";
+import { useAdminI18n } from "@/components/admin/AdminI18nProvider";
 
 interface Sponsor { id: string; name: string; websiteUrl: string; imageUrl: string; displayOrder: number; }
 
 export default function AdminSponsorsPage() {
+  const { t } = useAdminI18n();
   const [sponsors, setSponsors] = useState<Sponsor[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -37,11 +38,11 @@ export default function AdminSponsorsPage() {
       : await fetch("/api/admin/sponsors", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
     setSaving(false);
     if (res.ok) { setShowForm(false); load(); }
-    else setError("Fehler beim Speichern.");
+    else setError(t.sponsors.saveError);
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Sponsor wirklich löschen?")) return;
+    if (!confirm(t.sponsors.deleteConfirm)) return;
     await fetch(`/api/admin/sponsors/${id}`, { method: "DELETE" });
     load();
   };
@@ -49,29 +50,29 @@ export default function AdminSponsorsPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Sponsoren</h1>
-        <Button onClick={openNew}>+ Sponsor hinzufügen</Button>
+        <h1 className="text-2xl font-bold text-gray-900">{t.sponsors.title}</h1>
+        <Button onClick={openNew}>{t.sponsors.addSponsor}</Button>
       </div>
 
       {showForm && (
         <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6 mb-6 max-w-lg">
-          <h2 className="font-semibold text-gray-800 mb-4">{editing ? "Sponsor bearbeiten" : "Neuer Sponsor"}</h2>
+          <h2 className="font-semibold text-gray-800 mb-4">{editing ? t.sponsors.editSponsor : t.sponsors.newSponsor}</h2>
           <div className="flex flex-col gap-3">
-            <FormField label="Name" required><Input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} /></FormField>
-            <FormField label="Website-URL" required><Input type="url" value={form.websiteUrl} onChange={(e) => setForm((f) => ({ ...f, websiteUrl: e.target.value }))} /></FormField>
-            <FormField label="Bild-URL" required><Input type="url" value={form.imageUrl} onChange={(e) => setForm((f) => ({ ...f, imageUrl: e.target.value }))} /></FormField>
-            <FormField label="Reihenfolge"><Input type="number" min="0" value={form.displayOrder} onChange={(e) => setForm((f) => ({ ...f, displayOrder: e.target.value }))} /></FormField>
+            <FormField label={t.sponsors.fieldName} required><Input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} /></FormField>
+            <FormField label={t.sponsors.fieldWebsite} required><Input type="url" value={form.websiteUrl} onChange={(e) => setForm((f) => ({ ...f, websiteUrl: e.target.value }))} /></FormField>
+            <FormField label={t.sponsors.fieldImage} required><Input type="url" value={form.imageUrl} onChange={(e) => setForm((f) => ({ ...f, imageUrl: e.target.value }))} /></FormField>
+            <FormField label={t.sponsors.fieldOrder}><Input type="number" min="0" value={form.displayOrder} onChange={(e) => setForm((f) => ({ ...f, displayOrder: e.target.value }))} /></FormField>
             {error && <Alert variant="error">{error}</Alert>}
             <div className="flex gap-2 mt-2">
-              <Button onClick={handleSave} loading={saving}>Speichern</Button>
-              <Button variant="secondary" onClick={() => setShowForm(false)}>Abbrechen</Button>
+              <Button onClick={handleSave} loading={saving}>{t.sponsors.save}</Button>
+              <Button variant="secondary" onClick={() => setShowForm(false)}>{t.sponsors.cancel}</Button>
             </div>
           </div>
         </div>
       )}
 
       {loading ? (
-        <p className="text-gray-400">Lädt...</p>
+        <p className="text-gray-400">{t.sponsors.loading}</p>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {sponsors.map((s) => (
@@ -82,8 +83,8 @@ export default function AdminSponsorsPage() {
               <div className="p-3 border-t border-gray-100">
                 <p className="text-sm font-medium text-gray-800 truncate">{s.name}</p>
                 <div className="flex gap-2 mt-2">
-                  <button onClick={() => openEdit(s)} className="text-xs text-[#4577ac] hover:underline">Bearbeiten</button>
-                  <button onClick={() => handleDelete(s.id)} className="text-xs text-red-500 hover:underline ml-auto">Löschen</button>
+                  <button onClick={() => openEdit(s)} className="text-xs text-[#4577ac] hover:underline">{t.sponsors.edit}</button>
+                  <button onClick={() => handleDelete(s.id)} className="text-xs text-red-500 hover:underline ml-auto">{t.sponsors.delete}</button>
                 </div>
               </div>
             </div>

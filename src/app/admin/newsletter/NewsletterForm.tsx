@@ -7,6 +7,7 @@ import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
 import RichTextEditor from "@/components/admin/RichTextEditor";
+import { useAdminI18n } from "@/components/admin/AdminI18nProvider";
 
 export default function NewsletterForm({
   initial,
@@ -15,6 +16,7 @@ export default function NewsletterForm({
   initial?: { subjectDe: string; subjectEn: string; bodyDe: string; bodyEn: string };
   newsletterId?: string;
 }) {
+  const { t } = useAdminI18n();
   const router = useRouter();
   const [form, setForm] = useState({
     subjectDe: initial?.subjectDe ?? "",
@@ -35,52 +37,52 @@ export default function NewsletterForm({
     if (res.ok) {
       if (!newsletterId) { const data = await res.json(); router.push(`/admin/newsletter/${data.id}`); }
       else router.refresh();
-    } else { setStatus("error"); setError("Fehler beim Speichern."); }
+    } else { setStatus("error"); setError(t.newsletterForm.saveError); }
   };
 
   const send = async () => {
     if (!newsletterId) return;
-    if (!confirm(`Newsletter an alle Mitglieder senden?`)) return;
+    if (!confirm(t.newsletterForm.sendConfirm)) return;
     setStatus("sending");
     const res = await fetch(`/api/admin/newsletter/${newsletterId}/send`, { method: "POST" });
     if (res.ok) {
       const data = await res.json();
       setSent(true);
       setStatus("idle");
-      alert(`Newsletter an ${data.recipientCount} Mitglieder gesendet.`);
+      alert(t.newsletterForm.sentCount.replace("{count}", String(data.recipientCount)));
       router.push("/admin/newsletter");
-    } else { setStatus("error"); setError("Fehler beim Senden."); }
+    } else { setStatus("error"); setError(t.newsletterForm.sendError); }
   };
 
-  if (sent) return <Alert variant="success">Newsletter wurde erfolgreich gesendet!</Alert>;
+  if (sent) return <Alert variant="success">{t.newsletterForm.sentSuccess}</Alert>;
 
   return (
     <div className="flex flex-col gap-5 max-w-2xl">
       <div className="grid gap-4 sm:grid-cols-2">
-        <FormField label="Betreff (DE)" required>
+        <FormField label={t.newsletterForm.subjectDe} required>
           <Input value={form.subjectDe} onChange={(e) => setForm((f) => ({ ...f, subjectDe: e.target.value }))} required />
         </FormField>
-        <FormField label="Subject (EN)" required>
+        <FormField label={t.newsletterForm.subjectEn} required>
           <Input value={form.subjectEn} onChange={(e) => setForm((f) => ({ ...f, subjectEn: e.target.value }))} required />
         </FormField>
       </div>
 
-      <FormField label="Inhalt (DE)" required>
+      <FormField label={t.newsletterForm.bodyDe} required>
         <RichTextEditor content={form.bodyDe} onChange={(v) => setForm((f) => ({ ...f, bodyDe: v }))} locale="de" />
       </FormField>
 
-      <FormField label="Content (EN)" required>
+      <FormField label={t.newsletterForm.bodyEn} required>
         <RichTextEditor content={form.bodyEn} onChange={(v) => setForm((f) => ({ ...f, bodyEn: v }))} locale="en" />
       </FormField>
 
       {status === "error" && <Alert variant="error">{error}</Alert>}
 
       <div className="flex gap-3">
-        <Button type="button" onClick={save} loading={status === "saving"} variant="secondary">Als Entwurf speichern</Button>
+        <Button type="button" onClick={save} loading={status === "saving"} variant="secondary">{t.newsletterForm.saveDraft}</Button>
         {newsletterId && (
-          <Button type="button" onClick={send} loading={status === "sending"}>Jetzt senden</Button>
+          <Button type="button" onClick={send} loading={status === "sending"}>{t.newsletterForm.sendNow}</Button>
         )}
-        <Button type="button" variant="secondary" onClick={() => router.back()}>Abbrechen</Button>
+        <Button type="button" variant="secondary" onClick={() => router.back()}>{t.newsletterForm.cancel}</Button>
       </div>
     </div>
   );
