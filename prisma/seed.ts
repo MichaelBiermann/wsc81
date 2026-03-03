@@ -1,7 +1,9 @@
 import { PrismaClient } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
 import bcrypt from "bcryptjs";
 
-const prisma = new PrismaClient();
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
+const prisma = new PrismaClient({ adapter });
 
 const SPONSORS = [
   { name: "Bauunternehmung Michael Schneider", websiteUrl: "http://www.schneider-walldorf.de/", imageUrl: "https://daten.verwaltungsportal.de/dateien//mypage/1/7/2/5/5/0/4/Bauunternehmnung_Schneider.png", displayOrder: 1 },
