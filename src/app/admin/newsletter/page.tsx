@@ -2,11 +2,15 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useAdminI18n } from "@/components/admin/AdminI18nProvider";
 
 interface Newsletter {
   id: string;
   subjectDe: string;
+  subjectEn: string;
+  bodyDe: string;
+  bodyEn: string;
   status: "DRAFT" | "SENT";
   sentAt: string | null;
   recipientCount: number | null;
@@ -14,6 +18,7 @@ interface Newsletter {
 
 export default function AdminNewsletterPage() {
   const { t } = useAdminI18n();
+  const router = useRouter();
   const [newsletters, setNewsletters] = useState<Newsletter[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -23,6 +28,29 @@ export default function AdminNewsletterPage() {
       setLoading(false);
     });
   }, []);
+
+  async function deleteNewsletter(id: string) {
+    if (!confirm(t.newsletter.deleteConfirm)) return;
+    await fetch(`/api/admin/newsletter/${id}`, { method: "DELETE" });
+    setNewsletters((prev) => prev.filter((n) => n.id !== id));
+  }
+
+  async function useAsTemplate(n: Newsletter) {
+    const res = await fetch("/api/admin/newsletter", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        subjectDe: n.subjectDe,
+        subjectEn: n.subjectEn,
+        bodyDe: n.bodyDe,
+        bodyEn: n.bodyEn,
+      }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      router.push(`/admin/newsletter/${data.id}`);
+    }
+  }
 
   return (
     <div>
@@ -56,9 +84,25 @@ export default function AdminNewsletterPage() {
                 <td className="px-4 py-3 text-gray-600">{n.sentAt ? new Date(n.sentAt).toLocaleDateString("de-DE") : "—"}</td>
                 <td className="px-4 py-3 text-gray-600">{n.recipientCount ?? "—"}</td>
                 <td className="px-4 py-3">
-                  {n.status === "DRAFT" && (
-                    <Link href={`/admin/newsletter/${n.id}`} className="text-[#4577ac] hover:underline">{t.newsletter.edit}</Link>
-                  )}
+                  <div className="flex items-center gap-3">
+                    {n.status === "DRAFT" && (
+                      <Link href={`/admin/newsletter/${n.id}`} className="text-[#4577ac] hover:underline">
+                        {t.newsletter.edit}
+                      </Link>
+                    )}
+                    <button
+                      onClick={() => useAsTemplate(n)}
+                      className="text-gray-500 hover:text-[#4577ac] hover:underline"
+                    >
+                      {t.newsletter.useAsTemplate}
+                    </button>
+                    <button
+                      onClick={() => deleteNewsletter(n.id)}
+                      className="text-red-500 hover:text-red-700 hover:underline"
+                    >
+                      {t.newsletter.delete}
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -71,3 +115,4 @@ export default function AdminNewsletterPage() {
     </div>
   );
 }
+
