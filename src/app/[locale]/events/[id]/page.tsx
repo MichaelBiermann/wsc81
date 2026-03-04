@@ -69,7 +69,7 @@ export default async function EventDetailPage({
 
       <div className="flex flex-col lg:flex-row gap-8 items-start">
         {/* Left: event details */}
-        <div className="lg:w-2/5 lg:sticky lg:top-6">
+        <div className={event.bookable ? "lg:w-2/5 lg:sticky lg:top-6" : "lg:w-3/5 lg:sticky lg:top-6"}>
           {event.imageUrl && (
             <div className="relative h-56 w-full rounded-t-lg overflow-hidden">
               <Image src={event.imageUrl} alt={title} fill className="object-cover" unoptimized />
@@ -163,19 +163,7 @@ export default async function EventDetailPage({
                 </div>
               )}
             </>
-          ) : (
-            <div className="rounded-lg border border-gray-200 bg-[#eef3f9] p-6">
-              <p className="text-sm font-medium text-[#4577ac] flex items-center gap-2 mb-1">
-                <span className="material-symbols-rounded" style={{ fontSize: "18px" }}>info</span>
-                {isDE ? "Anmeldung" : "Registration"}
-              </p>
-              <p className="text-sm text-gray-600">
-                {isDE
-                  ? "Siehe Beschreibung."
-                  : "See description."}
-              </p>
-            </div>
-          )}
+          ) : null}
         </div>
       </div>
     </div>

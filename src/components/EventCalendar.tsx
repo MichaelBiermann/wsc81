@@ -78,7 +78,7 @@ export default function EventCalendar({ events, locale, isLoggedIn = false }: Pr
                   </div>
                 ) : (
                   <span className="text-xs text-gray-400 italic">
-                    {isDE ? "Keine Anmeldung erforderlich" : "No registration required"}
+                    {isDE ? "Anmeldung: siehe Beschreibung" : "Registration: see description"}
                   </span>
                 )}
               </div>
