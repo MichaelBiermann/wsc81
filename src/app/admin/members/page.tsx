@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAdminI18n } from "@/components/admin/AdminI18nProvider";
+import FeesPaidToggle from "./FeesPaidToggle";
 
 const CATEGORY_LABELS: Record<string, Record<string, string>> = {
   de: { FAMILIE: "Familie", ERWACHSENE: "Erwachsene", JUGENDLICHE: "Jugendliche", SENIOREN: "Senioren", GDB: "GdB ab 50%" },
@@ -64,9 +65,7 @@ export default function AdminMembersPage() {
                 <td className="px-4 py-3 text-gray-600">{m.email}</td>
                 <td className="px-4 py-3">{catLabels[m.category] ?? m.category}</td>
                 <td className="px-4 py-3">
-                  <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${m.feesPaid ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
-                    {m.feesPaid ? t.members.colPaid : t.members.colPending}
-                  </span>
+                  <FeesPaidToggle id={m.id} feesPaid={m.feesPaid} />
                 </td>
                 <td className="px-4 py-3 text-gray-500">
                   {new Date(m.activatedAt).toLocaleDateString("de-DE")}

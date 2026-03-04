@@ -88,6 +88,8 @@ export const ADMIN_TRANSLATIONS = {
       colActivated: "Aktiviert",
       colPaid: "Bezahlt",
       colPending: "Ausstehend",
+      markPaid: "Als bezahlt markieren",
+      markUnpaid: "Als ausstehend markieren",
     },
     // Pending members
     pendingMembers: {
@@ -309,6 +311,8 @@ export const ADMIN_TRANSLATIONS = {
       colActivated: "Activated",
       colPaid: "Paid",
       colPending: "Pending",
+      markPaid: "Mark as paid",
+      markUnpaid: "Mark as unpaid",
     },
     pendingMembers: {
       title: "Pending Applications",
