@@ -6,7 +6,7 @@ import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
 import Underline from "@tiptap/extension-underline";
 import Placeholder from "@tiptap/extension-placeholder";
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 type AIAction = "rephrase" | "shorten" | "expand" | "fix_grammar" | "translate" | "optimize_event";
 
@@ -39,6 +39,9 @@ export default function RichTextEditor({
   const [aiSuggestion, setAiSuggestion] = useState<string | null>(null);
   const [aiSuggestionIsHtml, setAiSuggestionIsHtml] = useState(false);
   const [aiSelection, setAiSelection] = useState<{ from: number; to: number } | null>(null);
+  const [linkInputVisible, setLinkInputVisible] = useState(false);
+  const [linkUrl, setLinkUrl] = useState("");
+  const linkInputRef = useRef<HTMLInputElement>(null);
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -57,6 +60,33 @@ export default function RichTextEditor({
       // no-op — we read selection directly at action time
     },
   });
+
+  const openLinkInput = () => {
+    if (!editor) return;
+    const existing = editor.getAttributes("link").href ?? "";
+    setLinkUrl(existing);
+    setLinkInputVisible(true);
+    setTimeout(() => linkInputRef.current?.focus(), 0);
+  };
+
+  const applyLink = () => {
+    if (!editor) return;
+    const url = linkUrl.trim();
+    if (!url) {
+      editor.chain().focus().unsetLink().run();
+    } else {
+      const href = url.startsWith("http") ? url : `https://${url}`;
+      editor.chain().focus().setLink({ href, target: "_blank" }).run();
+    }
+    setLinkInputVisible(false);
+    setLinkUrl("");
+  };
+
+  const cancelLink = () => {
+    setLinkInputVisible(false);
+    setLinkUrl("");
+    editor?.chain().focus().run();
+  };
 
   const runAI = async (action: AIAction) => {
     if (!editor) return;
@@ -148,6 +178,15 @@ export default function RichTextEditor({
         <ToolBtn onClick={() => editor.chain().focus().toggleBulletList().run()} active={editor.isActive("bulletList")} title="Liste">• Liste</ToolBtn>
         <ToolBtn onClick={() => editor.chain().focus().toggleOrderedList().run()} active={editor.isActive("orderedList")} title="Nummeriert">1. Liste</ToolBtn>
         <div className="w-px h-5 bg-gray-300 mx-1" />
+        <ToolBtn onClick={openLinkInput} active={editor.isActive("link")} title="Link einfügen">
+          <span className="material-symbols-rounded" style={{ fontSize: "14px" }}>link</span>
+        </ToolBtn>
+        {editor.isActive("link") && (
+          <ToolBtn onClick={() => editor.chain().focus().unsetLink().run()} title="Link entfernen">
+            <span className="material-symbols-rounded" style={{ fontSize: "14px" }}>link_off</span>
+          </ToolBtn>
+        )}
+        <div className="w-px h-5 bg-gray-300 mx-1" />
 
         {/* Standard AI actions */}
         <div className="flex flex-wrap items-center gap-1 ml-1">
@@ -180,6 +219,24 @@ export default function RichTextEditor({
           {aiLoading && <span className="text-xs text-gray-400 ml-1">…</span>}
         </div>
       </div>
+
+      {/* Link URL input */}
+      {linkInputVisible && (
+        <div className="flex items-center gap-2 border-b border-gray-200 bg-gray-50 px-3 py-2">
+          <span className="material-symbols-rounded text-gray-500" style={{ fontSize: "16px" }}>link</span>
+          <input
+            ref={linkInputRef}
+            type="url"
+            value={linkUrl}
+            onChange={(e) => setLinkUrl(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); applyLink(); } if (e.key === "Escape") cancelLink(); }}
+            placeholder="https://..."
+            className="flex-1 rounded border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:border-[#4577ac]"
+          />
+          <button type="button" onClick={applyLink} className="rounded bg-[#4577ac] px-3 py-1 text-xs text-white hover:bg-[#2d5a8a]">OK</button>
+          <button type="button" onClick={cancelLink} className="rounded border border-gray-300 px-3 py-1 text-xs text-gray-600 hover:bg-gray-100">✕</button>
+        </div>
+      )}
 
       {/* AI suggestion banner */}
       {aiSuggestion && (
