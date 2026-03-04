@@ -234,18 +234,26 @@ export default async function AccountPage({
         ) : (
           <div className="space-y-4">
             {bookings.map((booking) => {
+              const calcAge = (dob: Date) => {
+                const today = new Date();
+                let age = today.getFullYear() - dob.getFullYear();
+                const m = today.getMonth() - dob.getMonth();
+                if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
+                return age;
+              };
+
               const participants = [
-                booking.person1Name,
-                booking.person2Name,
-                booking.person3Name,
-                booking.person4Name,
-                booking.person5Name,
-                booking.person6Name,
-                booking.person7Name,
-                booking.person8Name,
-                booking.person9Name,
-                booking.person10Name,
-              ].filter(Boolean) as string[];
+                { name: booking.person1Name, dob: booking.person1Dob },
+                { name: booking.person2Name, dob: booking.person2Dob },
+                { name: booking.person3Name, dob: booking.person3Dob },
+                { name: booking.person4Name, dob: booking.person4Dob },
+                { name: booking.person5Name, dob: booking.person5Dob },
+                { name: booking.person6Name, dob: booking.person6Dob },
+                { name: booking.person7Name, dob: booking.person7Dob },
+                { name: booking.person8Name, dob: booking.person8Dob },
+                { name: booking.person9Name, dob: booking.person9Dob },
+                { name: booking.person10Name, dob: booking.person10Dob },
+              ].filter((p): p is { name: string; dob: Date } => !!p.name && !!p.dob);
 
               const eventTitle = isDE ? booking.event.titleDe : booking.event.titleEn;
               const startDate = booking.event.startDate.toLocaleDateString(isDE ? "de-DE" : "en-GB");
@@ -268,7 +276,18 @@ export default async function AccountPage({
                     <dd>{booking.event.location}</dd>
 
                     <dt className="text-gray-500">{t("bookingParticipants")}</dt>
-                    <dd>{participants.join(", ")}</dd>
+                    <dd>
+                      <ul className="space-y-0.5">
+                        {participants.map((p, i) => (
+                          <li key={i}>
+                            {p.name}
+                            <span className="text-gray-400 ml-1">
+                              ({calcAge(p.dob)} {isDE ? "J." : "y."})
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </dd>
 
                     {booking.remarks && (
                       <>
