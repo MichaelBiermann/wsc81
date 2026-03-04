@@ -31,7 +31,7 @@ export default function RichTextEditor({
 }) {
   const [aiLoading, setAiLoading] = useState(false);
   const [aiSuggestion, setAiSuggestion] = useState<string | null>(null);
-  const [selectedText, setSelectedText] = useState("");
+  const [aiSelection, setAiSelection] = useState<{ from: number; to: number } | null>(null);
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -46,19 +46,23 @@ export default function RichTextEditor({
     onUpdate({ editor }) {
       onChange(editor.getHTML());
     },
-    onSelectionUpdate({ editor }) {
-      const { from, to } = editor.state.selection;
-      if (from !== to) {
-        setSelectedText(editor.state.doc.textBetween(from, to));
-      } else {
-        setSelectedText("");
-      }
+    onSelectionUpdate() {
+      // no-op — we read selection directly at action time
     },
   });
 
   const runAI = async (action: AIAction) => {
-    const text = selectedText || editor?.getText() || "";
+    if (!editor) return;
+    // Read selection directly from editor state at click time (before focus changes)
+    const { from, to } = editor.state.selection;
+    const hasSelection = from !== to;
+    const text = hasSelection
+      ? editor.state.doc.textBetween(from, to)
+      : editor.getText();
     if (!text.trim()) return;
+
+    // Remember where to insert the result
+    setAiSelection(hasSelection ? { from, to } : null);
     setAiLoading(true);
     setAiSuggestion(null);
 
@@ -75,15 +79,25 @@ export default function RichTextEditor({
 
   const acceptSuggestion = () => {
     if (!aiSuggestion || !editor) return;
-    const { from, to } = editor.state.selection;
-    if (from !== to) {
-      editor.chain().focus().deleteSelection().insertContent(aiSuggestion).run();
+    if (aiSelection) {
+      // Replace the specific selection range
+      editor
+        .chain()
+        .focus()
+        .deleteRange(aiSelection)
+        .insertContentAt(aiSelection.from, aiSuggestion)
+        .run();
     } else {
-      editor.chain().focus().setContent(aiSuggestion).run();
+      // Replace entire document — wrap plain text in paragraph tags so TipTap parses it correctly
+      const html = aiSuggestion
+        .split(/\n{2,}/)
+        .map((para) => `<p>${para.replace(/\n/g, "<br>")}</p>`)
+        .join("");
+      editor.chain().focus().setContent(html).run();
     }
-    setAiSuggestion(null);
-    setSelectedText("");
     onChange(editor.getHTML());
+    setAiSuggestion(null);
+    setAiSelection(null);
   };
 
   if (!editor) return null;
@@ -113,7 +127,7 @@ export default function RichTextEditor({
               disabled={aiLoading}
               onClick={() => runAI(a.key)}
               className="rounded px-2 py-0.5 text-xs bg-purple-50 text-purple-700 hover:bg-purple-100 transition-colors disabled:opacity-50"
-              title={selectedText ? `Auf Auswahl anwenden: ${a.label}` : a.label}
+              title={a.label}
             >
               {a.label}
             </button>
