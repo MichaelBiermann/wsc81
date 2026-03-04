@@ -2,7 +2,9 @@
 
 Homepage for **Walldorfer Ski-Club 81 e.V.**, built with Next.js 16 (App Router), PostgreSQL/Prisma, Tailwind CSS, and next-intl (DE/EN).
 
-![WSC 81 Homepage](docs/screenshot.png)
+![WSC 81 Homepage](public/screenshot.png)
+
+![WSC 81 Admin UI](public/screenshot-admin.png)
 
 ## Features
 
@@ -10,7 +12,7 @@ Homepage for **Walldorfer Ski-Club 81 e.V.**, built with Next.js 16 (App Router)
 - **Event booking** — up to 10 participants, member surcharge waiver, confirmation email
 - **Membership application** — up to 10 persons, SEPA bank details, 7-day activation token
 - **User accounts** — register, email verification, profile editor, booking history
-- **Full-text search** — PostgreSQL tsvector across events and news
+- **Full-text search** — PostgreSQL tsvector across events, news, recaps and pages
 - **Admin area** — manage events, memberships, bookings (PDF export), newsletter, content, sponsors, settings
 
 ## Stack
