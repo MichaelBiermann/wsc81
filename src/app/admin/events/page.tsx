@@ -9,6 +9,7 @@ interface Event {
   titleDe: string;
   startDate: string;
   location: string;
+  bookable: boolean;
   _count: { bookings: number };
 }
 
@@ -40,6 +41,7 @@ export default function AdminEventsPage() {
               <th className="px-4 py-3 text-left font-medium text-gray-600">{t.events.colTitle}</th>
               <th className="px-4 py-3 text-left font-medium text-gray-600">{t.events.colDate}</th>
               <th className="px-4 py-3 text-left font-medium text-gray-600">{t.events.colLocation}</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-600">{t.events.colBookable}</th>
               <th className="px-4 py-3 text-left font-medium text-gray-600">{t.events.colBookings}</th>
               <th className="px-4 py-3 text-left font-medium text-gray-600">{t.events.colActions}</th>
             </tr>
@@ -52,6 +54,19 @@ export default function AdminEventsPage() {
                   {new Date(event.startDate).toLocaleDateString("de-DE")}
                 </td>
                 <td className="px-4 py-3 text-gray-600">{event.location}</td>
+                <td className="px-4 py-3">
+                  {event.bookable ? (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700">
+                      <span className="material-symbols-rounded" style={{ fontSize: "12px" }}>check_circle</span>
+                      {t.events.bookableYes}
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-500">
+                      <span className="material-symbols-rounded" style={{ fontSize: "12px" }}>info</span>
+                      {t.events.bookableNo}
+                    </span>
+                  )}
+                </td>
                 <td className="px-4 py-3">
                   <Link href={`/admin/events/${event.id}`} className="text-[#4577ac] hover:underline">
                     {event._count.bookings} {t.events.colBookings}
