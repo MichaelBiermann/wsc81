@@ -45,10 +45,11 @@ export default function Nav() {
     }
   };
 
-  const user = session?.user as { role?: string; firstName?: string; name?: string } | undefined;
+  const user = session?.user as { role?: string; firstName?: string; name?: string; avatarUrl?: string | null } | undefined;
   const isAdmin = user?.role === "admin";
   const isLoggedIn = !!session && !isAdmin;
   const firstName = user?.firstName ?? user?.name?.split(" ")[0];
+  const avatarUrl = user?.avatarUrl;
 
   const clubLinks = [
     { href: `/${locale}/verein`, label: t("clubAbout") },
@@ -135,8 +136,13 @@ export default function Nav() {
               <div className="relative hidden md:block">
                 <button
                   onClick={() => setUserMenuOpen((v) => !v)}
-                  className="flex items-center gap-1 rounded border border-white/50 px-3 py-1 text-sm hover:bg-white/20 transition-colors"
+                  className="flex items-center gap-2 rounded border border-white/50 px-2 py-1 text-sm hover:bg-white/20 transition-colors"
                 >
+                  {avatarUrl ? (
+                    <Image src={avatarUrl} alt={firstName ?? ""} width={24} height={24} className="rounded-full object-cover w-6 h-6" unoptimized />
+                  ) : (
+                    <span className="material-symbols-rounded" style={{ fontSize: "20px" }}>person</span>
+                  )}
                   {t("hello", { name: firstName ?? "" })} ▾
                 </button>
                 {userMenuOpen && (

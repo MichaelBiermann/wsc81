@@ -21,14 +21,16 @@ export const authConfig: NextAuthConfig = {
         token.id = user.id;
         token.role = (user as { role?: string }).role;
         token.firstName = (user as { firstName?: string }).firstName;
+        token.avatarUrl = (user as { avatarUrl?: string }).avatarUrl ?? null;
       }
       return token;
     },
     session({ session, token }) {
       if (session.user) {
-        (session.user as { id?: string; role?: string; firstName?: string }).id = token.id as string;
-        (session.user as { role?: string; firstName?: string }).role = token.role as string;
-        (session.user as { role?: string; firstName?: string }).firstName = token.firstName as string;
+        (session.user as { id?: string; role?: string; firstName?: string; avatarUrl?: string | null }).id = token.id as string;
+        (session.user as { role?: string }).role = token.role as string;
+        (session.user as { firstName?: string }).firstName = token.firstName as string;
+        (session.user as { avatarUrl?: string | null }).avatarUrl = token.avatarUrl as string | null;
       }
       return session;
     },

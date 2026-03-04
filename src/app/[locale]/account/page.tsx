@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
+import Image from "next/image";
 import ProfileEditor from "@/components/ProfileEditor";
 import EmailEditor from "@/components/EmailEditor";
 import AvatarUpload from "@/components/AvatarUpload";
@@ -55,7 +56,20 @@ export default async function AccountPage({
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-12 pt-20">
-      <h1 className="text-2xl font-bold text-[#4577ac] mb-6">{t("pageTitle")}</h1>
+      {/* Page header: avatar + name */}
+      <div className="flex items-center gap-4 mb-6">
+        <div className="relative w-16 h-16 rounded-full overflow-hidden bg-[#eef3f9] border-2 border-[#4577ac]/30 shrink-0">
+          {user.avatarUrl ? (
+            <Image src={user.avatarUrl} alt={`${user.firstName} ${user.lastName}`} fill className="object-cover" unoptimized />
+          ) : (
+            <span className="material-symbols-rounded absolute inset-0 flex items-center justify-center text-[#4577ac]" style={{ fontSize: 36 }}>person</span>
+          )}
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold text-[#4577ac]">{user.firstName} {user.lastName}</h1>
+          <p className="text-sm text-gray-500">{t("pageTitle")}</p>
+        </div>
+      </div>
 
       {/* Email change status banner */}
       {emailChange === "success" && (

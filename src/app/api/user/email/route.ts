@@ -13,7 +13,8 @@ const emailSchema = z.object({
 
 export async function PATCH(request: NextRequest) {
   const session = await auth();
-  if (!session?.user?.id || (session.user as { role?: string }).role === "admin") {
+  const sessionUser = session?.user as { id?: string; role?: string } | undefined;
+  if (!sessionUser?.id || sessionUser.role === "admin") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -24,7 +25,7 @@ export async function PATCH(request: NextRequest) {
   }
 
   const { newEmail } = parsed.data;
-  const userId = session.user.id;
+  const userId = sessionUser.id;
 
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -64,14 +65,15 @@ export async function PATCH(request: NextRequest) {
   return NextResponse.json({ ok: true });
 }
 
-export async function DELETE(_request: NextRequest) {
+export async function DELETE() {
   const session = await auth();
-  if (!session?.user?.id || (session.user as { role?: string }).role === "admin") {
+  const sessionUser = session?.user as { id?: string; role?: string } | undefined;
+  if (!sessionUser?.id || sessionUser.role === "admin") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   await prisma.user.update({
-    where: { id: session.user.id },
+    where: { id: sessionUser.id },
     data: {
       pendingEmail: null,
       pendingEmailToken: null,
