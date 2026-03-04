@@ -62,7 +62,7 @@ export default function BookingForm({
   };
 
   const addPerson = () => {
-    if (form.persons.length < 5) setForm((f) => ({ ...f, persons: [...f.persons, { name: "", dob: "" }] }));
+    if (form.persons.length < 10) setForm((f) => ({ ...f, persons: [...f.persons, { name: "", dob: "" }] }));
   };
   const removePerson = (i: number) => {
     if (i === 0) return;
@@ -77,7 +77,7 @@ export default function BookingForm({
     setStatus("submitting");
     setErrorMsg("");
 
-    const [p1, p2, p3, p4, p5] = form.persons;
+    const [p1, p2, p3, p4, p5, p6, p7, p8, p9, p10] = form.persons;
     const body = {
       eventId: event.id,
       person1: p1,
@@ -85,6 +85,11 @@ export default function BookingForm({
       person3: p3?.name ? p3 : undefined,
       person4: p4?.name ? p4 : undefined,
       person5: p5?.name ? p5 : undefined,
+      person6: p6?.name ? p6 : undefined,
+      person7: p7?.name ? p7 : undefined,
+      person8: p8?.name ? p8 : undefined,
+      person9: p9?.name ? p9 : undefined,
+      person10: p10?.name ? p10 : undefined,
       street: form.street, postalCode: form.postalCode, city: form.city,
       phone: form.phone, email: form.email,
       isMember: form.isMember, remarks: form.remarks || undefined,
@@ -112,7 +117,10 @@ export default function BookingForm({
     }
   };
 
-  const personLabels = [t("person1"), t("person2"), t("person3"), t("person4"), t("person5")];
+  const personLabels = [
+    t("person1"), t("person2"), t("person3"), t("person4"), t("person5"),
+    t("person6"), t("person7"), t("person8"), t("person9"), t("person10"),
+  ];
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
@@ -147,7 +155,7 @@ export default function BookingForm({
         </div>
       ))}
 
-      {form.persons.length < 5 && (
+      {form.persons.length < 10 && (
         <button type="button" onClick={addPerson} className="self-start text-sm text-[#4577ac] hover:underline">
           + {t("addPerson")}
         </button>

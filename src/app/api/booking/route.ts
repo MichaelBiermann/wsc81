@@ -39,11 +39,8 @@ export async function POST(request: NextRequest) {
 
     // Count participants
     const participantCount = [
-      data.person1,
-      data.person2,
-      data.person3,
-      data.person4,
-      data.person5,
+      data.person1, data.person2, data.person3, data.person4, data.person5,
+      data.person6, data.person7, data.person8, data.person9, data.person10,
     ].filter((p) => p?.name).length;
 
     const booking = await prisma.eventBooking.create({
@@ -60,6 +57,16 @@ export async function POST(request: NextRequest) {
         person4Dob: data.person4?.dob ? new Date(data.person4.dob) : null,
         person5Name: data.person5?.name ?? null,
         person5Dob: data.person5?.dob ? new Date(data.person5.dob) : null,
+        person6Name: data.person6?.name ?? null,
+        person6Dob: data.person6?.dob ? new Date(data.person6.dob) : null,
+        person7Name: data.person7?.name ?? null,
+        person7Dob: data.person7?.dob ? new Date(data.person7.dob) : null,
+        person8Name: data.person8?.name ?? null,
+        person8Dob: data.person8?.dob ? new Date(data.person8.dob) : null,
+        person9Name: data.person9?.name ?? null,
+        person9Dob: data.person9?.dob ? new Date(data.person9.dob) : null,
+        person10Name: data.person10?.name ?? null,
+        person10Dob: data.person10?.dob ? new Date(data.person10.dob) : null,
         street: data.street,
         postalCode: data.postalCode,
         city: data.city,

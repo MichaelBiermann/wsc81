@@ -48,6 +48,11 @@
     "person3": "Person 3 (Child)",
     "person4": "Person 4 (Child)",
     "person5": "Person 5 (Child)",
+    "person6": "Person 6",
+    "person7": "Person 7",
+    "person8": "Person 8",
+    "person9": "Person 9",
+    "person10": "Person 10",
     "addPerson": "Add another person",
     "removePerson": "Remove",
     "fields": {

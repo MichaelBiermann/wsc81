@@ -148,7 +148,7 @@ model EventBooking {
   id          String    @id @default(cuid())
   event       Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
   eventId     String
-  // Participants (up to 5: primary + partner + 3 children)
+  // Participants (up to 10)
   person1Name String
   person1Dob  DateTime  @db.Date
   person2Name String?
@@ -159,6 +159,16 @@ model EventBooking {
   person4Dob  DateTime? @db.Date
   person5Name String?
   person5Dob  DateTime? @db.Date
+  person6Name String?
+  person6Dob  DateTime? @db.Date
+  person7Name String?
+  person7Dob  DateTime? @db.Date
+  person8Name String?
+  person8Dob  DateTime? @db.Date
+  person9Name String?
+  person9Dob  DateTime? @db.Date
+  person10Name String?
+  person10Dob  DateTime? @db.Date
   // Contact
   street      String
   postalCode  String

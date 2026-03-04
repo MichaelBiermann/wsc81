@@ -235,6 +235,11 @@ export default async function AccountPage({
                 booking.person3Name,
                 booking.person4Name,
                 booking.person5Name,
+                booking.person6Name,
+                booking.person7Name,
+                booking.person8Name,
+                booking.person9Name,
+                booking.person10Name,
               ].filter(Boolean) as string[];
 
               const eventTitle = isDE ? booking.event.titleDe : booking.event.titleEn;
