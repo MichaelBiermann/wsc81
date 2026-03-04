@@ -1,4 +1,5 @@
 import { getLocale } from "next-intl/server";
+import Image from "next/image";
 
 export default async function UnserVereinPage() {
   const locale = await getLocale();
@@ -96,6 +97,17 @@ export default async function UnserVereinPage() {
           </div>
         </>
       )}
+
+      <div className="mt-10 rounded-lg overflow-hidden">
+        <Image
+          src="https://daten.verwaltungsportal.de/dateien//mypage/3/4/3/7/6/6/1/2025_Arlberg_4.webp?v=1764054751"
+          alt="Arlberg 2025"
+          width={1200}
+          height={800}
+          className="w-full h-auto"
+          unoptimized
+        />
+      </div>
     </div>
   );
 }
