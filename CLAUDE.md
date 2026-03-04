@@ -87,22 +87,36 @@ Registered users (email + password) get a persistent account at `/[locale]/accou
 ### 5. Rückblicke (Event Reports)
 - Public list at `/[locale]/rueckblicke`, detail at `/[locale]/rueckblicke/[slug]`
 - "Rückblicke" dropdown in nav (desktop + mobile) links to all 7 items + overview
-- 7 recaps seeded: "Auf nach Lenggries…", "Der WSC in den Dolomiten", "Ski-Club Wochenende am Arlberg", "Saisoneröffnung mit Oli in Kühtai", "Walldorfer Weihnachtsmarkt", "Winterlicher Hüttenzauber" (full content), "Wandern im Kraichgau"
+- 7 recaps seeded with full content + photo galleries from wsc81.de: "Auf nach Lenggries…", "Der WSC in den Dolomiten", "Ski-Club Wochenende am Arlberg", "Saisoneröffnung mit Oli in Kühtai", "Walldorfer Weihnachtsmarkt", "Winterlicher Hüttenzauber", "Wandern im Kraichgau"
 - Admin UI at `/admin/recaps` — CRUD with TipTap rich text editor + AI actions
 - API: `GET/POST /api/admin/recaps`, `GET/PUT/DELETE /api/admin/recaps/[id]`
 - Recap slugs must be `[a-z0-9-]` only (no umlauts) — e.g. `saisonoeffnung-mit-oli-in-kuehtai`
 
-### 6. Admin Area (`/admin`)
+### 6. Events — Bookable vs. Informational
+- `Event.bookable` (Boolean, default `true`) — controls whether booking is possible
+- `bookable = true`: shows "Jetzt buchen" button in EventCalendar
+- `bookable = false`: shows "Keine Anmeldung erforderlich" label; event appears in "Weitere Veranstaltungen" section on homepage
+- Homepage "Weitere Veranstaltungen" section is driven by DB events with `bookable = false`; falls back to static `RegularActivities` component if none exist
+- Admin EventForm has a "Buchbar" checkbox to toggle this flag
+
+### 7. Content (News & Static Pages)
+- News articles: public at `/[locale]/news/[slug]` — shows published `NewsPost` with date, title, body
+- Static pages: public at `/[locale]/seite/[slug]` — shows published `Page` with title, body
+- Both return 404 for drafts or unknown slugs
+- Admin content editor shows a `open_in_new` link next to the slug field to open the live public URL
+- Admin: `/admin/content/news` and `/admin/content/pages` — CRUD with TipTap + AI rephrase
+
+### 8. Admin Area (`/admin`)
 Protected by `role === "admin"`. All i18n via `src/lib/admin-i18n.ts` (DE + EN).
 
-- **Dashboard** — counts with Material Symbols icons: Events, Memberships, Pending Applications, Newsletter Drafts
-- **Events** — CRUD + view/delete bookings per event
+- **Dashboard** — 5 cards (brand color `#4577ac`): Events, Memberships, Pending Applications, Newsletter Drafts, Rückblicke
+- **Events** — CRUD + `bookable` toggle + view/delete bookings per event
 - **Memberships** — list activated members, toggle `feesPaid` per member
 - **Pending Applications** — list + **Activate** button (creates Member, links User, sends welcome email) + Delete button
 - **Users** — list registered user accounts, delete
 - **Sponsors** — CRUD with Vercel Blob image upload
 - **Newsletter** — compose DE+EN rich-text newsletters, save draft, delete, use as template; send to **members only** (feesPaid=true) or **all users** (members + verified Users, deduplicated by email)
-- **Content** — create/edit News articles and static Pages with TipTap + AI rephrase (`POST /api/admin/ai`)
+- **Content** — create/edit News articles and static Pages with TipTap + AI rephrase (`POST /api/admin/ai`); slug field shows `open_in_new` link to live public URL
 - **Rückblicke** — create/edit event recap reports with TipTap + AI actions; `eventDate` and `imageUrl` optional
 - **Settings** — club bank account (IBAN encrypted), annual fee collection day/month
 
@@ -114,7 +128,7 @@ Protected by `role === "admin"`. All i18n via `src/lib/admin-i18n.ts` (DE + EN).
 | `User` | Public user accounts (email + bcrypt, email verification, avatar, `memberId` FK) |
 | `PendingMembership` | Unactivated membership applications (7-day token) |
 | `Member` | Activated club members (IBAN encrypted, `feesPaid`) |
-| `Event` + `EventBooking` | Events and bookings (up to 10 persons) |
+| `Event` + `EventBooking` | Events and bookings (up to 10 persons); `Event.bookable` flag controls booking vs. informational |
 | `Sponsor` | Club sponsors (image via Vercel Blob) |
 | `Newsletter` | Draft/sent newsletters |
 | `NewsPost` + `Page` | CMS content with tsvector full-text search |
@@ -144,6 +158,10 @@ Protected by `role === "admin"`. All i18n via `src/lib/admin-i18n.ts` (DE + EN).
 | Admin APIs | `src/app/api/admin/{events,members,bookings,users,recaps,...}/` |
 | Recaps (public) | `src/app/[locale]/rueckblicke/` |
 | Recaps (admin) | `src/app/admin/recaps/` |
+| News (public) | `src/app/[locale]/news/[slug]/page.tsx` |
+| Static pages (public) | `src/app/[locale]/seite/[slug]/page.tsx` |
+| Content (admin) | `src/app/admin/content/` |
+| RegularActivities | `src/components/RegularActivities.tsx` (static fallback) |
 
 ## Conventions
 
