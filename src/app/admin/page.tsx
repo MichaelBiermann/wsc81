@@ -22,11 +22,11 @@ export default function AdminDashboard() {
 
   const cards = data
     ? [
-        { label: t.dashboard.events, value: data.eventsCount, href: "/admin/events", icon: "event", color: "text-blue-500" },
-        { label: t.dashboard.members, value: data.membersCount, href: "/admin/members", icon: "group", color: "text-green-500" },
-        { label: t.dashboard.pendingApplications, value: data.pendingCount, href: "/admin/members/pending", icon: "pending_actions", color: "text-yellow-500" },
-        { label: t.dashboard.newsletterDrafts, value: data.newslettersCount, href: "/admin/newsletter", icon: "mail", color: "text-purple-500" },
-        { label: t.dashboard.recaps, value: data.recapsCount, href: "/admin/recaps", icon: "photo_album", color: "text-orange-500" },
+        { label: t.dashboard.events, value: data.eventsCount, href: "/admin/events", icon: "event", color: "text-[#4577ac]" },
+        { label: t.dashboard.members, value: data.membersCount, href: "/admin/members", icon: "group", color: "text-[#4577ac]" },
+        { label: t.dashboard.pendingApplications, value: data.pendingCount, href: "/admin/members/pending", icon: "pending_actions", color: "text-[#4577ac]" },
+        { label: t.dashboard.newsletterDrafts, value: data.newslettersCount, href: "/admin/newsletter", icon: "mail", color: "text-[#4577ac]" },
+        { label: t.dashboard.recaps, value: data.recapsCount, href: "/admin/recaps", icon: "photo_album", color: "text-[#4577ac]" },
       ]
     : [];
 
