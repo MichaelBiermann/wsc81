@@ -49,6 +49,7 @@ export async function PUT(
       maxParticipants: d.maxParticipants ?? null,
       registrationDeadline: d.registrationDeadline ? new Date(d.registrationDeadline) : null,
       imageUrl: d.imageUrl ?? null,
+      bookable: d.bookable,
     },
   });
   return NextResponse.json(event);
