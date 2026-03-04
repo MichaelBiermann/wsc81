@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAdminI18n } from "@/components/admin/AdminI18nProvider";
 import DeleteButton from "./DeleteButton";
+import ActivateButton from "./ActivateButton";
 
 const CATEGORY_LABELS: Record<string, Record<string, string>> = {
   de: { FAMILIE: "Familie", ERWACHSENE: "Erwachsene", JUGENDLICHE: "Jugendliche", SENIOREN: "Senioren", GDB: "GdB ab 50%" },
@@ -74,7 +75,10 @@ export default function AdminPendingMembersPage() {
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    <DeleteButton id={p.id} onDeleted={load} />
+                    <div className="flex items-center gap-2">
+                      <ActivateButton id={p.id} onActivated={load} />
+                      <DeleteButton id={p.id} onDeleted={load} />
+                    </div>
                   </td>
                 </tr>
               );

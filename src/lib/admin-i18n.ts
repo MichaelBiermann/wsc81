@@ -97,6 +97,8 @@ export const ADMIN_TRANSLATIONS = {
       colExpires: "Link läuft ab",
       colExpired: "Abgelaufen",
       deleteConfirm: "Anmeldung wirklich löschen?",
+      activate: "Aktivieren",
+      activateConfirm: "Mitgliedschaft jetzt aktivieren und Willkommens-E-Mail senden?",
     },
     // Sponsors
     sponsors: {
@@ -315,6 +317,8 @@ export const ADMIN_TRANSLATIONS = {
       colExpires: "Link expires",
       colExpired: "Expired",
       deleteConfirm: "Really delete this application?",
+      activate: "Activate",
+      activateConfirm: "Activate membership now and send welcome email?",
     },
     sponsors: {
       title: "Sponsors",
