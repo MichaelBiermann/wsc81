@@ -67,9 +67,9 @@ export default async function EventDetailPage({
         ← {isDE ? "Zurück zu Veranstaltungen" : "Back to events"}
       </Link>
 
-      <div className="flex flex-col lg:flex-row gap-8 items-start">
+      <div className={event.bookable ? "flex flex-col lg:flex-row gap-8 items-start" : ""}>
         {/* Left: event details */}
-        <div className={event.bookable ? "lg:w-2/5 lg:sticky lg:top-6" : "lg:w-3/5 lg:sticky lg:top-6"}>
+        <div className={event.bookable ? "lg:w-2/5 lg:sticky lg:top-6" : "max-w-3xl"}>
           {event.imageUrl && (
             <div className="relative h-56 w-full rounded-t-lg overflow-hidden">
               <Image src={event.imageUrl} alt={title} fill className="object-cover" unoptimized />
