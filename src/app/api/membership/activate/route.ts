@@ -51,6 +51,11 @@ export async function GET(request: NextRequest) {
       },
     });
     await tx.pendingMembership.delete({ where: { id: pending.id } });
+    // Link to User account if one exists with the same email
+    await tx.user.updateMany({
+      where: { email: pending.email, memberId: null },
+      data: { memberId: newMember.id },
+    });
     return newMember;
   });
 

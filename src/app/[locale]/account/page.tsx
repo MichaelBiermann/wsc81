@@ -149,7 +149,7 @@ export default async function AccountPage({
       <section className="rounded-lg border border-gray-200 bg-white p-6 mb-6">
         <h2 className="font-semibold text-lg mb-4">{t("memberStatus")}</h2>
 
-        {role === "member" && user.member ? (
+        {user.member ? (
           <div className="space-y-4">
             {/* Status row */}
             <div className="flex items-center gap-3 flex-wrap">
