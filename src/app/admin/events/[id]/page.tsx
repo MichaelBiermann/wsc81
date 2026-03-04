@@ -82,7 +82,17 @@ export default function EditEventPage() {
 
       {event.bookings.length > 0 && (
         <div className="mt-10">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">{t.events.bookings} ({event.bookings.length})</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-bold text-gray-900">{t.events.bookings} ({event.bookings.length})</h2>
+            <a
+              href={`/api/admin/events/${id}/pdf`}
+              download
+              className="inline-flex items-center gap-1.5 rounded-md bg-[#4577ac] px-3 py-1.5 text-sm font-medium text-white hover:bg-[#3a6699] transition-colors"
+            >
+              <span className="material-symbols-rounded text-base leading-none">download</span>
+              {t.events.downloadPdf}
+            </a>
+          </div>
           <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
             <table className="w-full text-sm">
               <thead className="bg-gray-50 border-b border-gray-200">

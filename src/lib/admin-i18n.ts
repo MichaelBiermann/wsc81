@@ -58,6 +58,7 @@ export const ADMIN_TRANSLATIONS = {
       colMember: "Mitglied",
       colDate2: "Datum",
       deleteBookingConfirm: "Buchung wirklich löschen?",
+      downloadPdf: "PDF herunterladen",
     },
     eventForm: {
       titleDe: "Titel (DE)",
@@ -284,6 +285,7 @@ export const ADMIN_TRANSLATIONS = {
       colMember: "Member",
       colDate2: "Date",
       deleteBookingConfirm: "Really delete this booking?",
+      downloadPdf: "Download PDF",
     },
     eventForm: {
       titleDe: "Title (DE)",
