@@ -134,6 +134,17 @@ export default function ContentForm({ type, contentId, initial }: ContentFormPro
             placeholder="mein-beitrag"
             required
           />
+          {form.slug && /^[a-z0-9-]+$/.test(form.slug) && (
+            <a
+              href={`/de/${type === "news" ? "news" : "seite"}/${form.slug}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="shrink-0 text-[#4577ac] hover:text-[#2d5a8a] transition-colors"
+              title="Öffentliche Seite öffnen"
+            >
+              <span className="material-symbols-rounded" style={{ fontSize: "20px" }}>open_in_new</span>
+            </a>
+          )}
         </div>
       </FormField>
 
