@@ -115,6 +115,17 @@ export const ContentSchema = z.object({
   status: z.enum(["DRAFT", "PUBLISHED"]).default("DRAFT"),
 });
 
+export const RecapSchema = z.object({
+  slug: z.string().min(1).max(200).regex(/^[a-z0-9-]+$/, "Slug: lowercase, numbers, hyphens only"),
+  titleDe: z.string().min(1).max(300).trim(),
+  titleEn: z.string().min(1).max(300).trim(),
+  bodyDe: z.string().min(1).trim(),
+  bodyEn: z.string().min(1).trim(),
+  eventDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().nullable(),
+  imageUrl: z.string().url().optional().nullable(),
+  status: z.enum(["DRAFT", "PUBLISHED"]).default("DRAFT"),
+});
+
 export const AIRephraseSchema = z.object({
   text: z.string().min(1).max(5000),
   action: z.enum(["rephrase", "shorten", "expand", "fix_grammar", "translate", "optimize_event"]),
@@ -158,6 +169,7 @@ export type EventInput = z.infer<typeof EventSchema>;
 export type SponsorInput = z.infer<typeof SponsorSchema>;
 export type NewsletterInput = z.infer<typeof NewsletterSchema>;
 export type ContentInput = z.infer<typeof ContentSchema>;
+export type RecapInput = z.infer<typeof RecapSchema>;
 export type AIRephraseInput = z.infer<typeof AIRephraseSchema>;
 export type ClubSettingsInput = z.infer<typeof ClubSettingsSchema>;
 export type UserRegisterInput = z.infer<typeof UserRegisterSchema>;

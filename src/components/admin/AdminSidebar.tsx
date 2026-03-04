@@ -20,6 +20,7 @@ export default function AdminSidebar({ userName }: { userName?: string | null })
         <Link href="/admin/sponsors" className="rounded px-3 py-2 hover:bg-white/10 transition-colors">{t.nav.sponsors}</Link>
         <Link href="/admin/newsletter" className="rounded px-3 py-2 hover:bg-white/10 transition-colors">{t.nav.newsletter}</Link>
         <Link href="/admin/content" className="rounded px-3 py-2 hover:bg-white/10 transition-colors">{t.nav.content}</Link>
+        <Link href="/admin/recaps" className="rounded px-3 py-2 hover:bg-white/10 transition-colors">{t.nav.recaps}</Link>
         <Link href="/admin/settings" className="rounded px-3 py-2 hover:bg-white/10 transition-colors">{t.nav.settings}</Link>
       </nav>
       <div className="p-4 border-t border-white/10 flex flex-col gap-2">

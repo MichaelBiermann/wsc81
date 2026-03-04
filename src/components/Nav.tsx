@@ -7,27 +7,40 @@ import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
 
+const RECAP_SLUGS = [
+  { slug: "auf-nach-lenggries", de: "Auf nach Lenggries…", en: "Off to Lenggries…" },
+  { slug: "der-wsc-in-den-dolomiten", de: "Der WSC in den Dolomiten", en: "WSC in the Dolomites" },
+  { slug: "ski-club-wochenende-am-arlberg", de: "Ski-Club Wochenende am Arlberg", en: "Ski-Club Weekend at Arlberg" },
+  { slug: "saisonoeffnung-mit-oli-in-kuehtai", de: "Saisoneröffnung mit Oli in Kühtai", en: "Season Opening with Oli in Kühtai" },
+  { slug: "walldorfer-weihnachtsmarkt", de: "Walldorfer Weihnachtsmarkt", en: "Walldorf Christmas Market" },
+  { slug: "winterlicher-huettenzauber", de: "Winterlicher Hüttenzauber", en: "Winter Hut Magic" },
+  { slug: "wandern-im-kraichgau", de: "Wandern im Kraichgau", en: "Hiking in the Kraichgau" },
+];
+
 export default function Nav() {
   const t = useTranslations("Nav");
   const pathname = usePathname();
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileClubOpen, setMobileClubOpen] = useState(false);
+  const [mobileRecapsOpen, setMobileRecapsOpen] = useState(false);
   const [searchQ, setSearchQ] = useState("");
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [clubMenuOpen, setClubMenuOpen] = useState(false);
+  const [recapsMenuOpen, setRecapsMenuOpen] = useState(false);
   const clubRef = useRef<HTMLDivElement>(null);
+  const recapsRef = useRef<HTMLDivElement>(null);
   const { data: session } = useSession();
 
   const locale = pathname.startsWith("/en") ? "en" : "de";
   const otherLocale = locale === "de" ? "en" : "de";
+  const isDE = locale === "de";
 
-  // Close club dropdown when clicking outside
+  // Close dropdowns when clicking outside
   useEffect(() => {
     function handleClick(e: MouseEvent) {
-      if (clubRef.current && !clubRef.current.contains(e.target as Node)) {
-        setClubMenuOpen(false);
-      }
+      if (clubRef.current && !clubRef.current.contains(e.target as Node)) setClubMenuOpen(false);
+      if (recapsRef.current && !recapsRef.current.contains(e.target as Node)) setRecapsMenuOpen(false);
     }
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
@@ -102,6 +115,37 @@ export default function Nav() {
                       onClick={() => setClubMenuOpen(false)}
                     >
                       {l.label}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Rückblicke dropdown */}
+            <div className="relative" ref={recapsRef}>
+              <button
+                onClick={() => setRecapsMenuOpen((v) => !v)}
+                className="flex items-center gap-1 hover:text-blue-200 transition-colors"
+              >
+                {t("recaps")} <span className="text-xs">▾</span>
+              </button>
+              {recapsMenuOpen && (
+                <div className="absolute left-0 top-full mt-1 w-64 rounded-md border border-gray-200 bg-white py-1 shadow-lg text-gray-800 z-50">
+                  <Link
+                    href={`/${locale}/rueckblicke`}
+                    className="block px-4 py-2 text-sm font-medium text-[#4577ac] hover:bg-gray-50 border-b border-gray-100"
+                    onClick={() => setRecapsMenuOpen(false)}
+                  >
+                    {isDE ? "Alle Rückblicke" : "All Recaps"}
+                  </Link>
+                  {RECAP_SLUGS.map((r) => (
+                    <Link
+                      key={r.slug}
+                      href={`/${locale}/rueckblicke/${r.slug}`}
+                      className="block px-4 py-2 text-sm hover:bg-gray-50"
+                      onClick={() => setRecapsMenuOpen(false)}
+                    >
+                      {isDE ? r.de : r.en}
                     </Link>
                   ))}
                 </div>
@@ -215,6 +259,26 @@ export default function Nav() {
                 {clubLinks.map((l) => (
                   <Link key={l.href} href={l.href} className="text-sm hover:text-blue-200" onClick={() => setMobileOpen(false)}>
                     {l.label}
+                  </Link>
+                ))}
+              </div>
+            )}
+
+            {/* Mobile Rückblicke section */}
+            <button
+              className="text-left hover:text-blue-200 flex items-center gap-1"
+              onClick={() => setMobileRecapsOpen((v) => !v)}
+            >
+              {t("recaps")} <span className="text-xs">{mobileRecapsOpen ? "▴" : "▾"}</span>
+            </button>
+            {mobileRecapsOpen && (
+              <div className="pl-4 flex flex-col gap-2 border-l border-white/30">
+                <Link href={`/${locale}/rueckblicke`} className="text-sm font-medium hover:text-blue-200" onClick={() => setMobileOpen(false)}>
+                  {isDE ? "Alle Rückblicke" : "All Recaps"}
+                </Link>
+                {RECAP_SLUGS.map((r) => (
+                  <Link key={r.slug} href={`/${locale}/rueckblicke/${r.slug}`} className="text-sm hover:text-blue-200" onClick={() => setMobileOpen(false)}>
+                    {isDE ? r.de : r.en}
                   </Link>
                 ))}
               </div>
