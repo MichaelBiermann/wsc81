@@ -94,10 +94,11 @@ Registered users (email + password) get a persistent account at `/[locale]/accou
 
 ### 6. Events — Bookable vs. Informational
 - `Event.bookable` (Boolean, default `true`) — controls whether booking is possible
-- `bookable = true`: shows "Jetzt buchen" button in EventCalendar
-- `bookable = false`: shows "Keine Anmeldung erforderlich" label; event appears in "Weitere Veranstaltungen" section on homepage
+- `bookable = true`: shows "Jetzt buchen" button in EventCalendar; detail page shows booking form + pricing panel
+- `bookable = false`: shows "Anmeldung: siehe Beschreibung" label; detail page hides booking form, pricing panel, and registration info box; content column is full-width; event appears in "Weitere Veranstaltungen" section on homepage
 - Homepage "Weitere Veranstaltungen" section is driven by DB events with `bookable = false`; falls back to static `RegularActivities` component if none exist
 - Admin EventForm has a "Buchbar" checkbox to toggle this flag
+- 4 regular activities seeded as non-bookable events: `regular-ski-gymnastics`, `regular-nordic-walking`, `regular-lauftreff`, `regular-sportabzeichen`
 
 ### 7. Content (News & Static Pages)
 - News articles: public at `/[locale]/news/[slug]` — shows published `NewsPost` with date, title, body
@@ -106,11 +107,16 @@ Registered users (email + password) get a persistent account at `/[locale]/accou
 - Admin content editor shows a `open_in_new` link next to the slug field to open the live public URL
 - Admin: `/admin/content/news` and `/admin/content/pages` — CRUD with TipTap + AI rephrase
 
-### 8. Admin Area (`/admin`)
+### 8. Search
+- Full-text search covers: `Event`, `NewsPost`, `Recap`, `Page` (all published)
+- Results link to correct public URLs: `/events/[id]`, `/news/[slug]`, `/rueckblicke/[slug]`, `/seite/[slug]`
+- Type badges: Veranstaltung / Event, Neuigkeit / News, Rückblick / Recap, Seite / Page
+
+### 9. Admin Area (`/admin`)
 Protected by `role === "admin"`. All i18n via `src/lib/admin-i18n.ts` (DE + EN).
 
 - **Dashboard** — 5 cards (brand color `#4577ac`): Events, Memberships, Pending Applications, Newsletter Drafts, Rückblicke
-- **Events** — CRUD + `bookable` toggle + view/delete bookings per event
+- **Events** — CRUD + `bookable` toggle + view/delete bookings per event; saving correctly persists `bookable` flag
 - **Memberships** — list activated members, toggle `feesPaid` per member
 - **Pending Applications** — list + **Activate** button (creates Member, links User, sends welcome email) + Delete button
 - **Users** — list registered user accounts, delete
@@ -131,8 +137,8 @@ Protected by `role === "admin"`. All i18n via `src/lib/admin-i18n.ts` (DE + EN).
 | `Event` + `EventBooking` | Events and bookings (up to 10 persons); `Event.bookable` flag controls booking vs. informational |
 | `Sponsor` | Club sponsors (image via Vercel Blob) |
 | `Newsletter` | Draft/sent newsletters |
-| `NewsPost` + `Page` | CMS content with tsvector full-text search |
-| `Recap` | Event recap reports (slug, title/body DE+EN, eventDate, imageUrl, status) |
+| `NewsPost` + `Page` | CMS content; search uses runtime `to_tsvector()` (no stored tsvector column) |
+| `Recap` | Event recap reports (slug, title/body DE+EN, eventDate, imageUrl, status); also included in search |
 | `ClubSettings` | Single-row global settings (bank account, fee day/month) |
 
 ## Auth Details
@@ -173,8 +179,8 @@ Protected by `role === "admin"`. All i18n via `src/lib/admin-i18n.ts` (DE + EN).
 - Email always via SendGrid (`src/lib/mailer.ts`); `SENDGRID_API_KEY` required
 - Material Symbols Rounded loaded globally in `src/app/layout.tsx`
 - Avatar images stored in Vercel Blob store `wsc81-avatars`
-- TipTap AI: selection read via `editor.state.selection` at click time (not React state) to avoid selection-cleared-on-click race condition
-- `optimize_event` AI action returns HTML; all other actions return plain text — `RichTextEditor` uses `aiSuggestionIsHtml` flag to handle both
+- `EventSchema.imageUrl` accepts empty string and transforms it to `null` (Zod `.or(z.literal("")).transform(...)`) — needed because the form sends `""` when no URL is entered
+- Homepage section order: Neuigkeiten → Kommende Veranstaltungen → Weitere Veranstaltungen → Kontakt
 
 ## Environment Variables
 
