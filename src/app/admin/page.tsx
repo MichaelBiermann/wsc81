@@ -21,10 +21,10 @@ export default function AdminDashboard() {
 
   const cards = data
     ? [
-        { label: t.dashboard.events, value: data.eventsCount, href: "/admin/events", color: "bg-blue-500" },
-        { label: t.dashboard.members, value: data.membersCount, href: "/admin/members", color: "bg-green-500" },
-        { label: t.dashboard.pendingApplications, value: data.pendingCount, href: "/admin/members/pending", color: "bg-yellow-500" },
-        { label: t.dashboard.newsletterDrafts, value: data.newslettersCount, href: "/admin/newsletter", color: "bg-purple-500" },
+        { label: t.dashboard.events, value: data.eventsCount, href: "/admin/events", icon: "event", color: "text-blue-500" },
+        { label: t.dashboard.members, value: data.membersCount, href: "/admin/members", icon: "group", color: "text-green-500" },
+        { label: t.dashboard.pendingApplications, value: data.pendingCount, href: "/admin/members/pending", icon: "pending_actions", color: "text-yellow-500" },
+        { label: t.dashboard.newsletterDrafts, value: data.newslettersCount, href: "/admin/newsletter", icon: "mail", color: "text-purple-500" },
       ]
     : [];
 
@@ -35,7 +35,7 @@ export default function AdminDashboard() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {cards.map((card) => (
             <Link key={card.label} href={card.href} className="rounded-lg bg-white border border-gray-200 p-5 shadow-sm hover:shadow-md transition-shadow">
-              <div className={`w-10 h-10 ${card.color} rounded-lg mb-3`} />
+              <span className={`material-symbols-rounded ${card.color} mb-3 block`} style={{ fontSize: 40 }}>{card.icon}</span>
               <p className="text-2xl font-bold text-gray-900">{card.value}</p>
               <p className="text-sm text-gray-500 mt-1">{card.label}</p>
             </Link>
@@ -45,7 +45,7 @@ export default function AdminDashboard() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map((i) => (
             <div key={i} className="rounded-lg bg-white border border-gray-200 p-5 shadow-sm animate-pulse">
-              <div className="w-10 h-10 bg-gray-200 rounded-lg mb-3" />
+              <div className="w-10 h-10 bg-gray-200 rounded mb-3" />
               <div className="h-8 bg-gray-200 rounded w-12 mb-2" />
               <div className="h-4 bg-gray-100 rounded w-24" />
             </div>
