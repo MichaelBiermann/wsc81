@@ -24,6 +24,7 @@ export default function NewsletterForm({
     bodyDe: initial?.bodyDe ?? "",
     bodyEn: initial?.bodyEn ?? "",
   });
+  const [audience, setAudience] = useState<"members" | "all">("members");
   const [status, setStatus] = useState<"idle" | "saving" | "sending" | "error">("idle");
   const [error, setError] = useState("");
   const [sent, setSent] = useState(false);
@@ -42,9 +43,14 @@ export default function NewsletterForm({
 
   const send = async () => {
     if (!newsletterId) return;
-    if (!confirm(t.newsletterForm.sendConfirm)) return;
+    const audienceLabel = audience === "members" ? t.newsletterForm.audienceMembers : t.newsletterForm.audienceAll;
+    if (!confirm(t.newsletterForm.sendConfirm.replace("{audience}", audienceLabel))) return;
     setStatus("sending");
-    const res = await fetch(`/api/admin/newsletter/${newsletterId}/send`, { method: "POST" });
+    const res = await fetch(`/api/admin/newsletter/${newsletterId}/send`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ audience }),
+    });
     if (res.ok) {
       const data = await res.json();
       setSent(true);
@@ -74,6 +80,36 @@ export default function NewsletterForm({
       <FormField label={t.newsletterForm.bodyEn} required>
         <RichTextEditor content={form.bodyEn} onChange={(v) => setForm((f) => ({ ...f, bodyEn: v }))} locale="en" />
       </FormField>
+
+      {newsletterId && (
+        <div className="rounded-lg border border-gray-200 bg-white p-4">
+          <p className="text-sm font-medium text-gray-700 mb-2">{t.newsletterForm.audience}</p>
+          <div className="flex flex-col gap-2">
+            <label className="flex items-center gap-2 cursor-pointer text-sm">
+              <input
+                type="radio"
+                name="audience"
+                value="members"
+                checked={audience === "members"}
+                onChange={() => setAudience("members")}
+                className="accent-[#4577ac]"
+              />
+              {t.newsletterForm.audienceMembers}
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer text-sm">
+              <input
+                type="radio"
+                name="audience"
+                value="all"
+                checked={audience === "all"}
+                onChange={() => setAudience("all")}
+                className="accent-[#4577ac]"
+              />
+              {t.newsletterForm.audienceAll}
+            </label>
+          </div>
+        </div>
+      )}
 
       {status === "error" && <Alert variant="error">{error}</Alert>}
 

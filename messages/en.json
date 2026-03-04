@@ -117,6 +117,11 @@
       "person3": "Person 3 (Child) – optional",
       "person4": "Person 4 (Child) – optional",
       "person5": "Person 5 (Child) – optional",
+      "person6": "Person 6 – optional",
+      "person7": "Person 7 – optional",
+      "person8": "Person 8 – optional",
+      "person9": "Person 9 – optional",
+      "person10": "Person 10 – optional",
       "addPerson": "Add another person",
       "removePerson": "Remove"
     },

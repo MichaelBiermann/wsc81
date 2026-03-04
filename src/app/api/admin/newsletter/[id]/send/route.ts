@@ -10,7 +10,7 @@ async function requireAdmin() {
 }
 
 export async function POST(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   if (!(await requireAdmin())) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -22,29 +22,49 @@ export async function POST(
     return NextResponse.json({ error: "Already sent" }, { status: 409 });
   }
 
+  const body = await req.json().catch(() => ({}));
+  const audience: "members" | "all" = body.audience === "all" ? "all" : "members";
+
+  // Build recipient list: { email, locale }[]
+  // Members (feesPaid) are always included
   const members = await prisma.member.findMany({
     where: { feesPaid: true },
     select: { email: true, locale: true },
   });
 
-  // Send to all members (fire and forget individual sends)
+  let recipients: { email: string; locale: string }[] = [...members];
+
+  if (audience === "all") {
+    // Add verified users whose email is not already covered by a member
+    const memberEmails = new Set(members.map((m) => m.email));
+    const users = await prisma.user.findMany({
+      where: { emailVerified: true },
+      select: { email: true, locale: true },
+    });
+    for (const u of users) {
+      if (!memberEmails.has(u.email)) {
+        recipients.push({ email: u.email, locale: u.locale });
+      }
+    }
+  }
+
   await Promise.allSettled(
-    members.map((m) =>
+    recipients.map((r) =>
       sendNewsletterToMember({
-        to: m.email,
+        to: r.email,
         subjectDe: newsletter.subjectDe,
         subjectEn: newsletter.subjectEn,
         bodyDe: newsletter.bodyDe,
         bodyEn: newsletter.bodyEn,
-        locale: m.locale,
+        locale: r.locale,
       })
     )
   );
 
   const updated = await prisma.newsletter.update({
     where: { id },
-    data: { status: "SENT", sentAt: new Date(), recipientCount: members.length },
+    data: { status: "SENT", sentAt: new Date(), recipientCount: recipients.length },
   });
 
-  return NextResponse.json({ success: true, recipientCount: members.length, newsletter: updated });
+  return NextResponse.json({ success: true, recipientCount: recipients.length, newsletter: updated });
 }

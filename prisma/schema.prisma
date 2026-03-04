@@ -50,7 +50,7 @@ model PendingMembership {
   // Person 1 (required)
   person1Name         String
   person1Dob          DateTime           @db.Date
-  // Person 2–5 (optional: partner + up to 3 children)
+  // Person 2–10 (optional)
   person2Name         String?
   person2Dob          DateTime?          @db.Date
   person3Name         String?
@@ -59,6 +59,16 @@ model PendingMembership {
   person4Dob          DateTime?          @db.Date
   person5Name         String?
   person5Dob          DateTime?          @db.Date
+  person6Name         String?
+  person6Dob          DateTime?          @db.Date
+  person7Name         String?
+  person7Dob          DateTime?          @db.Date
+  person8Name         String?
+  person8Dob          DateTime?          @db.Date
+  person9Name         String?
+  person9Dob          DateTime?          @db.Date
+  person10Name        String?
+  person10Dob         DateTime?          @db.Date
   // Contact
   street              String
   postalCode          String
@@ -91,7 +101,7 @@ model Member {
   // Person 1 (required)
   person1Name   String
   person1Dob    DateTime           @db.Date
-  // Person 2–5 (optional)
+  // Person 2–10 (optional)
   person2Name   String?
   person2Dob    DateTime?          @db.Date
   person3Name   String?
@@ -100,6 +110,16 @@ model Member {
   person4Dob    DateTime?          @db.Date
   person5Name   String?
   person5Dob    DateTime?          @db.Date
+  person6Name   String?
+  person6Dob    DateTime?          @db.Date
+  person7Name   String?
+  person7Dob    DateTime?          @db.Date
+  person8Name   String?
+  person8Dob    DateTime?          @db.Date
+  person9Name   String?
+  person9Dob    DateTime?          @db.Date
+  person10Name  String?
+  person10Dob   DateTime?          @db.Date
   // Contact
   street        String
   postalCode    String

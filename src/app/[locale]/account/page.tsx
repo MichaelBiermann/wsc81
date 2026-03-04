@@ -190,6 +190,11 @@ export default async function AccountPage({
                     user.member.person3Name,
                     user.member.person4Name,
                     user.member.person5Name,
+                    user.member.person6Name,
+                    user.member.person7Name,
+                    user.member.person8Name,
+                    user.member.person9Name,
+                    user.member.person10Name,
                   ]
                     .filter(Boolean)
                     .map((name, i) => (

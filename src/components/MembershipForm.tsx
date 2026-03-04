@@ -31,7 +31,7 @@ export default function MembershipForm({ locale }: { locale: string }) {
   const updatePerson = (i: number, field: keyof PersonData, value: string) => {
     setPersons((ps) => { const n = [...ps]; n[i] = { ...n[i], [field]: value }; return n; });
   };
-  const addPerson = () => { if (persons.length < 5) setPersons((ps) => [...ps, { name: "", dob: "" }]); };
+  const addPerson = () => { if (persons.length < 10) setPersons((ps) => [...ps, { name: "", dob: "" }]); };
   const removePerson = (i: number) => { if (i > 0) setPersons((ps) => ps.filter((_, idx) => idx !== i)); };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -41,7 +41,7 @@ export default function MembershipForm({ locale }: { locale: string }) {
     }
     setStatus("submitting"); setErrorMsg("");
 
-    const [p1, p2, p3, p4, p5] = persons;
+    const [p1, p2, p3, p4, p5, p6, p7, p8, p9, p10] = persons;
     const body = {
       category,
       person1: p1,
@@ -49,6 +49,11 @@ export default function MembershipForm({ locale }: { locale: string }) {
       person3: p3?.name ? p3 : undefined,
       person4: p4?.name ? p4 : undefined,
       person5: p5?.name ? p5 : undefined,
+      person6: p6?.name ? p6 : undefined,
+      person7: p7?.name ? p7 : undefined,
+      person8: p8?.name ? p8 : undefined,
+      person9: p9?.name ? p9 : undefined,
+      person10: p10?.name ? p10 : undefined,
       ...contact,
       ...bank,
       consentData: consents.data,
@@ -72,7 +77,10 @@ export default function MembershipForm({ locale }: { locale: string }) {
     }
   };
 
-  const personLabels = [t("persons.person1"), t("persons.person2"), t("persons.person3"), t("persons.person4"), t("persons.person5")];
+  const personLabels = [
+    t("persons.person1"), t("persons.person2"), t("persons.person3"), t("persons.person4"), t("persons.person5"),
+    t("persons.person6"), t("persons.person7"), t("persons.person8"), t("persons.person9"), t("persons.person10"),
+  ];
   const categories: Category[] = ["FAMILIE", "ERWACHSENE", "JUGENDLICHE", "SENIOREN", "GDB"];
 
   return (
@@ -110,7 +118,7 @@ export default function MembershipForm({ locale }: { locale: string }) {
           </div>
         </div>
       ))}
-      {persons.length < 5 && (
+      {persons.length < 10 && (
         <button type="button" onClick={addPerson} className="self-start text-sm text-[#4577ac] hover:underline">+ {t("persons.addPerson")}</button>
       )}
 
