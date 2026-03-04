@@ -96,6 +96,7 @@ export default async function EventDetailPage({
             />
           </div>
 
+          {event.bookable && (
           <div className="bg-[#eef3f9] rounded-lg p-4 text-sm space-y-2">
             {Number(event.totalAmount) > 0 && (<>
             <div className="flex justify-between">
@@ -120,6 +121,7 @@ export default async function EventDetailPage({
               </div>
             )}
           </div>
+          )}
         </div>
 
         {/* Right: booking form */}
@@ -165,12 +167,12 @@ export default async function EventDetailPage({
             <div className="rounded-lg border border-gray-200 bg-[#eef3f9] p-6">
               <p className="text-sm font-medium text-[#4577ac] flex items-center gap-2 mb-1">
                 <span className="material-symbols-rounded" style={{ fontSize: "18px" }}>info</span>
-                {isDE ? "Keine Anmeldung erforderlich" : "No registration required"}
+                {isDE ? "Anmeldung" : "Registration"}
               </p>
               <p className="text-sm text-gray-600">
                 {isDE
-                  ? "Diese Aktivität ist offen für alle – einfach vorbeikommen!"
-                  : "This activity is open to everyone — just show up!"}
+                  ? "Siehe Beschreibung."
+                  : "See description."}
               </p>
             </div>
           )}
