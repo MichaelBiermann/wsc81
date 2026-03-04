@@ -62,19 +62,25 @@ export default function EventCalendar({ events, locale, isLoggedIn = false }: Pr
                 ) : (
                   <span className="text-sm font-semibold text-green-600">{isDE ? "Kostenlos" : "Free"}</span>
                 )}
-                <div className="flex flex-col items-end gap-1">
-                  <Link
-                    href={bookUrl}
-                    className="rounded bg-[#4577ac] px-4 py-1.5 text-sm font-medium text-white hover:bg-[#2d5a8a] transition-colors"
-                  >
-                    {isDE ? "Jetzt buchen" : "Book now"}
-                  </Link>
-                  {!isLoggedIn && (
-                    <span className="text-xs text-gray-400">
-                      {isDE ? "Anmeldung erforderlich" : "Sign-in required"}
-                    </span>
-                  )}
-                </div>
+                {event.bookable ? (
+                  <div className="flex flex-col items-end gap-1">
+                    <Link
+                      href={bookUrl}
+                      className="rounded bg-[#4577ac] px-4 py-1.5 text-sm font-medium text-white hover:bg-[#2d5a8a] transition-colors"
+                    >
+                      {isDE ? "Jetzt buchen" : "Book now"}
+                    </Link>
+                    {!isLoggedIn && (
+                      <span className="text-xs text-gray-400">
+                        {isDE ? "Anmeldung erforderlich" : "Sign-in required"}
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  <span className="text-xs text-gray-400 italic">
+                    {isDE ? "Keine Anmeldung erforderlich" : "No registration required"}
+                  </span>
+                )}
               </div>
             </div>
           </div>

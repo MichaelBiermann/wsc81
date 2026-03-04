@@ -16,6 +16,7 @@ interface EventFormData {
   depositAmount: string; totalAmount: string;
   maxParticipants: string; registrationDeadline: string;
   imageUrl: string;
+  bookable: boolean;
 }
 
 const EMPTY: EventFormData = {
@@ -23,6 +24,7 @@ const EMPTY: EventFormData = {
   location: "", startDate: "", endDate: "",
   depositAmount: "", totalAmount: "", maxParticipants: "", registrationDeadline: "",
   imageUrl: "",
+  bookable: true,
 };
 
 export default function EventForm({
@@ -46,6 +48,7 @@ export default function EventForm({
     setStatus("saving");
     const body = {
       ...form,
+      bookable: form.bookable,
       depositAmount: Number(form.depositAmount),
       totalAmount: Number(form.totalAmount),
       maxParticipants: form.maxParticipants ? Number(form.maxParticipants) : null,
@@ -132,6 +135,16 @@ export default function EventForm({
       <FormField label={t.eventForm.imageUrl}>
         <Input type="url" value={form.imageUrl} onChange={set("imageUrl")} placeholder="https://..." />
       </FormField>
+
+      <label className="flex items-center gap-3 cursor-pointer select-none">
+        <input
+          type="checkbox"
+          checked={form.bookable}
+          onChange={(e) => setForm((f) => ({ ...f, bookable: e.target.checked }))}
+          className="w-4 h-4 accent-[#4577ac]"
+        />
+        <span className="text-sm font-medium text-gray-700">{t.eventForm.bookable}</span>
+      </label>
 
       {status === "error" && <Alert variant="error">{error}</Alert>}
 

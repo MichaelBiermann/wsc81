@@ -157,6 +157,7 @@ model Event {
   imageUrl             String?
   maxParticipants      Int?
   registrationDeadline DateTime?
+  bookable             Boolean        @default(true)
   createdAt            DateTime       @default(now())
   updatedAt            DateTime       @updatedAt
   bookings             EventBooking[]

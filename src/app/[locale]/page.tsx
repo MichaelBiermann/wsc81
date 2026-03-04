@@ -18,11 +18,15 @@ export default async function HomePage({
   const session = await auth();
   const isLoggedIn = !!session?.user;
 
-  const [events, newsPosts] = await Promise.all([
+  const [events, regularEvents, newsPosts] = await Promise.all([
     prisma.event.findMany({
-      where: { startDate: { gte: new Date() } },
+      where: { startDate: { gte: new Date() }, bookable: true },
       orderBy: { startDate: "asc" },
       take: 6,
+    }).catch(() => []),
+    prisma.event.findMany({
+      where: { bookable: false },
+      orderBy: { startDate: "asc" },
     }).catch(() => []),
     prisma.newsPost.findMany({
       where: { status: "PUBLISHED" },
@@ -51,7 +55,11 @@ export default async function HomePage({
               ? "Regelmäßige Aktivitäten des WSC 81 – keine Anmeldung erforderlich."
               : "Regular WSC 81 activities — no booking required."}
           </p>
-          <RegularActivities locale={locale} />
+          {regularEvents.length > 0 ? (
+            <EventCalendar events={regularEvents} locale={locale} isLoggedIn={isLoggedIn} />
+          ) : (
+            <RegularActivities locale={locale} />
+          )}
         </div>
       </section>
 

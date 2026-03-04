@@ -90,6 +90,7 @@ export const EventSchema = z.object({
   imageUrl: z.string().url().optional().nullable(),
   maxParticipants: z.number().int().min(1).optional().nullable(),
   registrationDeadline: z.string().datetime().optional().nullable(),
+  bookable: z.boolean().default(true),
 });
 
 export const SponsorSchema = z.object({
