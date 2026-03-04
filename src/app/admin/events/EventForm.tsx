@@ -92,6 +92,7 @@ export default function EventForm({
           content={form.descriptionDe}
           onChange={(v) => setForm((f) => ({ ...f, descriptionDe: v }))}
           locale="de"
+          isEventDescription
         />
       </FormField>
 
@@ -100,6 +101,7 @@ export default function EventForm({
           content={form.descriptionEn}
           onChange={(v) => setForm((f) => ({ ...f, descriptionEn: v }))}
           locale="en"
+          isEventDescription
         />
       </FormField>
 

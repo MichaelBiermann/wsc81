@@ -8,7 +8,7 @@ import Underline from "@tiptap/extension-underline";
 import Placeholder from "@tiptap/extension-placeholder";
 import { useState } from "react";
 
-type AIAction = "rephrase" | "shorten" | "expand" | "fix_grammar" | "translate";
+type AIAction = "rephrase" | "shorten" | "expand" | "fix_grammar" | "translate" | "optimize_event";
 
 const AI_ACTIONS: { key: AIAction; label: string }[] = [
   { key: "rephrase", label: "Umformulieren" },
@@ -18,19 +18,26 @@ const AI_ACTIONS: { key: AIAction; label: string }[] = [
   { key: "translate", label: "Übersetzen DE↔EN" },
 ];
 
+const EVENT_ACTIONS: { key: AIAction; label: string }[] = [
+  { key: "optimize_event", label: "Für Website optimieren" },
+];
+
 export default function RichTextEditor({
   content,
   onChange,
   locale = "de",
   placeholder,
+  isEventDescription = false,
 }: {
   content: string;
   onChange: (html: string) => void;
   locale?: string;
   placeholder?: string;
+  isEventDescription?: boolean;
 }) {
   const [aiLoading, setAiLoading] = useState(false);
   const [aiSuggestion, setAiSuggestion] = useState<string | null>(null);
+  const [aiSuggestionIsHtml, setAiSuggestionIsHtml] = useState(false);
   const [aiSelection, setAiSelection] = useState<{ from: number; to: number } | null>(null);
 
   const editor = useEditor({
@@ -53,7 +60,29 @@ export default function RichTextEditor({
 
   const runAI = async (action: AIAction) => {
     if (!editor) return;
-    // Read selection directly from editor state at click time (before focus changes)
+
+    // optimize_event always uses the full document HTML
+    if (action === "optimize_event") {
+      const html = editor.getHTML();
+      if (!html.trim() || html === "<p></p>") return;
+      setAiSelection(null);
+      setAiLoading(true);
+      setAiSuggestion(null);
+      const res = await fetch("/api/admin/ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: html, action, locale }),
+      });
+      const data = await res.json();
+      setAiLoading(false);
+      if (data.suggestion) {
+        setAiSuggestion(data.suggestion);
+        setAiSuggestionIsHtml(true);
+      }
+      return;
+    }
+
+    // All other actions: read selection at click time
     const { from, to } = editor.state.selection;
     const hasSelection = from !== to;
     const text = hasSelection
@@ -61,10 +90,10 @@ export default function RichTextEditor({
       : editor.getText();
     if (!text.trim()) return;
 
-    // Remember where to insert the result
     setAiSelection(hasSelection ? { from, to } : null);
     setAiLoading(true);
     setAiSuggestion(null);
+    setAiSuggestionIsHtml(false);
 
     const res = await fetch("/api/admin/ai", {
       method: "POST",
@@ -79,8 +108,10 @@ export default function RichTextEditor({
 
   const acceptSuggestion = () => {
     if (!aiSuggestion || !editor) return;
-    if (aiSelection) {
-      // Replace the specific selection range
+    if (aiSuggestionIsHtml) {
+      // HTML response (optimize_event) — set directly as editor content
+      editor.chain().focus().setContent(aiSuggestion).run();
+    } else if (aiSelection) {
       editor
         .chain()
         .focus()
@@ -88,7 +119,7 @@ export default function RichTextEditor({
         .insertContentAt(aiSelection.from, aiSuggestion)
         .run();
     } else {
-      // Replace entire document — wrap plain text in paragraph tags so TipTap parses it correctly
+      // Plain text replacing full document
       const html = aiSuggestion
         .split(/\n{2,}/)
         .map((para) => `<p>${para.replace(/\n/g, "<br>")}</p>`)
@@ -97,6 +128,7 @@ export default function RichTextEditor({
     }
     onChange(editor.getHTML());
     setAiSuggestion(null);
+    setAiSuggestionIsHtml(false);
     setAiSelection(null);
   };
 
@@ -117,8 +149,8 @@ export default function RichTextEditor({
         <ToolBtn onClick={() => editor.chain().focus().toggleOrderedList().run()} active={editor.isActive("orderedList")} title="Nummeriert">1. Liste</ToolBtn>
         <div className="w-px h-5 bg-gray-300 mx-1" />
 
-        {/* AI actions */}
-        <div className="flex items-center gap-1 ml-1">
+        {/* Standard AI actions */}
+        <div className="flex flex-wrap items-center gap-1 ml-1">
           <span className="text-xs text-purple-600 font-medium">✨ KI:</span>
           {AI_ACTIONS.map((a) => (
             <button
@@ -132,6 +164,19 @@ export default function RichTextEditor({
               {a.label}
             </button>
           ))}
+          {/* Event-specific AI actions */}
+          {isEventDescription && EVENT_ACTIONS.map((a) => (
+            <button
+              key={a.key}
+              type="button"
+              disabled={aiLoading}
+              onClick={() => runAI(a.key)}
+              className="rounded px-2 py-0.5 text-xs bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors disabled:opacity-50"
+              title="Beschreibung für Kachel und Detailseite optimieren"
+            >
+              {a.label}
+            </button>
+          ))}
           {aiLoading && <span className="text-xs text-gray-400 ml-1">…</span>}
         </div>
       </div>
@@ -140,10 +185,17 @@ export default function RichTextEditor({
       {aiSuggestion && (
         <div className="bg-purple-50 border-b border-purple-200 p-3 text-sm">
           <p className="text-purple-800 font-medium mb-2">✨ KI-Vorschlag:</p>
-          <p className="text-gray-700 whitespace-pre-wrap mb-3 bg-white rounded border border-purple-200 p-2">{aiSuggestion}</p>
+          {aiSuggestionIsHtml ? (
+            <div
+              className="prose prose-sm max-w-none mb-3 bg-white rounded border border-purple-200 p-2 text-gray-700"
+              dangerouslySetInnerHTML={{ __html: aiSuggestion }}
+            />
+          ) : (
+            <p className="text-gray-700 whitespace-pre-wrap mb-3 bg-white rounded border border-purple-200 p-2">{aiSuggestion}</p>
+          )}
           <div className="flex gap-2">
             <button type="button" onClick={acceptSuggestion} className="rounded bg-purple-600 px-3 py-1 text-xs text-white hover:bg-purple-700">Übernehmen</button>
-            <button type="button" onClick={() => setAiSuggestion(null)} className="rounded border border-gray-300 px-3 py-1 text-xs text-gray-600 hover:bg-gray-50">Verwerfen</button>
+            <button type="button" onClick={() => { setAiSuggestion(null); setAiSuggestionIsHtml(false); }} className="rounded border border-gray-300 px-3 py-1 text-xs text-gray-600 hover:bg-gray-50">Verwerfen</button>
           </div>
         </div>
       )}

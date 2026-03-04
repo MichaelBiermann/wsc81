@@ -117,7 +117,7 @@ export const ContentSchema = z.object({
 
 export const AIRephraseSchema = z.object({
   text: z.string().min(1).max(5000),
-  action: z.enum(["rephrase", "shorten", "expand", "fix_grammar", "translate"]),
+  action: z.enum(["rephrase", "shorten", "expand", "fix_grammar", "translate", "optimize_event"]),
   locale: z.enum(["de", "en"]).default("de"),
 });
 
