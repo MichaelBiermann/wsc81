@@ -57,8 +57,8 @@ export const ADMIN_TRANSLATIONS = {
       colEmail: "E-Mail",
       colMember: "Mitglied",
       colDate2: "Datum",
+      deleteBookingConfirm: "Buchung wirklich löschen?",
     },
-    // Event form
     eventForm: {
       titleDe: "Titel (DE)",
       titleEn: "Title (EN)",
@@ -78,7 +78,6 @@ export const ADMIN_TRANSLATIONS = {
       deleteConfirm: "Veranstaltung wirklich löschen? Alle Buchungen werden ebenfalls gelöscht.",
       saveError: "Fehler beim Speichern.",
     },
-    // Members
     members: {
       title: "Mitgliedschaften",
       pendingLink: "Ausstehende Anmeldungen →",
@@ -277,6 +276,7 @@ export const ADMIN_TRANSLATIONS = {
       colEmail: "Email",
       colMember: "Member",
       colDate2: "Date",
+      deleteBookingConfirm: "Really delete this booking?",
     },
     eventForm: {
       titleDe: "Title (DE)",

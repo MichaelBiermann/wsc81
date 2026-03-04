@@ -49,6 +49,7 @@ export async function POST(request: NextRequest) {
     const booking = await prisma.eventBooking.create({
       data: {
         eventId: data.eventId,
+        userId: sessionUser.id,
         person1Name: data.person1.name,
         person1Dob: new Date(data.person1.dob),
         person2Name: data.person2?.name ?? null,

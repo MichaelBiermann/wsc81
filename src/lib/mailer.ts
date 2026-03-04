@@ -145,6 +145,41 @@ export async function sendBookingAdminNotification({
   await sendMail({ to: adminEmail, subject, html });
 }
 
+// ─── Booking Cancellation ─────────────────────────────────────────────────────
+
+export async function sendBookingCancellation({
+  to,
+  person1Name,
+  eventTitleDe,
+  eventTitleEn,
+  startDate,
+  locale,
+}: {
+  to: string;
+  person1Name: string;
+  eventTitleDe: string;
+  eventTitleEn: string;
+  startDate: Date;
+  locale: string;
+}) {
+  const isDE = locale === "de";
+  const eventTitle = isDE ? eventTitleDe : eventTitleEn;
+  const dateStr = startDate.toLocaleDateString(isDE ? "de-DE" : "en-GB");
+  const subject = isDE
+    ? `Stornierung Ihrer Buchung: ${eventTitle}`
+    : `Your booking has been cancelled: ${eventTitle}`;
+
+  const html = isDE
+    ? `<p>Guten Tag ${person1Name},</p>
+       <p>Ihre Buchung für <strong>${eventTitle}</strong> (${dateStr}) wurde vom Administrator storniert.</p>
+       <p>Bei Fragen wenden Sie sich bitte direkt an uns.</p>`
+    : `<p>Dear ${person1Name},</p>
+       <p>Your booking for <strong>${eventTitle}</strong> (${dateStr}) has been cancelled by the administrator.</p>
+       <p>Please contact us directly if you have any questions.</p>`;
+
+  await sendMail({ to, subject, html });
+}
+
 // ─── Newsletter ───────────────────────────────────────────────────────────────
 
 export async function sendNewsletterToMember({

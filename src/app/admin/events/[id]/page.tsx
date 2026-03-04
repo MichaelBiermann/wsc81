@@ -48,6 +48,12 @@ export default function EditEventPage() {
       .then((data) => { if (data) { setEvent(data); } setLoading(false); });
   }, [id]);
 
+  async function deleteBooking(bookingId: string) {
+    if (!confirm(t.events.deleteBookingConfirm)) return;
+    await fetch(`/api/admin/bookings/${bookingId}`, { method: "DELETE" });
+    setEvent((prev) => prev ? { ...prev, bookings: prev.bookings.filter((b) => b.id !== bookingId) } : prev);
+  }
+
   if (loading) return <div className="text-gray-400">…</div>;
   if (!event) return null;
 
@@ -85,6 +91,7 @@ export default function EditEventPage() {
                   <th className="px-4 py-3 text-left font-medium text-gray-600">{t.events.colEmail}</th>
                   <th className="px-4 py-3 text-left font-medium text-gray-600">{t.events.colMember}</th>
                   <th className="px-4 py-3 text-left font-medium text-gray-600">{t.events.colDate2}</th>
+                  <th className="px-4 py-3" />
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -94,6 +101,14 @@ export default function EditEventPage() {
                     <td className="px-4 py-3 text-gray-600">{b.email}</td>
                     <td className="px-4 py-3">{b.isMember ? "✅" : "—"}</td>
                     <td className="px-4 py-3 text-gray-600">{new Date(b.createdAt).toLocaleDateString("de-DE")}</td>
+                    <td className="px-4 py-3 text-right">
+                      <button
+                        onClick={() => deleteBooking(b.id)}
+                        className="text-xs text-red-500 hover:text-red-700 hover:underline"
+                      >
+                        {t.delete}
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
