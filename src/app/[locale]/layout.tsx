@@ -26,12 +26,6 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale}>
-      <head>
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=calendar_month,close,location_on,menu,search"
-        />
-      </head>
       <body>
         <AuthProvider>
           <NextIntlClientProvider messages={messages}>
