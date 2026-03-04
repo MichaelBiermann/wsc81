@@ -7,12 +7,15 @@ import FormField from "@/components/ui/FormField";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
+import AvatarUpload from "@/components/AvatarUpload";
 
 export default function RegisterForm({ locale }: { locale: string }) {
   const t = useTranslations("Register");
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [registeredEmail, setRegisteredEmail] = useState("");
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
@@ -40,27 +43,30 @@ export default function RegisterForm({ locale }: { locale: string }) {
     setStatus("submitting");
     setErrorMsg("");
 
+    // Use multipart/form-data so we can attach the avatar in the same request
+    const fd = new FormData();
+    fd.append("firstName", form.firstName);
+    fd.append("lastName", form.lastName);
+    fd.append("dob", form.dob);
+    fd.append("street", form.street);
+    fd.append("postalCode", form.postalCode);
+    fd.append("city", form.city);
+    fd.append("phone", form.phone);
+    fd.append("email", form.email);
+    fd.append("password", form.password);
+    fd.append("locale", locale);
+    if (avatarFile) fd.append("avatar", avatarFile);
+
     const res = await fetch("/api/auth/register", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        firstName: form.firstName,
-        lastName: form.lastName,
-        dob: form.dob,
-        street: form.street,
-        postalCode: form.postalCode,
-        city: form.city,
-        phone: form.phone,
-        email: form.email,
-        password: form.password,
-        locale,
-      }),
+      body: fd,
     });
 
     if (res.ok || res.status === 201) {
+      setRegisteredEmail(form.email);
       setStatus("success");
     } else {
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       setStatus("error");
       setErrorMsg(data.error ?? t("errors.generic"));
     }
@@ -71,13 +77,29 @@ export default function RegisterForm({ locale }: { locale: string }) {
       <div className="rounded-lg border border-green-200 bg-green-50 p-6 text-center">
         <div className="text-3xl mb-3">✉️</div>
         <h2 className="font-semibold text-green-800 mb-2">{t("success.title")}</h2>
-        <p className="text-green-700 text-sm">{t("success.message", { email: form.email })}</p>
+        <p className="text-green-700 text-sm">{t("success.message", { email: registeredEmail })}</p>
       </div>
     );
   }
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      {/* Avatar */}
+      <div className="flex justify-center py-2">
+        <AvatarUpload
+          liveUpload={false}
+          onFileSelected={setAvatarFile}
+          labels={{
+            upload: t("avatar.upload"),
+            change: t("avatar.change"),
+            remove: t("avatar.remove"),
+            invalidType: t("avatar.invalidType"),
+            tooLarge: t("avatar.tooLarge"),
+            error: t("avatar.error"),
+          }}
+        />
+      </div>
+
       <div className="grid gap-3 sm:grid-cols-2">
         <FormField label={t("fields.firstName")} required>
           <Input value={form.firstName} onChange={set("firstName")} required autoComplete="given-name" />

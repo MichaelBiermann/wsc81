@@ -85,38 +85,38 @@ model PendingMembership {
 }
 
 model Member {
-  id                  String             @id @default(cuid())
-  memberNumber        Int                @unique @default(autoincrement())
-  category            MembershipCategory
+  id            String             @id @default(cuid())
+  memberNumber  Int                @unique @default(autoincrement())
+  category      MembershipCategory
   // Person 1 (required)
-  person1Name         String
-  person1Dob          DateTime           @db.Date
+  person1Name   String
+  person1Dob    DateTime           @db.Date
   // Person 2–5 (optional)
-  person2Name         String?
-  person2Dob          DateTime?          @db.Date
-  person3Name         String?
-  person3Dob          DateTime?          @db.Date
-  person4Name         String?
-  person4Dob          DateTime?          @db.Date
-  person5Name         String?
-  person5Dob          DateTime?          @db.Date
+  person2Name   String?
+  person2Dob    DateTime?          @db.Date
+  person3Name   String?
+  person3Dob    DateTime?          @db.Date
+  person4Name   String?
+  person4Dob    DateTime?          @db.Date
+  person5Name   String?
+  person5Dob    DateTime?          @db.Date
   // Contact
-  street              String
-  postalCode          String
-  city                String
-  phone               String
-  email               String             @unique
+  street        String
+  postalCode    String
+  city          String
+  phone         String
+  email         String             @unique
   // Bank details (SEPA direct debit)
-  bankName            String
-  ibanEncrypted       String
-  ibanLast4           String
-  bic                 String
+  bankName      String
+  ibanEncrypted String
+  ibanLast4     String
+  bic           String
   // Membership state
-  feesPaid            Boolean            @default(false)
-  locale              String             @default("de")
-  activatedAt         DateTime           @default(now())
-  createdAt           DateTime           @default(now())
-  user                User?
+  feesPaid      Boolean            @default(false)
+  locale        String             @default("de")
+  activatedAt   DateTime           @default(now())
+  createdAt     DateTime           @default(now())
+  user          User?
 
   @@index([email])
 }
@@ -255,21 +255,21 @@ model ClubSettings {
 // ─── User Accounts ────────────────────────────────────────────────────────────
 
 model User {
-  id                String         @id @default(cuid())
-  email             String         @unique
-  passwordHash      String
-  firstName         String
-  lastName          String
-  dob               DateTime       @db.Date
-  street            String
-  postalCode        String
-  city              String
-  phone             String
-  emailVerified     Boolean        @default(false)
-  verificationToken String?        @unique
-  tokenExpiresAt    DateTime?
-  locale            String         @default("de")
-  createdAt         DateTime       @default(now())
+  id                     String         @id @default(cuid())
+  email                  String         @unique
+  passwordHash           String
+  firstName              String
+  lastName               String
+  dob                    DateTime       @db.Date
+  street                 String
+  postalCode             String
+  city                   String
+  phone                  String
+  emailVerified          Boolean        @default(false)
+  verificationToken      String?        @unique
+  tokenExpiresAt         DateTime?
+  locale                 String         @default("de")
+  createdAt              DateTime       @default(now())
   memberId               String?        @unique
   member                 Member?        @relation(fields: [memberId], references: [id])
   bookings               EventBooking[]
@@ -279,6 +279,7 @@ model User {
   pendingEmailExpiresAt  DateTime?
   passwordResetToken     String?        @unique
   passwordResetExpiresAt DateTime?
+  avatarUrl              String?
 
   @@index([email])
 }

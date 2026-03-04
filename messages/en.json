@@ -84,7 +84,8 @@
     "errors": {
       "eventNotFound": "Event not found.",
       "deadlinePassed": "The registration deadline has passed.",
-      "generic": "Registration failed. Please try again."
+      "generic": "Registration failed. Please try again.",
+      "unauthorized": "You are not signed in. Please sign in and try again."
     }
   },
   "Membership": {
@@ -221,6 +222,14 @@
     "errors": {
       "passwordMismatch": "Passwords do not match.",
       "generic": "Registration failed. Please try again."
+    },
+    "avatar": {
+      "upload": "Upload profile picture",
+      "change": "Change picture",
+      "remove": "Remove",
+      "invalidType": "Only JPG, PNG, WebP or GIF allowed.",
+      "tooLarge": "File too large (max 2 MB).",
+      "error": "Upload failed."
     }
   },
   "Login": {
@@ -233,7 +242,7 @@
     "submit": "Sign in",
     "submitting": "Signing in...",
     "noAccount": "Don't have an account?",
-    "registerLink": "Book now",
+    "registerLink": "Register now",
     "forgotPassword": "Forgot password?",
     "passwordResetSuccess": "Your password has been changed. You can now sign in.",
     "errors": {
@@ -270,7 +279,8 @@
       "phone": "Phone",
       "street": "Street",
       "postalCode": "Postal code",
-      "city": "City"
+      "city": "City",
+      "dob": "Date of birth"
     },
     "edit": "Edit",
     "save": "Save",
@@ -300,6 +310,26 @@
       "sent": "Confirmation email sent to {email}.",
       "emailTaken": "This email address is already in use.",
       "error": "Failed to change email address."
+    },
+    "feesPaid": "Fee paid",
+    "feesPending": "Fee pending",
+    "bookedOn": "Booked on {date}",
+    "bookingLocation": "Location",
+    "bookingRemarks": "Remarks",
+    "membership": {
+      "category": "Category",
+      "fee": "Annual fee",
+      "activatedAt": "Member since",
+      "persons": "Persons",
+      "bank": "Bank account"
+    },
+    "avatar": {
+      "upload": "Upload profile picture",
+      "change": "Change picture",
+      "remove": "Remove",
+      "invalidType": "Only JPG, PNG, WebP or GIF allowed.",
+      "tooLarge": "File too large (max 2 MB).",
+      "error": "Upload failed."
     }
   },
   "Verification": {

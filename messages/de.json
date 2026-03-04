@@ -84,7 +84,8 @@
     "errors": {
       "eventNotFound": "Veranstaltung nicht gefunden.",
       "deadlinePassed": "Die Anmeldefrist ist abgelaufen.",
-      "generic": "Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut."
+      "generic": "Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.",
+      "unauthorized": "Sie sind nicht angemeldet. Bitte melden Sie sich an und versuchen Sie es erneut."
     }
   },
   "Membership": {
@@ -221,6 +222,14 @@
     "errors": {
       "passwordMismatch": "Die Passwörter stimmen nicht überein.",
       "generic": "Registrierung fehlgeschlagen. Bitte versuchen Sie es erneut."
+    },
+    "avatar": {
+      "upload": "Profilbild hochladen",
+      "change": "Bild ändern",
+      "remove": "Entfernen",
+      "invalidType": "Nur JPG, PNG, WebP oder GIF erlaubt.",
+      "tooLarge": "Datei ist zu groß (max. 2 MB).",
+      "error": "Hochladen fehlgeschlagen."
     }
   },
   "Login": {
@@ -233,7 +242,7 @@
     "submit": "Anmelden",
     "submitting": "Wird angemeldet...",
     "noAccount": "Noch kein Konto?",
-    "registerLink": "Jetzt buchen",
+    "registerLink": "Jetzt registrieren",
     "forgotPassword": "Passwort vergessen?",
     "passwordResetSuccess": "Ihr Passwort wurde erfolgreich geändert. Sie können sich jetzt anmelden.",
     "errors": {
@@ -270,7 +279,8 @@
       "phone": "Telefon",
       "street": "Straße",
       "postalCode": "PLZ",
-      "city": "Ort"
+      "city": "Ort",
+      "dob": "Geburtsdatum"
     },
     "edit": "Bearbeiten",
     "save": "Speichern",
@@ -300,6 +310,26 @@
       "sent": "Bestätigungs-E-Mail gesendet an {email}.",
       "emailTaken": "Diese E-Mail-Adresse wird bereits verwendet.",
       "error": "Fehler beim Ändern der E-Mail-Adresse."
+    },
+    "feesPaid": "Beitrag bezahlt",
+    "feesPending": "Beitrag ausstehend",
+    "bookedOn": "Gebucht am {date}",
+    "bookingLocation": "Ort",
+    "bookingRemarks": "Bemerkungen",
+    "membership": {
+      "category": "Kategorie",
+      "fee": "Jahresbeitrag",
+      "activatedAt": "Mitglied seit",
+      "persons": "Personen",
+      "bank": "Bankverbindung"
+    },
+    "avatar": {
+      "upload": "Profilbild hochladen",
+      "change": "Bild ändern",
+      "remove": "Entfernen",
+      "invalidType": "Nur JPG, PNG, WebP oder GIF erlaubt.",
+      "tooLarge": "Datei ist zu groß (max. 2 MB).",
+      "error": "Hochladen fehlgeschlagen."
     }
   },
   "Verification": {

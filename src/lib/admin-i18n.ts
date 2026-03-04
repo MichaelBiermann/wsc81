@@ -36,7 +36,7 @@ export const ADMIN_TRANSLATIONS = {
     dashboard: {
       title: "Dashboard",
       events: "Veranstaltungen",
-      members: "Mitglieder",
+      members: "Mitgliedschaften",
       pendingApplications: "Ausstehende Anmeldungen",
       newsletterDrafts: "Newsletter Entwürfe",
     },
@@ -257,7 +257,7 @@ export const ADMIN_TRANSLATIONS = {
     dashboard: {
       title: "Dashboard",
       events: "Events",
-      members: "Members",
+      members: "Memberships",
       pendingApplications: "Pending Applications",
       newsletterDrafts: "Newsletter Drafts",
     },

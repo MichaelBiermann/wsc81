@@ -9,8 +9,11 @@ const NON_MEMBER_SURCHARGE = 40;
 export async function POST(request: NextRequest) {
   try {
     const session = await auth();
-    const sessionUser = session?.user as { role?: string } | undefined;
-    if (!session || !sessionUser || sessionUser.role === undefined || sessionUser.role === "admin") {
+    const sessionUser = session?.user as { id?: string; role?: string } | undefined;
+    if (!session || !sessionUser?.id) {
+      return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+    }
+    if (sessionUser.role === "admin") {
       return NextResponse.json({ error: "unauthorized" }, { status: 401 });
     }
 

@@ -3,7 +3,7 @@ import crypto from "crypto";
 const ALGORITHM = "aes-256-gcm";
 
 function getKey(): Buffer {
-  const hex = process.env.IBAN_ENCRYPTION_KEY;
+  const hex = process.env.IBAN_ENCRYPTION_KEY?.trim();
   if (!hex || hex.length !== 64) {
     throw new Error("IBAN_ENCRYPTION_KEY must be a 64-char hex string (32 bytes)");
   }

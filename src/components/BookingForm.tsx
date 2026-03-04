@@ -102,7 +102,13 @@ export default function BookingForm({
     } else {
       const data = await res.json();
       setStatus("error");
-      setErrorMsg(data.error === "deadline_passed" ? t("errors.deadlinePassed") : t("errors.generic"));
+      if (res.status === 401 || data.error === "unauthorized") {
+        setErrorMsg(t("errors.unauthorized"));
+      } else if (data.error === "deadline_passed") {
+        setErrorMsg(t("errors.deadlinePassed"));
+      } else {
+        setErrorMsg(t("errors.generic"));
+      }
     }
   };
 
