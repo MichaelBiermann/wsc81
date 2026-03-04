@@ -84,7 +84,15 @@ Registered users (email + password) get a persistent account at `/[locale]/accou
 - Expired pending applications cleaned up by cron at 03:00 UTC
 - `feesPaid` flag toggled by admin on Memberships page (clickable badge)
 
-### 5. Admin Area (`/admin`)
+### 5. Rückblicke (Event Reports)
+- Public list at `/[locale]/rueckblicke`, detail at `/[locale]/rueckblicke/[slug]`
+- "Rückblicke" dropdown in nav (desktop + mobile) links to all 7 items + overview
+- 7 recaps seeded: "Auf nach Lenggries…", "Der WSC in den Dolomiten", "Ski-Club Wochenende am Arlberg", "Saisoneröffnung mit Oli in Kühtai", "Walldorfer Weihnachtsmarkt", "Winterlicher Hüttenzauber" (full content), "Wandern im Kraichgau"
+- Admin UI at `/admin/recaps` — CRUD with TipTap rich text editor + AI actions
+- API: `GET/POST /api/admin/recaps`, `GET/PUT/DELETE /api/admin/recaps/[id]`
+- Recap slugs must be `[a-z0-9-]` only (no umlauts) — e.g. `saisonoeffnung-mit-oli-in-kuehtai`
+
+### 6. Admin Area (`/admin`)
 Protected by `role === "admin"`. All i18n via `src/lib/admin-i18n.ts` (DE + EN).
 
 - **Dashboard** — counts with Material Symbols icons: Events, Memberships, Pending Applications, Newsletter Drafts
@@ -95,6 +103,7 @@ Protected by `role === "admin"`. All i18n via `src/lib/admin-i18n.ts` (DE + EN).
 - **Sponsors** — CRUD with Vercel Blob image upload
 - **Newsletter** — compose DE+EN rich-text newsletters, save draft, delete, use as template; send to **members only** (feesPaid=true) or **all users** (members + verified Users, deduplicated by email)
 - **Content** — create/edit News articles and static Pages with TipTap + AI rephrase (`POST /api/admin/ai`)
+- **Rückblicke** — create/edit event recap reports with TipTap + AI actions; `eventDate` and `imageUrl` optional
 - **Settings** — club bank account (IBAN encrypted), annual fee collection day/month
 
 ## Database Models
@@ -109,6 +118,7 @@ Protected by `role === "admin"`. All i18n via `src/lib/admin-i18n.ts` (DE + EN).
 | `Sponsor` | Club sponsors (image via Vercel Blob) |
 | `Newsletter` | Draft/sent newsletters |
 | `NewsPost` + `Page` | CMS content with tsvector full-text search |
+| `Recap` | Event recap reports (slug, title/body DE+EN, eventDate, imageUrl, status) |
 | `ClubSettings` | Single-row global settings (bank account, fee day/month) |
 
 ## Auth Details
@@ -131,7 +141,9 @@ Protected by `role === "admin"`. All i18n via `src/lib/admin-i18n.ts` (DE + EN).
 | Account page | `src/app/[locale]/account/page.tsx` |
 | Booking API | `src/app/api/booking/route.ts` |
 | User APIs | `src/app/api/user/{avatar,email,profile}/route.ts` |
-| Admin APIs | `src/app/api/admin/{events,members,bookings,users,...}/` |
+| Admin APIs | `src/app/api/admin/{events,members,bookings,users,recaps,...}/` |
+| Recaps (public) | `src/app/[locale]/rueckblicke/` |
+| Recaps (admin) | `src/app/admin/recaps/` |
 
 ## Conventions
 
