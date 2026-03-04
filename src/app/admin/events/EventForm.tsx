@@ -15,12 +15,14 @@ interface EventFormData {
   location: string; startDate: string; endDate: string;
   depositAmount: string; totalAmount: string;
   maxParticipants: string; registrationDeadline: string;
+  imageUrl: string;
 }
 
 const EMPTY: EventFormData = {
   titleDe: "", titleEn: "", descriptionDe: "", descriptionEn: "",
   location: "", startDate: "", endDate: "",
   depositAmount: "", totalAmount: "", maxParticipants: "", registrationDeadline: "",
+  imageUrl: "",
 };
 
 export default function EventForm({
@@ -124,6 +126,10 @@ export default function EventForm({
           <Input type="number" min="1" value={form.maxParticipants} onChange={set("maxParticipants")} />
         </FormField>
       </div>
+
+      <FormField label={t.eventForm.imageUrl}>
+        <Input type="url" value={form.imageUrl} onChange={set("imageUrl")} placeholder="https://..." />
+      </FormField>
 
       {status === "error" && <Alert variant="error">{error}</Alert>}
 

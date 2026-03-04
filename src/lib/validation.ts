@@ -77,6 +77,7 @@ export const EventSchema = z.object({
   endDate: z.string().datetime(),
   depositAmount: z.number().min(0),
   totalAmount: z.number().min(0),
+  imageUrl: z.string().url().optional().nullable(),
   maxParticipants: z.number().int().min(1).optional().nullable(),
   registrationDeadline: z.string().datetime().optional().nullable(),
 });

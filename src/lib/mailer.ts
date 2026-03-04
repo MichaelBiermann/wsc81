@@ -237,6 +237,41 @@ export async function sendEmailChangeVerification({
 }
 
 
+// ─── Password Reset ───────────────────────────────────────────────────────────
+
+export async function sendPasswordReset({
+  to,
+  firstName,
+  resetUrl,
+  locale,
+}: {
+  to: string;
+  firstName: string;
+  resetUrl: string;
+  locale: string;
+}) {
+  const isDE = locale === "de";
+  const subject = isDE
+    ? "Passwort zurücksetzen – Ski-Club Walldorf"
+    : "Reset your password – Ski-Club Walldorf";
+
+  const html = isDE
+    ? `<p>Guten Tag ${firstName},</p>
+       <p>Sie haben eine Anfrage zum Zurücksetzen Ihres Passworts gestellt.</p>
+       <p>Bitte klicken Sie auf den folgenden Link (gültig für 1 Stunde):</p>
+       <p><a href="${resetUrl}">Passwort zurücksetzen</a></p>
+       <p>Falls Sie diese Anfrage nicht gestellt haben, können Sie diese E-Mail ignorieren.</p>`
+    : `<p>Dear ${firstName},</p>
+       <p>You have requested to reset your password.</p>
+       <p>Please click the link below (valid for 1 hour):</p>
+       <p><a href="${resetUrl}">Reset password</a></p>
+       <p>If you did not request this, you can safely ignore this email.</p>`;
+
+  await sendMail({ to, subject, html });
+}
+
+// ─── User Welcome ─────────────────────────────────────────────────────────────
+
 export async function sendUserWelcome({
   to,
   firstName,

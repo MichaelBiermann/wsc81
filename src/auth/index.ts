@@ -1,4 +1,4 @@
-import NextAuth from "next-auth";
+import NextAuth, { CredentialsSignin } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
@@ -59,9 +59,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!user) return null;
 
         if (!user.emailVerified) {
-          // Signal unverified via a special error — return null causes "CredentialsSignin"
-          // We encode the reason in the error by throwing
-          throw new Error("EMAIL_NOT_VERIFIED");
+          const err = new CredentialsSignin("EMAIL_NOT_VERIFIED");
+          err.code = "EMAIL_NOT_VERIFIED";
+          throw err;
         }
 
         const valid = await bcrypt.compare(parsed.data.password, user.passwordHash);

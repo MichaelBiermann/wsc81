@@ -107,14 +107,14 @@ export default function Nav() {
               )}
             </div>
 
-            <Link href={`/${locale}/membership`} className="rounded bg-white text-[#4577ac] px-3 py-1.5 font-semibold hover:bg-blue-100 transition-colors">
+            <Link href={`/${locale}/membership`} className="hidden lg:inline-block rounded bg-white text-[#4577ac] px-3 py-1.5 font-semibold hover:bg-blue-100 transition-colors">
               {t("membership")}
             </Link>
           </div>
 
           {/* Search + auth + language switcher */}
           <div className="flex items-center gap-3">
-            <form onSubmit={handleSearch} className="hidden sm:flex items-center">
+            <form onSubmit={handleSearch} className="hidden lg:flex items-center">
               <input
                 type="search"
                 value={searchQ}
@@ -124,9 +124,9 @@ export default function Nav() {
               />
               <button
                 type="submit"
-                className="rounded-r bg-[#2d5a8a] px-3 py-1.5 text-sm hover:bg-[#1e3d60] transition-colors"
+                className="rounded-r bg-[#2d5a8a] px-3 py-1.5 text-sm hover:bg-[#1e3d60] transition-colors flex items-center"
               >
-                🔍
+                <span className="material-symbols-rounded" style={{ fontSize: "18px" }}>search</span>
               </button>
             </form>
 
@@ -187,7 +187,7 @@ export default function Nav() {
               onClick={() => setMobileOpen(!mobileOpen)}
               aria-label="Toggle menu"
             >
-              <span className="text-xl">{mobileOpen ? "✕" : "☰"}</span>
+              <span className="material-symbols-rounded" style={{ fontSize: "22px" }}>{mobileOpen ? "close" : "menu"}</span>
             </button>
           </div>
         </div>
@@ -234,7 +234,9 @@ export default function Nav() {
                 placeholder={t("search")}
                 className="flex-1 rounded-l bg-white px-3 py-1.5 text-sm text-gray-800"
               />
-              <button type="submit" className="rounded-r bg-[#2d5a8a] px-3 py-1.5 text-sm">🔍</button>
+              <button type="submit" className="rounded-r bg-[#2d5a8a] px-3 py-1.5 text-sm flex items-center">
+                <span className="material-symbols-rounded" style={{ fontSize: "18px" }}>search</span>
+              </button>
             </form>
           </div>
         )}

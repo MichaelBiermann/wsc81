@@ -134,6 +134,7 @@ model Event {
   endDate              DateTime
   depositAmount        Decimal        @db.Decimal(8, 2)
   totalAmount          Decimal        @db.Decimal(8, 2)
+  imageUrl             String?
   maxParticipants      Int?
   registrationDeadline DateTime?
   createdAt            DateTime       @default(now())
@@ -276,6 +277,8 @@ model User {
   pendingEmail           String?
   pendingEmailToken      String?        @unique
   pendingEmailExpiresAt  DateTime?
+  passwordResetToken     String?        @unique
+  passwordResetExpiresAt DateTime?
 
   @@index([email])
 }

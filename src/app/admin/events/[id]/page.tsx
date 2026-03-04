@@ -27,6 +27,7 @@ interface EventDetail {
   totalAmount: string;
   maxParticipants: number | null;
   registrationDeadline: string | null;
+  imageUrl: string | null;
   bookings: Booking[];
 }
 
@@ -69,6 +70,7 @@ export default function EditEventPage() {
           totalAmount: String(event.totalAmount),
           maxParticipants: event.maxParticipants ? String(event.maxParticipants) : "",
           registrationDeadline: event.registrationDeadline ? toDatetimeLocal(event.registrationDeadline) : "",
+          imageUrl: event.imageUrl ?? "",
         }}
       />
 

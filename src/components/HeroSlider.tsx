@@ -18,7 +18,7 @@ export default function HeroSlider({ locale }: { locale: string }) {
   }, []);
 
   return (
-    <div className="relative h-[206px] md:h-[265px] overflow-hidden bg-[#2d5a8a]">
+    <div className="relative h-[227px] md:h-[292px] overflow-hidden bg-[#2d5a8a]">
       {SLIDES.map((slide, i) => (
         <div
           key={i}
@@ -45,7 +45,7 @@ export default function HeroSlider({ locale }: { locale: string }) {
           </p>
           <a
             href={`/${locale}/membership`}
-            className="mt-6 inline-block rounded bg-white text-[#4577ac] font-bold px-6 py-3 hover:bg-blue-50 transition-colors"
+            className="mt-6 inline-block rounded bg-white text-[#4577ac] font-bold px-8 py-4 hover:bg-blue-50 transition-colors"
           >
             {locale === "de" ? "Jetzt Mitglied werden" : "Become a Member"}
           </a>

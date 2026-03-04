@@ -233,11 +233,32 @@
     "submit": "Sign in",
     "submitting": "Signing in...",
     "noAccount": "Don't have an account?",
-    "registerLink": "Register now",
+    "registerLink": "Book now",
+    "forgotPassword": "Forgot password?",
+    "passwordResetSuccess": "Your password has been changed. You can now sign in.",
     "errors": {
       "invalidCredentials": "Invalid email address or password.",
       "notVerified": "Please verify your email address first."
     }
+  },
+  "ForgotPassword": {
+    "pageTitle": "Forgot password",
+    "subtitle": "Enter your email address and we'll send you a reset link.",
+    "emailLabel": "Email address",
+    "submit": "Send reset link",
+    "sent": "If an account with that email exists, you'll receive an email shortly.",
+    "error": "Something went wrong. Please try again.",
+    "backToLogin": "← Back to sign in"
+  },
+  "ResetPassword": {
+    "pageTitle": "Set new password",
+    "subtitle": "Enter your new password below.",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm password",
+    "submit": "Save password",
+    "mismatch": "Passwords do not match.",
+    "invalidToken": "Invalid or missing link. Please request a new one.",
+    "expiredToken": "This link has expired. Please request a new one."
   },
   "Account": {
     "pageTitle": "My Account",

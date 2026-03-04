@@ -48,6 +48,7 @@ export async function PUT(
       totalAmount: d.totalAmount,
       maxParticipants: d.maxParticipants ?? null,
       registrationDeadline: d.registrationDeadline ? new Date(d.registrationDeadline) : null,
+      imageUrl: d.imageUrl ?? null,
     },
   });
   return NextResponse.json(event);

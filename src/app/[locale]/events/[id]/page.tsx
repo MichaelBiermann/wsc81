@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import BookingForm from "@/components/BookingForm";
 import { getTranslations } from "next-intl/server";
 import { auth } from "@/auth";
@@ -69,15 +70,23 @@ export default async function EventDetailPage({
       <div className="flex flex-col lg:flex-row gap-8 items-start">
         {/* Left: event details */}
         <div className="lg:w-2/5 lg:sticky lg:top-6">
-          <div className="bg-[#4577ac] text-white rounded-t-lg px-6 py-4">
-            <p className="text-sm opacity-80">
-              📅 {fmt(event.startDate)}
+          {event.imageUrl && (
+            <div className="relative h-56 w-full rounded-t-lg overflow-hidden">
+              <Image src={event.imageUrl} alt={title} fill className="object-cover" unoptimized />
+            </div>
+          )}
+          <div className={`bg-[#4577ac] text-white px-6 py-4 ${event.imageUrl ? "" : "rounded-t-lg"}`}>
+            <p className="text-sm opacity-80 flex items-center gap-1">
+              <span className="material-symbols-rounded" style={{ fontSize: "16px" }}>calendar_month</span>
+              {fmt(event.startDate)}
               {event.endDate && event.endDate.getTime() !== event.startDate.getTime()
                 ? ` – ${fmt(event.endDate)}`
                 : ""}
             </p>
             <h1 className="text-xl font-bold mt-1">{title}</h1>
-            <p className="text-sm opacity-80 mt-1">📍 {event.location}</p>
+            <p className="text-sm opacity-80 mt-1 flex items-center gap-1">
+              <span className="material-symbols-rounded" style={{ fontSize: "16px" }}>location_on</span> {event.location}
+            </p>
           </div>
 
           <div className="bg-white border border-gray-200 border-t-0 rounded-b-lg p-5 mb-4">

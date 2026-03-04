@@ -233,11 +233,32 @@
     "submit": "Anmelden",
     "submitting": "Wird angemeldet...",
     "noAccount": "Noch kein Konto?",
-    "registerLink": "Jetzt registrieren",
+    "registerLink": "Jetzt buchen",
+    "forgotPassword": "Passwort vergessen?",
+    "passwordResetSuccess": "Ihr Passwort wurde erfolgreich geändert. Sie können sich jetzt anmelden.",
     "errors": {
       "invalidCredentials": "E-Mail-Adresse oder Passwort ist falsch.",
       "notVerified": "Bitte bestätigen Sie zuerst Ihre E-Mail-Adresse."
     }
+  },
+  "ForgotPassword": {
+    "pageTitle": "Passwort vergessen",
+    "subtitle": "Geben Sie Ihre E-Mail-Adresse ein. Wir senden Ihnen einen Link zum Zurücksetzen.",
+    "emailLabel": "E-Mail-Adresse",
+    "submit": "Link senden",
+    "sent": "Falls ein Konto mit dieser E-Mail-Adresse existiert, erhalten Sie in Kürze eine E-Mail.",
+    "error": "Fehler beim Senden. Bitte versuchen Sie es erneut.",
+    "backToLogin": "← Zurück zur Anmeldung"
+  },
+  "ResetPassword": {
+    "pageTitle": "Neues Passwort setzen",
+    "subtitle": "Geben Sie Ihr neues Passwort ein.",
+    "newPassword": "Neues Passwort",
+    "confirmPassword": "Passwort bestätigen",
+    "submit": "Passwort speichern",
+    "mismatch": "Die Passwörter stimmen nicht überein.",
+    "invalidToken": "Ungültiger oder fehlender Link. Bitte fordern Sie einen neuen an.",
+    "expiredToken": "Dieser Link ist abgelaufen. Bitte fordern Sie einen neuen an."
   },
   "Account": {
     "pageTitle": "Mein Konto",

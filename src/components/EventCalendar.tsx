@@ -1,5 +1,6 @@
 import type { Event } from "@prisma/client";
 import Link from "next/link";
+import Image from "next/image";
 
 interface Props {
   events: Event[];
@@ -30,14 +31,21 @@ export default function EventCalendar({ events, locale }: Props) {
 
         return (
           <div key={event.id} className="rounded-lg border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow overflow-hidden">
-            <div className="bg-[#4577ac] px-4 py-2 text-white text-sm font-medium">
-              📅 {dateStr}
+            {event.imageUrl && (
+              <div className="relative h-40 w-full">
+                <Image src={event.imageUrl} alt={title} fill className="object-cover" unoptimized />
+              </div>
+            )}
+            <div className="bg-[#4577ac] px-4 py-2 text-white text-sm font-medium flex items-center gap-1">
+              <span className="material-symbols-rounded" style={{ fontSize: "16px" }}>calendar_month</span> {dateStr}
             </div>
             <div className="p-4">
               <Link href={`/${locale}/events/${event.id}`} className="hover:underline">
                 <h3 className="font-bold text-gray-900 mb-1">{title}</h3>
               </Link>
-              <p className="text-sm text-gray-500 mb-1">📍 {event.location}</p>
+              <p className="text-sm text-gray-500 mb-1 flex items-center gap-1">
+                <span className="material-symbols-rounded" style={{ fontSize: "14px" }}>location_on</span> {event.location}
+              </p>
               <p className="text-sm text-gray-600 line-clamp-2 mb-3">
                 {description.replace(/<[^>]+>/g, "").slice(0, 120)}…
               </p>

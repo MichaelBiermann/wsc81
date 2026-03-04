@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import FormField from "@/components/ui/FormField";
@@ -19,6 +19,8 @@ export default function LoginForm({
 }) {
   const t = useTranslations("Login");
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const passwordReset = searchParams.get("passwordReset") === "1";
   const [status, setStatus] = useState<"idle" | "submitting" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const [email, setEmail] = useState("");
@@ -40,7 +42,7 @@ export default function LoginForm({
       router.push(callbackUrl ?? `/${locale}/account`);
     } else {
       setStatus("error");
-      if (result?.error === "EMAIL_NOT_VERIFIED") {
+      if (result?.code === "EMAIL_NOT_VERIFIED") {
         setErrorMsg(t("errors.notVerified"));
       } else {
         setErrorMsg(t("errors.invalidCredentials"));
@@ -50,6 +52,7 @@ export default function LoginForm({
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      {passwordReset && <Alert variant="success">{t("passwordResetSuccess")}</Alert>}
       <FormField label={t("fields.email")} required>
         <Input
           type="email"
@@ -69,6 +72,12 @@ export default function LoginForm({
           autoComplete="current-password"
         />
       </FormField>
+
+      <div className="text-right -mt-2">
+        <Link href={`/${locale}/forgot-password`} className="text-sm text-[#4577ac] hover:underline">
+          {t("forgotPassword")}
+        </Link>
+      </div>
 
       {status === "error" && <Alert variant="error">{errorMsg}</Alert>}
 
