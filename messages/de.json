@@ -181,7 +181,8 @@
     "noResults": "Keine Ergebnisse gefunden.",
     "typeEvent": "Veranstaltung",
     "typeNews": "Neuigkeit",
-    "typePage": "Seite"
+    "typePage": "Seite",
+    "typeRecap": "Rückblick"
   },
   "Sponsors": {
     "pageTitle": "Unsere Sponsoren",

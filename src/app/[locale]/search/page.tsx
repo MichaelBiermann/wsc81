@@ -44,26 +44,36 @@ export default async function SearchPage({
       )}
 
       <div className="flex flex-col gap-4">
-        {results.map((r) => (
-          <div key={r.id} className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-            <div className="flex items-center gap-2 mb-1">
-              <span className={`text-xs rounded px-2 py-0.5 font-medium ${r.type === "event" ? "bg-[#eef3f9] text-[#4577ac]" : "bg-gray-100 text-gray-600"}`}>
-                {r.type === "event" ? t("typeEvent") : t("typeNews")}
-              </span>
+        {results.map((r) => {
+          const typeLabel =
+            r.type === "event" ? t("typeEvent") :
+            r.type === "news" ? t("typeNews") :
+            r.type === "recap" ? t("typeRecap") :
+            t("typePage");
+          const href =
+            r.type === "event" ? `/${locale}/events/${r.id}` :
+            r.type === "news" ? `/${locale}/news/${r.slug}` :
+            r.type === "recap" ? `/${locale}/rueckblicke/${r.slug}` :
+            `/${locale}/seite/${r.slug}`;
+          return (
+            <div key={r.id} className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+              <div className="flex items-center gap-2 mb-1">
+                <span className={`text-xs rounded px-2 py-0.5 font-medium ${r.type === "event" ? "bg-[#eef3f9] text-[#4577ac]" : "bg-gray-100 text-gray-600"}`}>
+                  {typeLabel}
+                </span>
+              </div>
+              <Link
+                href={href}
+                className="font-semibold text-gray-900 hover:text-[#4577ac] hover:underline"
+              >
+                {r.title}
+              </Link>
+              {r.excerpt && (
+                <p className="text-sm text-gray-500 mt-1 line-clamp-2">{r.excerpt}</p>
+              )}
             </div>
-            <Link
-              href={r.type === "event"
-                ? `/${locale}/events/${r.id}/book`
-                : `/${locale}/news/${r.slug}`}
-              className="font-semibold text-gray-900 hover:text-[#4577ac] hover:underline"
-            >
-              {r.title}
-            </Link>
-            {r.excerpt && (
-              <p className="text-sm text-gray-500 mt-1 line-clamp-2">{r.excerpt}</p>
-            )}
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

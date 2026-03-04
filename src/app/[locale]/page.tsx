@@ -40,6 +40,12 @@ export default async function HomePage({
       <HeroSlider locale={locale} />
       <WelcomeBlock locale={locale} />
 
+      <section className="py-12">
+        <div className="mx-auto max-w-7xl px-4">
+          <NewsBlock posts={newsPosts} locale={locale} />
+        </div>
+      </section>
+
       <section className="mx-auto max-w-7xl px-4 py-12">
         <h2 className="text-2xl font-bold text-[#4577ac] mb-6">{t("upcoming")}</h2>
         <EventCalendar events={events} locale={locale} isLoggedIn={isLoggedIn} />
@@ -60,12 +66,6 @@ export default async function HomePage({
           ) : (
             <RegularActivities locale={locale} />
           )}
-        </div>
-      </section>
-
-      <section className="py-12">
-        <div className="mx-auto max-w-7xl px-4">
-          <NewsBlock posts={newsPosts} locale={locale} />
         </div>
       </section>
 

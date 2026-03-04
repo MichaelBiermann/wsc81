@@ -181,7 +181,8 @@
     "noResults": "No results found.",
     "typeEvent": "Event",
     "typeNews": "News",
-    "typePage": "Page"
+    "typePage": "Page",
+    "typeRecap": "Recap"
   },
   "Sponsors": {
     "pageTitle": "Our Sponsors",

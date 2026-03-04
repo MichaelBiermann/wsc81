@@ -1,7 +1,7 @@
 import { prisma } from "./prisma";
 
 export interface SearchResult {
-  type: "event" | "news";
+  type: "event" | "news" | "recap" | "page";
   id: string;
   title: string;
   excerpt: string;
@@ -14,9 +14,9 @@ export async function search(q: string, locale: string = "de"): Promise<SearchRe
   const dict = isDE ? "german" : "english";
   const titleField = isDE ? "titleDe" : "titleEn";
   const bodyField = isDE ? "descriptionDe" : "descriptionEn";
-  const newsBodyField = isDE ? "bodyDe" : "bodyEn";
+  const bodyField2 = isDE ? "bodyDe" : "bodyEn";
 
-  // Use raw query for full-text search across events and news
+  // Use raw query for full-text search across events, news, recaps and pages
   const results = await prisma.$queryRawUnsafe<
     Array<{
       type: string;
@@ -47,16 +47,50 @@ export async function search(q: string, locale: string = "de"): Promise<SearchRe
       'news' AS type,
       id,
       "${titleField}" AS title,
-      LEFT(regexp_replace("${newsBodyField}", '<[^>]+>', '', 'g'), 200) AS excerpt,
+      LEFT(regexp_replace("${bodyField2}", '<[^>]+>', '', 'g'), 200) AS excerpt,
       slug,
       ts_rank(
-        to_tsvector($2, "${titleField}" || ' ' || "${newsBodyField}"),
+        to_tsvector($2, "${titleField}" || ' ' || "${bodyField2}"),
         plainto_tsquery($2, $1)
       ) AS rank
     FROM "NewsPost"
     WHERE
       status = 'PUBLISHED'
-      AND to_tsvector($2, "${titleField}" || ' ' || "${newsBodyField}") @@ plainto_tsquery($2, $1)
+      AND to_tsvector($2, "${titleField}" || ' ' || "${bodyField2}") @@ plainto_tsquery($2, $1)
+
+    UNION ALL
+
+    SELECT
+      'recap' AS type,
+      id,
+      "${titleField}" AS title,
+      LEFT(regexp_replace("${bodyField2}", '<[^>]+>', '', 'g'), 200) AS excerpt,
+      slug,
+      ts_rank(
+        to_tsvector($2, "${titleField}" || ' ' || "${bodyField2}"),
+        plainto_tsquery($2, $1)
+      ) AS rank
+    FROM "Recap"
+    WHERE
+      status = 'PUBLISHED'
+      AND to_tsvector($2, "${titleField}" || ' ' || "${bodyField2}") @@ plainto_tsquery($2, $1)
+
+    UNION ALL
+
+    SELECT
+      'page' AS type,
+      id,
+      "${titleField}" AS title,
+      LEFT(regexp_replace("${bodyField2}", '<[^>]+>', '', 'g'), 200) AS excerpt,
+      slug,
+      ts_rank(
+        to_tsvector($2, "${titleField}" || ' ' || "${bodyField2}"),
+        plainto_tsquery($2, $1)
+      ) AS rank
+    FROM "Page"
+    WHERE
+      status = 'PUBLISHED'
+      AND to_tsvector($2, "${titleField}" || ' ' || "${bodyField2}") @@ plainto_tsquery($2, $1)
 
     ORDER BY rank DESC
     LIMIT 20
@@ -66,7 +100,7 @@ export async function search(q: string, locale: string = "de"): Promise<SearchRe
   );
 
   return results.map((r) => ({
-    type: r.type as "event" | "news",
+    type: r.type as "event" | "news" | "recap" | "page",
     id: r.id,
     title: r.title,
     excerpt: r.excerpt,
