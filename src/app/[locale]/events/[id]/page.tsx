@@ -124,38 +124,54 @@ export default async function EventDetailPage({
 
         {/* Right: booking form */}
         <div className="lg:w-3/5">
-          <h2 className="text-xl font-bold text-[#4577ac] mb-2">{t("pageTitle")}</h2>
-          <p className="text-gray-500 text-sm mb-6">{t("subtitle", { eventTitle: title })}</p>
-          {sessionUser?.id ? (
-            <BookingForm
-              event={{
-                id: event.id,
-                titleDe: event.titleDe,
-                titleEn: event.titleEn,
-                totalAmount: Number(event.totalAmount),
-                depositAmount: Number(event.depositAmount),
-                registrationDeadline: event.registrationDeadline?.toISOString() ?? null,
-              }}
-              locale={locale}
-              prefill={prefill}
-            />
+          {event.bookable ? (
+            <>
+              <h2 className="text-xl font-bold text-[#4577ac] mb-2">{t("pageTitle")}</h2>
+              <p className="text-gray-500 text-sm mb-6">{t("subtitle", { eventTitle: title })}</p>
+              {sessionUser?.id ? (
+                <BookingForm
+                  event={{
+                    id: event.id,
+                    titleDe: event.titleDe,
+                    titleEn: event.titleEn,
+                    totalAmount: Number(event.totalAmount),
+                    depositAmount: Number(event.depositAmount),
+                    registrationDeadline: event.registrationDeadline?.toISOString() ?? null,
+                  }}
+                  locale={locale}
+                  prefill={prefill}
+                />
+              ) : (
+                <div className="rounded-lg border border-[#4577ac]/30 bg-[#eef3f9] p-6 text-center">
+                  <p className="text-gray-700 mb-4">{isDE ? "Bitte melden Sie sich an, um diese Veranstaltung zu buchen." : "Please sign in to book this event."}</p>
+                  <div className="flex justify-center gap-3">
+                    <Link
+                      href={`/${locale}/login?callbackUrl=/${locale}/events/${event.id}`}
+                      className="rounded bg-[#4577ac] px-5 py-2 text-sm font-semibold text-white hover:bg-[#2d5a8a] transition-colors"
+                    >
+                      {isDE ? "Anmelden" : "Sign in"}
+                    </Link>
+                    <Link
+                      href={`/${locale}/register`}
+                      className="rounded border border-[#4577ac] px-5 py-2 text-sm font-semibold text-[#4577ac] hover:bg-[#4577ac]/10 transition-colors"
+                    >
+                      {isDE ? "Registrieren" : "Register"}
+                    </Link>
+                  </div>
+                </div>
+              )}
+            </>
           ) : (
-            <div className="rounded-lg border border-[#4577ac]/30 bg-[#eef3f9] p-6 text-center">
-              <p className="text-gray-700 mb-4">{isDE ? "Bitte melden Sie sich an, um diese Veranstaltung zu buchen." : "Please sign in to book this event."}</p>
-              <div className="flex justify-center gap-3">
-                <Link
-                  href={`/${locale}/login?callbackUrl=/${locale}/events/${event.id}`}
-                  className="rounded bg-[#4577ac] px-5 py-2 text-sm font-semibold text-white hover:bg-[#2d5a8a] transition-colors"
-                >
-                  {isDE ? "Anmelden" : "Sign in"}
-                </Link>
-                <Link
-                  href={`/${locale}/register`}
-                  className="rounded border border-[#4577ac] px-5 py-2 text-sm font-semibold text-[#4577ac] hover:bg-[#4577ac]/10 transition-colors"
-                >
-                  {isDE ? "Registrieren" : "Register"}
-                </Link>
-              </div>
+            <div className="rounded-lg border border-gray-200 bg-[#eef3f9] p-6">
+              <p className="text-sm font-medium text-[#4577ac] flex items-center gap-2 mb-1">
+                <span className="material-symbols-rounded" style={{ fontSize: "18px" }}>info</span>
+                {isDE ? "Keine Anmeldung erforderlich" : "No registration required"}
+              </p>
+              <p className="text-sm text-gray-600">
+                {isDE
+                  ? "Diese Aktivität ist offen für alle – einfach vorbeikommen!"
+                  : "This activity is open to everyone — just show up!"}
+              </p>
             </div>
           )}
         </div>
