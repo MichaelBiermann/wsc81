@@ -98,7 +98,7 @@ export default function BookingForm({
     });
 
     if (res.ok) {
-      router.push(`/${locale}/events/${event.id}/book/success`);
+      router.push(`/${locale}/events/${event.id}/book/success?email=${encodeURIComponent(form.email)}`);
     } else {
       const data = await res.json();
       setStatus("error");
