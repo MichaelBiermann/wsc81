@@ -7,13 +7,31 @@ export const ADMIN_TRANSLATIONS = {
     nav: {
       dashboard: "Dashboard",
       events: "Veranstaltungen",
-      members: "Mitglieder",
+      members: "Mitgliedschaften",
       sponsors: "Sponsoren",
       newsletter: "Newsletter",
       content: "Inhalte",
       settings: "Einstellungen",
+      userAccounts: "Benutzer",
     },
     signOut: "Abmelden",
+    // Users
+    users: {
+      title: "Benutzerkonten",
+      total: "Benutzer",
+      colName: "Name",
+      colEmail: "E-Mail",
+      colVerified: "Bestätigt",
+      colMember: "Mitglied",
+      colBookings: "Buchungen",
+      colRegistered: "Registriert",
+      colActions: "Aktionen",
+      verified: "Ja",
+      unverified: "Ausstehend",
+      isMember: "Mitglied",
+      noUsers: "Keine Benutzerkonten vorhanden.",
+      deleteConfirm: "Benutzerkonto von {name} wirklich löschen?",
+    },
     // Dashboard
     dashboard: {
       title: "Dashboard",
@@ -62,7 +80,7 @@ export const ADMIN_TRANSLATIONS = {
     },
     // Members
     members: {
-      title: "Mitglieder",
+      title: "Mitgliedschaften",
       pendingLink: "Ausstehende Anmeldungen →",
       colName: "Name",
       colEmail: "E-Mail",
@@ -75,7 +93,7 @@ export const ADMIN_TRANSLATIONS = {
     // Pending members
     pendingMembers: {
       title: "Ausstehende Anmeldungen",
-      backLink: "← Alle Mitglieder",
+      backLink: "← Alle Mitgliedschaften",
       colSubmitted: "Eingereicht",
       colExpires: "Link läuft ab",
       colExpired: "Abgelaufen",
@@ -210,13 +228,32 @@ export const ADMIN_TRANSLATIONS = {
     nav: {
       dashboard: "Dashboard",
       events: "Events",
-      members: "Members",
+      members: "Memberships",
       sponsors: "Sponsors",
       newsletter: "Newsletter",
       content: "Content",
       settings: "Settings",
+      userAccounts: "Users",
     },
     signOut: "Sign out",
+    // Users
+    users: {
+      title: "User Accounts",
+      total: "users",
+      colName: "Name",
+      colEmail: "Email",
+      colVerified: "Verified",
+      colMember: "Member",
+      colBookings: "Bookings",
+      colRegistered: "Registered",
+      colActions: "Actions",
+      verified: "Yes",
+      unverified: "Pending",
+      isMember: "Member",
+      noUsers: "No user accounts found.",
+      deleteConfirm: "Really delete account for {name}?",
+    },
+    // Dashboard
     dashboard: {
       title: "Dashboard",
       events: "Events",
@@ -261,7 +298,7 @@ export const ADMIN_TRANSLATIONS = {
       saveError: "Error saving.",
     },
     members: {
-      title: "Members",
+      title: "Memberships",
       pendingLink: "Pending Applications →",
       colName: "Name",
       colEmail: "Email",
@@ -273,7 +310,7 @@ export const ADMIN_TRANSLATIONS = {
     },
     pendingMembers: {
       title: "Pending Applications",
-      backLink: "← All Members",
+      backLink: "← All Memberships",
       colSubmitted: "Submitted",
       colExpires: "Link expires",
       colExpired: "Expired",

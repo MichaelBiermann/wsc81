@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { BookingSchema } from "@/lib/validation";
 import { sendBookingConfirmation, sendBookingAdminNotification } from "@/lib/mailer";
@@ -7,6 +8,12 @@ const NON_MEMBER_SURCHARGE = 40;
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await auth();
+    const sessionUser = session?.user as { role?: string } | undefined;
+    if (!session || !sessionUser || sessionUser.role === undefined || sessionUser.role === "admin") {
+      return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+    }
+
     const body = await request.json();
     const parsed = BookingSchema.safeParse(body);
     if (!parsed.success) {
@@ -63,7 +70,7 @@ export async function POST(request: NextRequest) {
     const surcharge = data.isMember ? 0 : NON_MEMBER_SURCHARGE;
     const totalAmount = Number(event.totalAmount) + surcharge;
 
-    await Promise.all([
+    await Promise.allSettled([
       sendBookingConfirmation({
         to: data.email,
         person1Name: data.person1.name,
@@ -71,14 +78,14 @@ export async function POST(request: NextRequest) {
         eventTitleEn: event.titleEn,
         startDate: event.startDate,
         locale: data.locale,
-      }),
+      }).catch((e) => console.error("[POST /api/booking] Confirmation email failed:", e)),
       sendBookingAdminNotification({
         eventTitleDe: event.titleDe,
         bookingId: booking.id,
         person1Name: data.person1.name,
         email: data.email,
         participantCount,
-      }),
+      }).catch((e) => console.error("[POST /api/booking] Admin notification failed:", e)),
     ]);
 
     return NextResponse.json(

@@ -61,12 +61,17 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      await sendMembershipConfirmation({
-        to: data.email,
-        person1Name: data.person1.name,
-        activationToken: token,
-        locale: data.locale,
-      });
+      try {
+        await sendMembershipConfirmation({
+          to: data.email,
+          person1Name: data.person1.name,
+          activationToken: token,
+          locale: data.locale,
+        });
+      } catch (mailError) {
+        console.error("[POST /api/membership] Email send failed:", mailError);
+        // DB record created successfully; email failure is non-fatal
+      }
     }
 
     return NextResponse.json({ message: "confirmation_sent" }, { status: 201 });

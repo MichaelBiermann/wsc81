@@ -55,12 +55,16 @@ export async function POST(request: NextRequest) {
   const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
   const verificationUrl = `${BASE_URL}/api/auth/verify-email?token=${verificationToken}`;
 
-  await sendUserVerification({
-    to: data.email,
-    firstName: data.firstName,
-    verificationUrl,
-    locale: data.locale,
-  });
+  try {
+    await sendUserVerification({
+      to: data.email,
+      firstName: data.firstName,
+      verificationUrl,
+      locale: data.locale,
+    });
+  } catch (mailError) {
+    console.error("[POST /api/auth/register] Email send failed:", mailError);
+  }
 
   return NextResponse.json({ message: "verification_sent" }, { status: 201 });
 }
