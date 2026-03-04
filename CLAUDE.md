@@ -8,282 +8,158 @@ Homepage for **Walldorfer Ski-Club 81 e.V. (WSC 81)**. Modelled after the existi
 
 - **Primary language:** German (default)
 - **Secondary language:** English (alternative)
+- **Deployed at:** https://wsc81.vercel.app
 
-## Key Features
+## Tech Stack
 
-### 1. Public Homepage (matching wsc81.de)
-- Sticky navigation: WSC 81 · Veranstaltungen · Rückblicke · Formulare · Allgemeines
-- Hero image slider (Arlberg ski scenes)
-- Welcome text block
-- Upcoming events calendar with **"Jetzt buchen"** (Book now) button per event
-- News block
-- Contact info (address + email)
-- Weather widget
-- Footer: social media icons, legal links
+- **Framework:** Next.js 16 (App Router, TypeScript)
+- **Database:** PostgreSQL (Neon serverless) + Prisma ORM v7
+- **Auth:** NextAuth.js v5 beta — two Credentials providers: `admin-credentials` (AdminUser table) and `user-credentials` (User table)
+- **Email:** SendGrid (`@sendgrid/mail`)
+- **i18n:** next-intl (de default, en alternative); admin area uses `src/lib/admin-i18n.ts` (static const, no next-intl)
+- **Styling:** Tailwind CSS
+- **Icons:** Material Symbols Rounded (loaded via Google Fonts in root layout)
+- **Validation:** Zod
+- **Rich text editor:** TipTap (newsletter editor, content editor)
+- **AI:** Anthropic Claude API (`claude-sonnet-4-6`) for content rephrasing actions
+- **File storage:** Vercel Blob (avatars, sponsor images)
+- **Deployment:** Vercel
 
-### 2. Event Booking (Anmeldung für eine Freizeit)
-One booking form per event, covering up to 5 participants (same family structure as membership).
+## Build & Development
 
-**People fields (up to 5 slots):**
-- Person 1: Name (primary participant)
-- Person 2: PartnerIn (partner) — optional
-- Persons 3–5: Kind (child) — optional
-- Date of birth for each person entered
-
-**Shared contact (one per booking):**
-- Straße (street + house number)
-- PLZ (5-digit postal code)
-- Stadt (city)
-- Telefon (phone)
-- eMail
-
-**Additional fields:**
-- WSC81 member? (Ja / Nein checkbox — pre-ticked if user is logged in as `member`)
-- Bemerkungen (free-text remarks/notes)
-
-**Pricing surcharge:**
-- Non-members pay an extra **€40.00** on top of the event's base price
-- This surcharge is waived automatically once a user holds the `member` role (i.e. membership application activated **and** yearly fee paid)
-- The booking form shows the applicable total clearly before submission
-
-**Payment:** Bank transfer to Volksbank Wiesloch (IBAN DE27 6729 2200 0010 3294 00, BIC: GENODE61WIE)
-- Deposit (Anzahlung) due immediately
-- Remaining balance (Restbetrag) due at least 4 weeks before trip start
-- Each event defines its own amounts in its Ausschreibung (event description)
-
-**Terms:** By submitting, participants accept the WSC81 Reisebedingungen (travel terms). Registration deadline per event must be respected.
-
-**Process:**
-- Booking is tied to a specific event (selected from the event calendar)
-- On submit: save booking, send confirmation email to the provided address
-- Club admin receives notification of new booking
-
-### 3. Membership Application (Beitrittserklärung)
-Based on the official form (Formular 5.4.2014). One application covers a family unit of up to 5 people.
-
-**People fields (up to 5 slots):**
-- Person 1: Name (primary member)
-- Person 2: PartnerIn (partner) — optional
-- Persons 3–5: Kind (child) — optional
-- Date of birth for each person entered
-
-**Shared address/contact (one per application):**
-- Straße (street + house number)
-- PLZ (5-digit postal code)
-- Wohnort (city)
-- Telefon (phone)
-- eMail
-
-**Membership category (select one, annual fee by SEPA direct debit only):**
-| Category | Fee/year |
-|---|---|
-| Familien (adults + children up to age 25) | €47.00 |
-| Erwachsene (adults) | €32.00 |
-| Jugendliche (up to age 17) + Schüler/Studenten (with ID) | €17.00 |
-| GDB ab 50% (disability ≥50%) | €22.00 |
-| Senioren (with official ID) | €27.00 |
-
-Note: from age 25, youth fees convert automatically to adult or student fees unless cancelled.
-
-**Bank details (SEPA direct debit):**
-- Kreditinstitut (bank name)
-- IBAN
-- BIC
-
-**Consent checkboxes (all required):**
-1. Consent to electronic data storage
-2. Agreement that cancellation fees caused to WSC are charged to the member
-3. Acknowledgement of the club's Satzung (bylaws)
-
-**Process:**
-- On submit: save as pending, send confirmation email with activation link
-- Unactivated applications are automatically deleted after 7 days
-- Fiscal year: 1 July – 30 June
-
-### 4. Full-Text Search
-Google-like search experience to find any content on the site — events, news, club info pages, Rückblicke (recaps), etc.
-
-- Search bar prominently placed in the header/navigation area
-- Results page shows ranked matches with title, excerpt/snippet, and link
-- Searches across: events, news posts, static page content, Rückblicke
-- Supports both German and English content
-- Fast, incremental results preferred (search-as-you-type or on submit)
-- Implementation: PostgreSQL full-text search (`tsvector` / `plainto_tsquery` with `german` dictionary)
-
-### 5. Sponsors Page (`/sponsoren`)
-Dedicated subpage showing all club sponsors, one image per sponsor, each linking to the sponsor's website. Images sourced from the existing wsc81.de site.
-
-| # | Name | Image URL | Website |
-|---|------|-----------|---------|
-| 1 | Bauunternehmung Michael Schneider | https://daten.verwaltungsportal.de/dateien//mypage/1/7/2/5/5/0/4/Bauunternehmnung_Schneider.png | http://www.schneider-walldorf.de/ |
-| 2 | Weine und Genuss | https://daten.verwaltungsportal.de/dateien//mypage/1/7/2/5/5/0/6/Wein_Genuss_Logo.png | https://www.weine-und-genuss.de/weinladen_walldorf.html |
-| 3 | Metzgerei Pütz | https://daten.verwaltungsportal.de/dateien//mypage/1/7/2/5/5/0/8/Metzgerei_P_tz.jpg | https://www.metzgerei-walldorf.de |
-| 4 | StefanMayerreisen | https://daten.verwaltungsportal.de/dateien//mypage/1/7/2/5/5/1/0/StefanMayer_2.webp | https://stefan-mayer-reisen.de/ |
-| 5 | Getränke Wipfler Walldorf | https://daten.verwaltungsportal.de/dateien//mypage/1/7/2/5/5/1/2/Wipfler.jpg | https://www.getraenke-wipfler.de |
-| 6 | Der Brillenladen | https://daten.verwaltungsportal.de/dateien//mypage/1/7/2/5/5/1/4/Brillentante_Logo.png | https://www.derbrillenladen-walldorf.de/ |
-| 7 | Sparkasse | https://daten.verwaltungsportal.de/dateien//mypage/1/7/2/5/5/3/0/Sparkasse_NEW.png | https://www.sparkasse-heidelberg.de |
-| 8 | Volksbank Kraichgau | https://daten.verwaltungsportal.de/dateien//mypage/1/7/2/5/5/3/2/Volksbank_Kraichgau.jpg | https://www.vbkraichgau.de |
-| 9 | Tari Bikes | https://daten.verwaltungsportal.de/dateien//mypage/1/7/2/5/5/3/4/Tari_Bikes-001.jpg | https://www.tari-bikes.de/ |
-| 10 | Pfälzer Hof | https://daten.verwaltungsportal.de/dateien//mypage/1/7/2/5/5/3/6/Pf_lzer_Hof-001.jpg | https://www.pfaelzerhofwalldorf.de/ |
-| 11 | Astoria Apotheke | https://daten.verwaltungsportal.de/dateien//mypage/1/7/2/5/5/3/8/Apotheke.jpg | https://www.central-apotheke-walldorf.de |
-
-Layout: responsive image grid, each sponsor is a linked image card. Linked from navigation under WSC 81 → Unsere Sponsoren.
-
-## User Roles
-
-| Role | Description |
-|------|-------------|
-| `user` | Unauthenticated visitor or registered-but-not-yet-member. Can browse the site, apply for membership, book events. |
-| `member` | Activated club member. Same public access as `user` plus any future member-only areas. |
-| `admin` | Content administrator. Full access to all public features plus the admin area. |
-
-## Admin Features (`/admin` — role `admin` only)
-
-All admin routes are protected: unauthenticated or non-admin requests redirect to the login page.
-
-### Event Management
-- **List** all events (past and upcoming) in a table
-- **Create** new event: title (DE + EN), description (DE + EN), location, start/end date, deposit amount, total amount, max participants, registration deadline
-- **Edit** existing event: all fields editable
-- **Delete** event (with confirmation dialog; also removes associated bookings)
-- **View bookings** per event: list of all bookings with participant names, contact details, member status, remarks
-
-### Sponsor Management
-- **List** all sponsors in order
-- **Add** sponsor: upload image, enter name, website URL, display order
-- **Edit** sponsor: replace image, update name/URL/order
-- **Remove** sponsor (with confirmation dialog)
-- Images stored on Vercel Blob (or local `/public/sponsors/` for dev)
-
-### Club Settings Management
-Admin can maintain global club settings:
-
-**WSC81 Bank Account (for incoming SEPA direct debits):**
-- Kreditinstitut (bank name)
-- IBAN
-- BIC
-
-**Annual Fee Collection:**
-- Collection day (1–28) and month (1–12) — the day of year on which the yearly membership fee is collected via SEPA direct debit from all active members
-- Example: day 1, month 10 = every year on 1 October
-
-These settings are stored in a single-row `ClubSettings` table in the database and editable only by admins.
-
-### Newsletter Management
-Admin can compose and send HTML newsletters to all active members.
-
-**Workflow:**
-- Admin creates a newsletter with a subject line and rich-text body (DE and/or EN)
-- Newsletter can be **saved as draft** at any time and resumed later
-- When ready, admin clicks **Send** — emails go out immediately to all members with `feesPaid = true`
-- Sent newsletters are archived and viewable in the admin area
-
-**Editor:**
-- Rich text editor (TipTap) supporting: headings, bold, italic, bullet lists, links, images
-- Preview mode shows how the email will look before sending
-
-**Email delivery:**
-- One email per member, sent in the member's preferred locale (de/en)
-- Both HTML and plain-text versions sent for deliverability
-- From address: club SMTP sender (same as transactional emails)
-
-**Newsletter model (`Newsletter`):**
-- `id`, `subjectDe`, `subjectEn`, `bodyDe`, `bodyEn` (rich HTML)
-- `status`: `DRAFT` | `SENT`
-- `sentAt` (nullable), `createdAt`, `updatedAt`
-- `recipientCount` (stored at send time for record-keeping)
-
-### Content Editor (News Articles & Static Pages)
-Admin can create and manage two types of content using a rich text editor with AI assistance.
-
-**Content types:**
-- **News articles** (`NewsPost`) — appear in the homepage news block and have their own detail pages (`/news/[slug]`)
-- **Static pages** (`Page`) — general content pages like "Über uns", "Satzung", "Impressum" etc., reachable via nav or direct URL (`/seite/[slug]`)
-
-**Editor features (TipTap):**
-- Headings, bold, italic, underline, bullet/numbered lists, links, images, horizontal rule
-- Both DE and EN versions of title and body per content item
-- Save as draft or publish immediately
-- Slug auto-generated from title, editable manually
-
-**AI-assisted actions (Claude API — `claude-sonnet-4-6`):**
-Triggered by selecting text in the editor and choosing an action from a floating toolbar:
-
-| Action | Description |
-|--------|-------------|
-| **Rephrase / rewrite** | Rewrites selected text in a clearer or different tone |
-| **Shorten** | Makes selected text more concise |
-| **Expand** | Elaborates selected text with more detail |
-| **Fix grammar** | Corrects spelling and grammar errors |
-| **Translate DE ↔ EN** | Translates selected text to the other language |
-
-AI suggestions appear inline as a diff/preview — admin can **Accept**, **Retry**, or **Dismiss**.
-
-**API route:** `POST /api/admin/ai/rephrase`
-- Body: `{ text, action, locale }`
-- Calls Claude API with a system prompt tailored to the action
-- Returns `{ suggestion: string }`
-- Protected: admin role required
-
-**Models:**
-```
-NewsPost:  id, slug, titleDe, titleEn, bodyDe, bodyEn (HTML), status (DRAFT|PUBLISHED), publishedAt, createdAt, updatedAt, searchVector
-Page:      id, slug, titleDe, titleEn, bodyDe, bodyEn (HTML), status (DRAFT|PUBLISHED), publishedAt, createdAt, updatedAt
-```
-
-## Getting Started
-
-### Prerequisites
-- Node.js 20+
-- PostgreSQL 14+ running locally or via cloud
-
-### Setup
 ```bash
 npm install
-cp .env.example .env.local   # fill in DATABASE_URL, SMTP_*, ANTHROPIC_API_KEY, etc.
-npx prisma migrate dev        # create DB schema
-npm run db:seed               # seed sponsors + default admin user
+cp .env.example .env.local      # fill in DATABASE_URL, SENDGRID_*, ANTHROPIC_API_KEY, etc.
+npx prisma migrate dev           # apply DB migrations locally
+npm run dev                      # start dev server at http://localhost:3000
 ```
 
-### Development
+**Production build** (use this — `npm run build` calls it internally):
 ```bash
-npm run dev        # start dev server at http://localhost:3000
+node node_modules/next/dist/bin/next build
+```
+
+**DB migrations on production:**
+```bash
+DATABASE_URL=<prod_url> npx prisma migrate deploy
+npx prisma generate              # after any schema change
 ```
 
 ### Default admin credentials (change after first login!)
 - Email: `admin@wsc81.de`
 - Password: `admin123`
 
-### Build commands
-```bash
-npm run build          # production build
-npm run db:migrate     # run DB migrations
-npm run db:seed        # seed initial data
-npm run db:generate    # regenerate Prisma client
-```
+## Key Features
 
+### 1. Public Site
+- Sticky navigation, hero image slider, events calendar, news block, contact, weather widget, footer
+- Pages: `/verein`, `/vorstand`, `/uebungsleiter`, `/sponsoren`, `/satzung`, `/agb`, `/datenschutz`, `/impressum`
+- Full-text search via PostgreSQL `tsvector` / `plainto_tsquery`
 
+### 2. User Accounts
+Registered users (email + password) get a persistent account at `/[locale]/account`.
 
-- **Framework:** Next.js 14+ (App Router)
-- **Database:** PostgreSQL + Prisma ORM
-- **Auth:** NextAuth.js (credentials provider for admin; email confirmation for members)
-- **Email:** Nodemailer (SMTP)
-- **i18n:** next-intl (de default, en alternative)
-- **Styling:** Tailwind CSS
-- **Validation:** Zod
-- **Rich text editor:** TipTap (used in newsletter editor, content editor, event descriptions)
-- **AI:** Anthropic Claude API (`claude-sonnet-4-6`) for content rephrasing actions
-- **File storage:** Vercel Blob (sponsor images, editor image uploads)
-- **Deployment:** Vercel
+- Register at `/[locale]/register` — email verification required (24h token)
+- Login at `/[locale]/login` — with unverified-account error handling
+- Account page shows: profile data, avatar, membership status, booking history
+- Avatar upload via Vercel Blob (`POST/DELETE /api/user/avatar`)
+- Profile editing (street, city, phone) via `PATCH /api/user/profile`
+- Email change with verification link (`PATCH/DELETE /api/user/email`, `GET /api/user/verify-email-change`)
+- Password reset via email token (`/forgot-password`, `/reset-password`)
+
+### 3. Event Booking
+- Up to 5 participants per booking, contact fields, member checkbox, remarks
+- Non-member surcharge: **€40** added automatically
+- Surcharge waived if `user.member` exists and `feesPaid = true`
+- Booking form pre-filled from user account when logged in
+- On submit: confirmation email to user + admin notification
+- Admin can delete bookings → cancellation email sent to user
+- Bookings queried by `userId OR email` (legacy support)
+
+### 4. Membership Application
+- Form covers up to 5 persons, contact, IBAN (AES-256-GCM encrypted), SEPA consent
+- Submitted → `PendingMembership` row + confirmation email with 7-day activation token
+- **User token link** or **admin "Aktivieren" button** → creates `Member` row, links `User.memberId`, sends welcome email
+- Expired pending applications cleaned up by cron at 03:00 UTC
+- `feesPaid` flag toggled by admin on Memberships page (clickable badge)
+
+### 5. Admin Area (`/admin`)
+Protected by `role === "admin"`. All i18n via `src/lib/admin-i18n.ts` (DE + EN).
+
+- **Dashboard** — counts with Material Symbols icons: Events, Memberships, Pending Applications, Newsletter Drafts
+- **Events** — CRUD + view/delete bookings per event
+- **Memberships** — list activated members, toggle `feesPaid` per member
+- **Pending Applications** — list + **Activate** button (creates Member, links User, sends welcome email) + Delete button
+- **Users** — list registered user accounts, delete
+- **Sponsors** — CRUD with Vercel Blob image upload
+- **Newsletter** — compose DE+EN rich-text newsletters, save draft, send to all members with `feesPaid = true`
+- **Content** — create/edit News articles and static Pages with TipTap + AI rephrase (`POST /api/admin/ai`)
+- **Settings** — club bank account (IBAN encrypted), annual fee collection day/month
+
+## Database Models
+
+| Model | Purpose |
+|-------|---------|
+| `AdminUser` | Admin login (email + bcrypt password) |
+| `User` | Public user accounts (email + bcrypt, email verification, avatar, `memberId` FK) |
+| `PendingMembership` | Unactivated membership applications (7-day token) |
+| `Member` | Activated club members (IBAN encrypted, `feesPaid`) |
+| `Event` + `EventBooking` | Events and bookings (up to 5 persons) |
+| `Sponsor` | Club sponsors (image via Vercel Blob) |
+| `Newsletter` | Draft/sent newsletters |
+| `NewsPost` + `Page` | CMS content with tsvector full-text search |
+| `ClubSettings` | Single-row global settings (bank account, fee day/month) |
+
+## Auth Details
+
+- Session JWT carries: `id`, `role`, `firstName`, `avatarUrl`
+- `role`: `"admin"` | `"member"` | `"user"` (member role = User has `memberId` set)
+- **Stale JWT note:** Session role may lag behind DB state. Always check DB directly for membership status (e.g. `user.member` on account page, not `session.role`)
+- Unverified users throw `Error("EMAIL_NOT_VERIFIED")` in authorize()
+
+## Key File Locations
+
+| Area | Path |
+|------|------|
+| Auth config | `src/auth/config.ts`, `src/auth/index.ts` |
+| Prisma schema | `prisma/schema.prisma` |
+| Email sending | `src/lib/mailer.ts` (SendGrid) |
+| Admin i18n | `src/lib/admin-i18n.ts` |
+| Public i18n | `messages/de.json`, `messages/en.json` |
+| Cron cleanup | `src/app/api/cron/cleanup/route.ts` |
+| Account page | `src/app/[locale]/account/page.tsx` |
+| Booking API | `src/app/api/booking/route.ts` |
+| User APIs | `src/app/api/user/{avatar,email,profile}/route.ts` |
+| Admin APIs | `src/app/api/admin/{events,members,bookings,users,...}/` |
 
 ## Conventions
 
-- All user-facing text must support both German and English
-- German is the default/fallback language
-- IBAN stored encrypted (AES-256-GCM); only last 4 digits in plaintext
-- Activation tokens: 384-bit entropy, 7-day expiry, single-use
+- All user-facing text supports DE + EN; German is default
+- Admin area uses its own i18n system (`admin-i18n.ts`) — not next-intl
+- IBAN stored AES-256-GCM encrypted; only last 4 digits in plaintext
+- Activation/verification tokens: 48-byte hex, single-use
+- Membership tokens expire after 7 days; user email verification after 24 hours
+- Email always via SendGrid (`src/lib/mailer.ts`); `SENDGRID_API_KEY` required
+- Material Symbols Rounded loaded globally in `src/app/layout.tsx`
+- Avatar images stored in Vercel Blob store `wsc81-avatars`
+
+## Environment Variables
+
+```
+DATABASE_URL                   # Neon PostgreSQL connection string
+SENDGRID_API_KEY               # SendGrid API key
+SENDGRID_FROM                  # Sender email address
+ADMIN_EMAIL                    # Receives booking notifications
+NEXT_PUBLIC_BASE_URL           # https://wsc81.vercel.app
+IBAN_ENCRYPTION_KEY            # 64-char hex (32 bytes AES key)
+CRON_SECRET                    # Protects /api/cron/cleanup
+AUTH_SECRET                    # NextAuth secret
+BLOB_READ_WRITE_TOKEN          # Vercel Blob token
+ANTHROPIC_API_KEY              # Claude API for content AI actions
+```
 
 ## Notes
 
-- This repository is not yet initialized as a git repository
-- Update this file as the project evolves with actual commands, architecture, and conventions
+- Repository is on GitHub: `MichaelBiermann/wsc81`
+- Vercel project: `michbier-6077s-projects/wsc81`
+- `npm run build` is broken (`.bin` shim issue) — use `node node_modules/next/dist/bin/next build` directly or deploy via Vercel CLI
