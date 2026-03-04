@@ -5,9 +5,10 @@ import Image from "next/image";
 interface Props {
   events: Event[];
   locale: string;
+  isLoggedIn?: boolean;
 }
 
-export default function EventCalendar({ events, locale }: Props) {
+export default function EventCalendar({ events, locale, isLoggedIn = false }: Props) {
   const isDE = locale === "de";
 
   if (events.length === 0) {
@@ -28,6 +29,10 @@ export default function EventCalendar({ events, locale }: Props) {
           month: "long",
           year: "numeric",
         });
+        const eventUrl = `/${locale}/events/${event.id}`;
+        const bookUrl = isLoggedIn
+          ? eventUrl
+          : `/${locale}/login?callbackUrl=${encodeURIComponent(eventUrl)}`;
 
         return (
           <div key={event.id} className="rounded-lg border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow overflow-hidden">
@@ -40,7 +45,7 @@ export default function EventCalendar({ events, locale }: Props) {
               <span className="material-symbols-rounded" style={{ fontSize: "16px" }}>calendar_month</span> {dateStr}
             </div>
             <div className="p-4">
-              <Link href={`/${locale}/events/${event.id}`} className="hover:underline">
+              <Link href={eventUrl} className="hover:underline">
                 <h3 className="font-bold text-gray-900 mb-1">{title}</h3>
               </Link>
               <p className="text-sm text-gray-500 mb-1 flex items-center gap-1">
@@ -49,7 +54,7 @@ export default function EventCalendar({ events, locale }: Props) {
               <p className="text-sm text-gray-600 line-clamp-2 mb-3">
                 {description.replace(/<[^>]+>/g, "").slice(0, 120)}…
               </p>
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between flex-wrap gap-2">
                 {Number(event.totalAmount) > 0 ? (
                   <span className="text-sm font-semibold text-[#4577ac]">
                     {isDE ? "Ab" : "From"} €{Number(event.totalAmount).toFixed(2)}
@@ -57,12 +62,19 @@ export default function EventCalendar({ events, locale }: Props) {
                 ) : (
                   <span className="text-sm font-semibold text-green-600">{isDE ? "Kostenlos" : "Free"}</span>
                 )}
-                <Link
-                  href={`/${locale}/events/${event.id}`}
-                  className="rounded bg-[#4577ac] px-4 py-1.5 text-sm font-medium text-white hover:bg-[#2d5a8a] transition-colors"
-                >
-                  {isDE ? "Jetzt buchen" : "Book now"}
-                </Link>
+                <div className="flex flex-col items-end gap-1">
+                  <Link
+                    href={bookUrl}
+                    className="rounded bg-[#4577ac] px-4 py-1.5 text-sm font-medium text-white hover:bg-[#2d5a8a] transition-colors"
+                  >
+                    {isDE ? "Jetzt buchen" : "Book now"}
+                  </Link>
+                  {!isLoggedIn && (
+                    <span className="text-xs text-gray-400">
+                      {isDE ? "Anmeldung erforderlich" : "Sign-in required"}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
           </div>

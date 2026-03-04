@@ -20,8 +20,8 @@ Homepage for **Walldorfer Ski-Club 81 e.V. (WSC 81)**. Modelled after the existi
 - **Styling:** Tailwind CSS
 - **Icons:** Material Symbols Rounded (loaded via Google Fonts in root layout)
 - **Validation:** Zod
-- **Rich text editor:** TipTap (newsletter editor, content editor)
-- **AI:** Anthropic Claude API (`claude-sonnet-4-6`) for content rephrasing actions
+- **Rich text editor:** TipTap (newsletter editor, content editor, event descriptions)
+- **AI:** Anthropic Claude API (`claude-sonnet-4-6`) — actions: rephrase, shorten, expand, fix grammar, translate DE↔EN, optimize_event (event descriptions only)
 - **File storage:** Vercel Blob (avatars, sponsor images)
 - **Deployment:** Vercel
 
@@ -68,16 +68,17 @@ Registered users (email + password) get a persistent account at `/[locale]/accou
 - Password reset via email token (`/forgot-password`, `/reset-password`)
 
 ### 3. Event Booking
-- Up to 5 participants per booking, contact fields, member checkbox, remarks
+- Up to **10 participants** per booking, contact fields, member checkbox, remarks
 - Non-member surcharge: **€40** added automatically
 - Surcharge waived if `user.member` exists and `feesPaid = true`
 - Booking form pre-filled from user account when logged in
 - On submit: confirmation email to user + admin notification
 - Admin can delete bookings → cancellation email sent to user
+- Admin can **download PDF** per event (`GET /api/admin/events/[id]/pdf`) — includes event details + full booking list with all participants, DOB, contact info
 - Bookings queried by `userId OR email` (legacy support)
 
 ### 4. Membership Application
-- Form covers up to 5 persons, contact, IBAN (AES-256-GCM encrypted), SEPA consent
+- Form covers up to **10 persons**, contact, IBAN (AES-256-GCM encrypted), SEPA consent
 - Submitted → `PendingMembership` row + confirmation email with 7-day activation token
 - **User token link** or **admin "Aktivieren" button** → creates `Member` row, links `User.memberId`, sends welcome email
 - Expired pending applications cleaned up by cron at 03:00 UTC
@@ -92,7 +93,7 @@ Protected by `role === "admin"`. All i18n via `src/lib/admin-i18n.ts` (DE + EN).
 - **Pending Applications** — list + **Activate** button (creates Member, links User, sends welcome email) + Delete button
 - **Users** — list registered user accounts, delete
 - **Sponsors** — CRUD with Vercel Blob image upload
-- **Newsletter** — compose DE+EN rich-text newsletters, save draft, send to all members with `feesPaid = true`
+- **Newsletter** — compose DE+EN rich-text newsletters, save draft, delete, use as template; send to **members only** (feesPaid=true) or **all users** (members + verified Users, deduplicated by email)
 - **Content** — create/edit News articles and static Pages with TipTap + AI rephrase (`POST /api/admin/ai`)
 - **Settings** — club bank account (IBAN encrypted), annual fee collection day/month
 
@@ -104,7 +105,7 @@ Protected by `role === "admin"`. All i18n via `src/lib/admin-i18n.ts` (DE + EN).
 | `User` | Public user accounts (email + bcrypt, email verification, avatar, `memberId` FK) |
 | `PendingMembership` | Unactivated membership applications (7-day token) |
 | `Member` | Activated club members (IBAN encrypted, `feesPaid`) |
-| `Event` + `EventBooking` | Events and bookings (up to 5 persons) |
+| `Event` + `EventBooking` | Events and bookings (up to 10 persons) |
 | `Sponsor` | Club sponsors (image via Vercel Blob) |
 | `Newsletter` | Draft/sent newsletters |
 | `NewsPost` + `Page` | CMS content with tsvector full-text search |
@@ -142,6 +143,8 @@ Protected by `role === "admin"`. All i18n via `src/lib/admin-i18n.ts` (DE + EN).
 - Email always via SendGrid (`src/lib/mailer.ts`); `SENDGRID_API_KEY` required
 - Material Symbols Rounded loaded globally in `src/app/layout.tsx`
 - Avatar images stored in Vercel Blob store `wsc81-avatars`
+- TipTap AI: selection read via `editor.state.selection` at click time (not React state) to avoid selection-cleared-on-click race condition
+- `optimize_event` AI action returns HTML; all other actions return plain text — `RichTextEditor` uses `aiSuggestionIsHtml` flag to handle both
 
 ## Environment Variables
 

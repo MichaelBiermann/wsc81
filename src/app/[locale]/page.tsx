@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { getTranslations } from "next-intl/server";
+import { auth } from "@/auth";
 import EventCalendar from "@/components/EventCalendar";
 import NewsBlock from "@/components/NewsBlock";
 import HeroSlider from "@/components/HeroSlider";
@@ -13,6 +14,8 @@ export default async function HomePage({
 }) {
   const { locale } = await params;
   const t = await getTranslations("Events");
+  const session = await auth();
+  const isLoggedIn = !!session?.user;
 
   const [events, newsPosts] = await Promise.all([
     prisma.event.findMany({
@@ -34,7 +37,7 @@ export default async function HomePage({
 
       <section className="mx-auto max-w-7xl px-4 py-12">
         <h2 className="text-2xl font-bold text-[#4577ac] mb-6">{t("upcoming")}</h2>
-        <EventCalendar events={events} locale={locale} />
+        <EventCalendar events={events} locale={locale} isLoggedIn={isLoggedIn} />
       </section>
 
       <section className="bg-[#eef3f9] py-12">
