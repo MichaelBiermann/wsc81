@@ -40,6 +40,7 @@ export const ADMIN_TRANSLATIONS = {
       members: "Mitgliedschaften",
       pendingApplications: "Ausstehende Anmeldungen",
       newsletterDrafts: "Newsletter Entwürfe",
+      recaps: "Rückblicke",
     },
     // Events
     events: {
@@ -306,6 +307,7 @@ export const ADMIN_TRANSLATIONS = {
       members: "Memberships",
       pendingApplications: "Pending Applications",
       newsletterDrafts: "Newsletter Drafts",
+      recaps: "Recaps",
     },
     events: {
       title: "Events",

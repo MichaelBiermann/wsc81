@@ -9,6 +9,7 @@ interface DashboardData {
   membersCount: number;
   pendingCount: number;
   newslettersCount: number;
+  recapsCount: number;
 }
 
 export default function AdminDashboard() {
@@ -25,6 +26,7 @@ export default function AdminDashboard() {
         { label: t.dashboard.members, value: data.membersCount, href: "/admin/members", icon: "group", color: "text-green-500" },
         { label: t.dashboard.pendingApplications, value: data.pendingCount, href: "/admin/members/pending", icon: "pending_actions", color: "text-yellow-500" },
         { label: t.dashboard.newsletterDrafts, value: data.newslettersCount, href: "/admin/newsletter", icon: "mail", color: "text-purple-500" },
+        { label: t.dashboard.recaps, value: data.recapsCount, href: "/admin/recaps", icon: "photo_album", color: "text-orange-500" },
       ]
     : [];
 
@@ -32,7 +34,7 @@ export default function AdminDashboard() {
     <div>
       <h1 className="text-2xl font-bold text-gray-900 mb-8">{t.dashboard.title}</h1>
       {data ? (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
           {cards.map((card) => (
             <Link key={card.label} href={card.href} className="rounded-lg bg-white border border-gray-200 p-5 shadow-sm hover:shadow-md transition-shadow">
               <span className={`material-symbols-rounded ${card.color} mb-3 block`} style={{ fontSize: 40 }}>{card.icon}</span>
@@ -42,8 +44,8 @@ export default function AdminDashboard() {
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {[1, 2, 3, 4].map((i) => (
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+          {[1, 2, 3, 4, 5].map((i) => (
             <div key={i} className="rounded-lg bg-white border border-gray-200 p-5 shadow-sm animate-pulse">
               <div className="w-10 h-10 bg-gray-200 rounded mb-3" />
               <div className="h-8 bg-gray-200 rounded w-12 mb-2" />
