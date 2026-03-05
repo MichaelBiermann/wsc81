@@ -365,7 +365,7 @@ export default function AdminImageUpload({ value, onChange, label, required, asp
             <img
               src={value}
               alt=""
-              className="w-24 h-14 object-cover rounded border border-gray-200 bg-gray-50"
+              className="w-48 h-28 object-cover rounded border border-gray-200 bg-gray-50"
             />
             <div className="flex flex-col gap-1">
               <button
