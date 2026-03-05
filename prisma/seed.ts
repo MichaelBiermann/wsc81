@@ -15,7 +15,7 @@ const SPONSORS = [
   { name: "Sparkasse", websiteUrl: "https://www.sparkasse-heidelberg.de", imageUrl: "/images/sponsors/sparkasse.png", displayOrder: 7 },
   { name: "Volksbank Kraichgau", websiteUrl: "https://www.vbkraichgau.de", imageUrl: "/images/sponsors/volksbank-kraichgau.jpg", displayOrder: 8 },
   { name: "Tari Bikes", websiteUrl: "https://www.tari-bikes.de/", imageUrl: "/images/sponsors/tari-bikes.jpg", displayOrder: 9 },
-  { name: "Pfälzer Hof", websiteUrl: "https://www.pfaelzerhofwalldorf.de/", imageUrl: "/images/sponsors/pfaelzer-hof.jpg", displayOrder: 10 },
+  { name: "Pfälzer Hof", websiteUrl: "https://www.pfaelzer-hof-walldorf.de/", imageUrl: "/images/sponsors/pfaelzer-hof.jpg", displayOrder: 10 },
   { name: "Astoria Apotheke", websiteUrl: "https://www.central-apotheke-walldorf.de", imageUrl: "/images/sponsors/astoria-apotheke.jpg", displayOrder: 11 },
 ];
 
