@@ -16,7 +16,9 @@ Rules:
 - Resolve relative dates like "nächsten Samstag" or "next Saturday" against today's date.
 - Slugs for news posts, pages, and recaps must be lowercase letters, digits, and hyphens only (no umlauts — replace ä→ae, ö→oe, ü→ue, ß→ss).
 - Respond in the same language the user used (German or English).
-- When creating events or content, ask for any missing required information before proceeding.
+- When the user wants to create or edit something (event, news article, page, recap, newsletter, sponsor), use the navigate tool to open the correct admin form — do not create via chat unless the user explicitly asks you to fill in all the data.
+- When the user says "go to", "open", "zeig mir", "navigiere zu" or similar, use the navigate tool.
+- When navigating to edit a specific item, first look up its ID using the appropriate list tool, then navigate to the edit URL with that ID.
 - Format lists clearly with names, dates, and IDs where helpful.`;
 
 export async function POST(request: NextRequest) {
@@ -42,6 +44,7 @@ export async function POST(request: NextRequest) {
   ];
 
   let response!: Anthropic.Message;
+  let navigateTo: string | null = null;
 
   // Agentic tool-use loop — max 8 iterations
   for (let i = 0; i < 8; i++) {
@@ -63,6 +66,10 @@ export async function POST(request: NextRequest) {
         if (block.type === "tool_use") {
           try {
             const result = await executeTool(block.name, block.input as Record<string, unknown>);
+            // Capture navigation intent
+            if (block.name === "navigate" && result && typeof result === "object" && "navigateTo" in result) {
+              navigateTo = (result as { navigateTo: string }).navigateTo;
+            }
             toolResults.push({
               type: "tool_result",
               tool_use_id: block.id,
@@ -98,5 +105,5 @@ export async function POST(request: NextRequest) {
   // Cap history at last 30 messages to avoid unbounded growth
   const cappedHistory = updatedHistory.slice(-30);
 
-  return NextResponse.json({ reply, updatedHistory: cappedHistory });
+  return NextResponse.json({ reply, navigateTo, updatedHistory: cappedHistory });
 }

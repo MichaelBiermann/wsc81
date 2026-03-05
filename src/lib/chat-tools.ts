@@ -318,7 +318,21 @@ export const CHAT_TOOLS: Anthropic.Tool[] = [
     input_schema: { type: "object" as const, properties: {} },
   },
 
-  // ─── Dashboard Stats ──────────────────────────────────────────────────────────
+  // ─── Navigation ───────────────────────────────────────────────────────────────
+  {
+    name: "navigate",
+    description: "Navigate the admin to a specific admin UI page. Use this when the user wants to create, edit, or view something in the admin interface.",
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        path: {
+          type: "string",
+          description: "The admin path to navigate to, e.g. /admin/events/new, /admin/events/[id], /admin/content/news/new, /admin/content/news/[id], /admin/content/pages/new, /admin/content/pages/[id], /admin/recaps/new, /admin/recaps/[id], /admin/members, /admin/members/pending, /admin/newsletter/new, /admin/newsletter/[id], /admin/sponsors, /admin/users, /admin/settings, /admin/events, /admin/content/news, /admin/content/pages, /admin/recaps",
+        },
+      },
+      required: ["path"],
+    },
+  },
   {
     name: "get_stats",
     description: "Get a summary of counts: events, members, pending applications, users, newsletters, recaps.",
@@ -600,6 +614,10 @@ export async function executeTool(name: string, input: Record<string, any>): Pro
         feeCollectionMonth: s.feeCollectionMonth,
       };
     }
+
+    case "navigate":
+      // Handled client-side — return the path for the client to navigate to
+      return { navigateTo: input.path as string };
 
     case "get_stats": {
       const [events, members, pending, users, newsletters, recaps] = await Promise.all([

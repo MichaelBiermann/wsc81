@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import type { MessageParam } from "@anthropic-ai/sdk/resources/messages";
 
 interface Message {
@@ -11,11 +12,12 @@ interface Message {
 
 const SUGGESTIONS = [
   { de: "Zeige alle kommenden Veranstaltungen", en: "Show all upcoming events" },
+  { de: "Neue Veranstaltung erstellen", en: "Create a new event" },
   { de: "Wie viele ausstehende Mitgliedschaftsanträge gibt es?", en: "How many pending membership applications?" },
-  { de: "Zeige alle Mitglieder", en: "Show all members" },
 ];
 
 export default function AdminChatPanel() {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [history, setHistory] = useState<MessageParam[]>([]);
@@ -51,6 +53,10 @@ export default function AdminChatPanel() {
       });
       const data = await res.json();
       setHistory(data.updatedHistory);
+      if (data.navigateTo) {
+        router.push(data.navigateTo);
+        setOpen(false);
+      }
       setMessages((prev) => {
         const updated = [...prev];
         updated[updated.length - 1] = { role: "assistant", text: data.reply ?? "Fehler – bitte erneut versuchen." };
