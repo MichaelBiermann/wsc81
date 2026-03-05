@@ -19,20 +19,18 @@ function calcAge(dob: string): number {
 
 function calcTotalWithSurcharge(
   persons: Array<{ name?: string; dob?: string; isMember?: boolean } | undefined>,
-  event: { totalAmount: number; surchargeNonMemberAdult: number; surchargeNonMemberChild: number; busSurcharge: number; roomSingleSurcharge: number; roomDoubleSurcharge: number },
+  event: { surchargeNonMemberAdult: number; surchargeNonMemberChild: number; busSurcharge: number; roomSingleSurcharge: number; roomDoubleSurcharge: number },
   roomsSingle: number,
   roomsDouble: number
 ): number {
   let total = 0;
   for (const p of persons) {
     if (!p?.name) continue;
-    let personTotal = event.totalAmount;
     if (!p.isMember) {
       const age = calcAge(p.dob ?? "");
-      personTotal += age < 18 ? event.surchargeNonMemberChild : event.surchargeNonMemberAdult;
+      total += age < 18 ? event.surchargeNonMemberChild : event.surchargeNonMemberAdult;
     }
-    personTotal += event.busSurcharge;
-    total += personTotal;
+    total += event.busSurcharge;
   }
   total += roomsSingle * event.roomSingleSurcharge;
   total += roomsDouble * event.roomDoubleSurcharge;
@@ -68,7 +66,6 @@ export async function POST(request: NextRequest) {
 
     const depositAmount = Number(event.depositAmount);
     const eventPricing = {
-      totalAmount: Number(event.totalAmount),
       surchargeNonMemberAdult: Number(event.surchargeNonMemberAdult),
       surchargeNonMemberChild: Number(event.surchargeNonMemberChild),
       busSurcharge: Number(event.busSurcharge),
