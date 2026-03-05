@@ -74,9 +74,9 @@ export default async function HomePage({
       {sponsors.length > 0 && (
         <section className="py-8 border-t border-gray-100">
           <div className="mx-auto max-w-7xl px-4">
-            <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 text-center mb-4">
+            <a href={`/${locale}/sponsoren`} className="text-xs font-semibold uppercase tracking-widest text-gray-400 text-center mb-4 hover:text-[#4577ac] transition-colors">
               {locale === "de" ? "Unsere Sponsoren" : "Our Sponsors"}
-            </p>
+            </a>
             <div className="flex flex-wrap justify-center items-center gap-3">
               {sponsors.map((s) => (
                 <a
@@ -85,14 +85,14 @@ export default async function HomePage({
                   target="_blank"
                   rel="noopener noreferrer"
                   title={s.name}
-                  className="flex items-center justify-center rounded border border-gray-100 bg-white p-2 hover:border-gray-300 transition-colors"
+                  className="flex items-center justify-center rounded border border-gray-100 bg-white p-3 hover:border-gray-300 transition-colors"
                 >
                   <Image
                     src={s.imageUrl}
                     alt={s.name}
-                    width={80}
-                    height={40}
-                    className="object-contain h-8 w-auto"
+                    width={160}
+                    height={80}
+                    className="object-contain h-16 w-auto"
                   />
                 </a>
               ))}
