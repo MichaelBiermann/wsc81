@@ -6,17 +6,17 @@ const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
 const prisma = new PrismaClient({ adapter });
 
 const SPONSORS = [
-  { name: "Bauunternehmung Michael Schneider", websiteUrl: "http://www.schneider-walldorf.de/", imageUrl: "https://daten.verwaltungsportal.de/dateien//mypage/1/7/2/5/5/0/4/Bauunternehmnung_Schneider.png", displayOrder: 1 },
-  { name: "Weine und Genuss", websiteUrl: "https://www.weine-und-genuss.de/weinladen_walldorf.html", imageUrl: "https://daten.verwaltungsportal.de/dateien//mypage/1/7/2/5/5/0/6/Wein_Genuss_Logo.png", displayOrder: 2 },
-  { name: "Metzgerei Pütz", websiteUrl: "https://www.metzgerei-walldorf.de", imageUrl: "https://daten.verwaltungsportal.de/dateien//mypage/1/7/2/5/5/0/8/Metzgerei_P_tz.jpg", displayOrder: 3 },
-  { name: "StefanMayerreisen", websiteUrl: "https://stefan-mayer-reisen.de/", imageUrl: "https://daten.verwaltungsportal.de/dateien//mypage/1/7/2/5/5/1/0/StefanMayer_2.webp", displayOrder: 4 },
-  { name: "Getränke Wipfler Walldorf", websiteUrl: "https://www.getraenke-wipfler.de", imageUrl: "https://daten.verwaltungsportal.de/dateien//mypage/1/7/2/5/5/1/2/Wipfler.jpg", displayOrder: 5 },
-  { name: "Der Brillenladen", websiteUrl: "https://www.derbrillenladen-walldorf.de/", imageUrl: "https://daten.verwaltungsportal.de/dateien//mypage/1/7/2/5/5/1/4/Brillentante_Logo.png", displayOrder: 6 },
-  { name: "Sparkasse", websiteUrl: "https://www.sparkasse-heidelberg.de", imageUrl: "https://daten.verwaltungsportal.de/dateien//mypage/1/7/2/5/5/3/0/Sparkasse_NEW.png", displayOrder: 7 },
-  { name: "Volksbank Kraichgau", websiteUrl: "https://www.vbkraichgau.de", imageUrl: "https://daten.verwaltungsportal.de/dateien//mypage/1/7/2/5/5/3/2/Volksbank_Kraichgau.jpg", displayOrder: 8 },
-  { name: "Tari Bikes", websiteUrl: "https://www.tari-bikes.de/", imageUrl: "https://daten.verwaltungsportal.de/dateien//mypage/1/7/2/5/5/3/4/Tari_Bikes-001.jpg", displayOrder: 9 },
-  { name: "Pfälzer Hof", websiteUrl: "https://www.pfaelzerhofwalldorf.de/", imageUrl: "https://daten.verwaltungsportal.de/dateien//mypage/1/7/2/5/5/3/6/Pf_lzer_Hof-001.jpg", displayOrder: 10 },
-  { name: "Astoria Apotheke", websiteUrl: "https://www.central-apotheke-walldorf.de", imageUrl: "https://daten.verwaltungsportal.de/dateien//mypage/1/7/2/5/5/3/8/Apotheke.jpg", displayOrder: 11 },
+  { name: "Bauunternehmung Michael Schneider", websiteUrl: "http://www.schneider-walldorf.de/", imageUrl: "/images/sponsors/bauunternehmung-schneider.png", displayOrder: 1 },
+  { name: "Weine und Genuss", websiteUrl: "https://www.weine-und-genuss.de/weinladen_walldorf.html", imageUrl: "/images/sponsors/weine-und-genuss.png", displayOrder: 2 },
+  { name: "Metzgerei Pütz", websiteUrl: "https://www.metzgerei-walldorf.de", imageUrl: "/images/sponsors/metzgerei-puetz.jpg", displayOrder: 3 },
+  { name: "StefanMayerreisen", websiteUrl: "https://stefan-mayer-reisen.de/", imageUrl: "/images/sponsors/stefan-mayer-reisen.webp", displayOrder: 4 },
+  { name: "Getränke Wipfler Walldorf", websiteUrl: "https://www.getraenke-wipfler.de", imageUrl: "/images/sponsors/getraenke-wipfler.jpg", displayOrder: 5 },
+  { name: "Der Brillenladen", websiteUrl: "https://www.derbrillenladen-walldorf.de/", imageUrl: "/images/sponsors/brillenladen.png", displayOrder: 6 },
+  { name: "Sparkasse", websiteUrl: "https://www.sparkasse-heidelberg.de", imageUrl: "/images/sponsors/sparkasse.png", displayOrder: 7 },
+  { name: "Volksbank Kraichgau", websiteUrl: "https://www.vbkraichgau.de", imageUrl: "/images/sponsors/volksbank-kraichgau.jpg", displayOrder: 8 },
+  { name: "Tari Bikes", websiteUrl: "https://www.tari-bikes.de/", imageUrl: "/images/sponsors/tari-bikes.jpg", displayOrder: 9 },
+  { name: "Pfälzer Hof", websiteUrl: "https://www.pfaelzerhofwalldorf.de/", imageUrl: "/images/sponsors/pfaelzer-hof.jpg", displayOrder: 10 },
+  { name: "Astoria Apotheke", websiteUrl: "https://www.central-apotheke-walldorf.de", imageUrl: "/images/sponsors/astoria-apotheke.jpg", displayOrder: 11 },
 ];
 
 async function main() {

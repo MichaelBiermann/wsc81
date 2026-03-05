@@ -2,15 +2,15 @@ import { getLocale } from "next-intl/server";
 import Image from "next/image";
 
 const BOARD = [
-  { role: "1. Vorsitzende", name: "Birgit Böhli-Tretschock", email: "birgit.tretschock@wsc81.de", phone: "06227/9041", img: "https://daten.verwaltungsportal.de/dateien//mypage/1/7/2/4/8/3/5/Birgit_1.Vorstand.jpg?v=1680691770" },
-  { role: "2. Vorsitzende", name: "Birgit Lehment-Oelert", email: "birgit.lehment@wsc81.de", phone: "06227/891868", img: "https://daten.verwaltungsportal.de/dateien//mypage/1/7/2/4/8/3/7/Birgit_2.Vorstand.png?v=1680691798" },
-  { role: "Kassierer", name: "Bernhard Lucas", email: "bernhard.lucas@wsc81.de", phone: "06227/399 83 64", img: "https://daten.verwaltungsportal.de/dateien//mypage/1/7/2/4/8/3/9/FOTO_Bernhard_1.jpg?v=1696877521" },
-  { role: "Schriftführer", name: "Gerhard Rehbein", email: "gerhard.rehbein@wsc81.de", phone: "0152/2676 7690", img: "https://daten.verwaltungsportal.de/dateien//mypage/1/7/2/4/8/4/1/Gerhard_Rehbein.webp?v=1760353383" },
-  { role: "Sportwart", name: "Volker Tretschock", email: "volker.tretschock@wsc81.de", phone: "06227/9041", img: "https://daten.verwaltungsportal.de/dateien//mypage/1/7/2/4/8/4/3/Volker_Sportwart.jpg?v=1680691926" },
-  { role: "Jugendwart", name: "—", email: null, phone: null, img: "https://daten.verwaltungsportal.de/dateien//mypage/1/7/2/4/8/4/5/Jugendwart.webp?v=1759146696" },
-  { role: "Beisitzer", name: "Michael Biermann", email: "michael.biermann@wsc81.de", phone: "0176/91 33 92 16", img: "https://daten.verwaltungsportal.de/dateien//mypage/1/7/2/5/0/4/5/FOTO_Michael.webp?v=1759146696" },
-  { role: "Beisitzer", name: "Maic Wintel", email: "maic.wintel@wsc81.de", phone: "0160/9081 9487", img: "https://daten.verwaltungsportal.de/dateien//mypage/1/7/2/5/0/4/7/Foto_Maic.webp?v=1759146696" },
-  { role: "Beisitzer", name: "Manfred Hartmann", email: "manfred.hartmann@wsc81.de", phone: "0157/3648 7182", img: "https://daten.verwaltungsportal.de/dateien//mypage/1/7/2/5/0/4/9/Manfred_2.webp?v=1761207910" },
+  { role: "1. Vorsitzende", name: "Birgit Böhli-Tretschock", email: "birgit.tretschock@wsc81.de", phone: "06227/9041", img: "/images/vorstand/birgit-boehli-tretschock.jpg" },
+  { role: "2. Vorsitzende", name: "Birgit Lehment-Oelert", email: "birgit.lehment@wsc81.de", phone: "06227/891868", img: "/images/vorstand/birgit-lehment-oelert.png" },
+  { role: "Kassierer", name: "Bernhard Lucas", email: "bernhard.lucas@wsc81.de", phone: "06227/399 83 64", img: "/images/vorstand/bernhard-lucas.jpg" },
+  { role: "Schriftführer", name: "Gerhard Rehbein", email: "gerhard.rehbein@wsc81.de", phone: "0152/2676 7690", img: "/images/vorstand/gerhard-rehbein.webp" },
+  { role: "Sportwart", name: "Volker Tretschock", email: "volker.tretschock@wsc81.de", phone: "06227/9041", img: "/images/vorstand/volker-tretschock.jpg" },
+  { role: "Jugendwart", name: "—", email: null, phone: null, img: "/images/vorstand/jugendwart.webp" },
+  { role: "Beisitzer", name: "Michael Biermann", email: "michael.biermann@wsc81.de", phone: "0176/91 33 92 16", img: "/images/vorstand/michael-biermann.webp" },
+  { role: "Beisitzer", name: "Maic Wintel", email: "maic.wintel@wsc81.de", phone: "0160/9081 9487", img: "/images/vorstand/maic-wintel.webp" },
+  { role: "Beisitzer", name: "Manfred Hartmann", email: "manfred.hartmann@wsc81.de", phone: "0157/3648 7182", img: "/images/vorstand/manfred-hartmann.webp" },
 ];
 
 export default async function VorstandPage() {
@@ -31,7 +31,7 @@ export default async function VorstandPage() {
           <div key={m.name + m.role} className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
             {m.img ? (
               <div className="relative bg-gray-100" style={{ height: "25rem", width: "20rem" }}>
-                <Image src={m.img} alt={m.name} fill className="object-cover object-top" unoptimized />
+                <Image src={m.img} alt={m.name} fill className="object-cover object-top" />
               </div>
             ) : (
               <div className="bg-gray-100 flex items-center justify-center text-gray-300 text-5xl" style={{ height: "25rem", width: "20rem" }}>👤</div>

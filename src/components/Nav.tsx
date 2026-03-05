@@ -78,7 +78,7 @@ export default function Nav() {
     <nav className="sticky top-0 z-50 bg-[#4577ac] text-white shadow-md overflow-visible">
       {/* Mountain silhouette decorative bar */}
       <div className="w-full h-16 overflow-hidden bg-white pt-1">        <Image
-          src="https://layout.verwaltungsportal.de/15922/img/berge-maske-header.png"
+          src="/images/berge-maske-header.png"
           alt=""
           width={1920}
           height={64}
@@ -91,7 +91,7 @@ export default function Nav() {
           {/* Logo / site title */}
           <Link href={`/${locale}`} className="flex items-start">
             <Image
-              src="https://fotos.verwaltungsportal.de/seitengenerator/f234c62ab8a79364450fb35c9041679a239093/gross/logo-walldorfer-ski-club-81.png"
+              src="/images/logo-walldorfer-ski-club-81.png"
               alt="Walldorfer Ski-Club 81"
               width={120}
               height={120}

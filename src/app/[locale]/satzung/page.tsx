@@ -16,7 +16,7 @@ export default async function SatzungPage() {
       </p>
 
       <a
-        href="https://daten2.verwaltungsportal.de/dateien/seitengenerator/f234c62ab8a79364450fb35c9041679a239093/homepage_satzung.pdf"
+        href="/documents/satzung.pdf"
         target="_blank"
         rel="noopener noreferrer"
         className="inline-flex items-center gap-2 rounded bg-[#4577ac] px-5 py-3 text-sm font-semibold text-white hover:bg-[#2d5a8a] transition-colors"

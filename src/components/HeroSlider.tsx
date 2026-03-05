@@ -4,9 +4,9 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 
 const SLIDES = [
-  { src: "https://daten.verwaltungsportal.de/dateien/menuAdministration/1/7/0/5/4/3/sliderImage170543.jpg", alt: "Arlberg Ski" },
-  { src: "https://daten.verwaltungsportal.de/dateien/menuAdministration/1/7/0/5/4/5/sliderImage170545.jpg", alt: "Arlberg Ski 2" },
-  { src: "https://daten.verwaltungsportal.de/dateien/menuAdministration/1/8/7/8/2/7/IMG-20220209-WA0000.jpg", alt: "Arlberg Ski 3" },
+  { src: "/images/hero/slide1.jpg", alt: "Arlberg Ski" },
+  { src: "/images/hero/slide2.jpg", alt: "Arlberg Ski 2" },
+  { src: "/images/hero/slide3.jpg", alt: "Arlberg Ski 3" },
 ];
 
 export default function HeroSlider({ locale }: { locale: string }) {
@@ -30,7 +30,6 @@ export default function HeroSlider({ locale }: { locale: string }) {
             fill
             className="object-cover"
             priority={i === 0}
-            unoptimized
           />
         </div>
       ))}

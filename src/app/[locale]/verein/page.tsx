@@ -100,12 +100,11 @@ export default async function UnserVereinPage() {
 
       <div className="mt-10 rounded-lg overflow-hidden">
         <Image
-          src="https://daten.verwaltungsportal.de/dateien//mypage/3/4/3/7/6/6/1/2025_Arlberg_4.webp?v=1764054751"
+          src="/images/verein/2025_Arlberg_4.webp"
           alt="Arlberg 2025"
           width={1200}
           height={800}
           className="w-full h-auto"
-          unoptimized
         />
       </div>
     </div>
