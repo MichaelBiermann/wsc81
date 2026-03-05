@@ -90,9 +90,9 @@ export default async function HomePage({
                   <Image
                     src={s.imageUrl}
                     alt={s.name}
-                    width={160}
-                    height={80}
-                    className="object-contain h-16 w-auto"
+                    width={320}
+                    height={160}
+                    className="object-contain h-32 w-auto"
                   />
                 </a>
               ))}
