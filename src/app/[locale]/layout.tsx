@@ -5,6 +5,7 @@ import { routing } from "@/i18n/routing";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import AuthProvider from "@/components/AuthProvider";
+import PublicChatPanel from "@/components/PublicChatPanel";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -32,6 +33,7 @@ export default async function LocaleLayout({
             <Nav />
             <main className="min-h-screen">{children}</main>
             <Footer />
+            <PublicChatPanel />
           </NextIntlClientProvider>
         </AuthProvider>
       </body>
