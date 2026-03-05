@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
@@ -39,7 +39,13 @@ export default function LoginForm({
     });
 
     if (result?.ok) {
-      router.push(callbackUrl ?? `/${locale}/account`);
+      const session = await getSession();
+      const mustChange = (session?.user as { mustChangePassword?: boolean })?.mustChangePassword;
+      if (mustChange) {
+        router.push(`/${locale}/account/change-password`);
+      } else {
+        router.push(callbackUrl ?? `/${locale}/account`);
+      }
     } else {
       setStatus("error");
       if (result?.code === "EMAIL_NOT_VERIFIED") {

@@ -1,0 +1,24 @@
+name: frontend-design
+version: 0.1.0
+description: |
+  Guidance and templates for frontend design tasks (UI/UX, layout, components).
+maintainer: your-name@example.com
+inputs:
+  - name: task
+    type: string
+    description: Short description of the frontend design task or request
+  - name: locale
+    type: string
+    description: Preferred language/locale (e.g. de, en)
+examples:
+  - task: "Create responsive hero section with CTA and overlay text"
+    locale: en
+  - task: "Form layout for event booking (German labels)"
+    locale: de
+outputs:
+  - name: proposal
+    type: markdown
+    description: Design proposal, code snippets, and recommended assets
+notes: |
+  Place this folder in your project under `skills/frontend-design`.
+  Adapt `skill.yaml` fields to your system's skill loader if necessary.

@@ -51,6 +51,59 @@ export async function sendMembershipConfirmation({
   await sendMail({ to, subject, html });
 }
 
+// ─── Membership Account Created (auto-created user account) ───────────────────
+
+export async function sendMembershipAccountCreated({
+  to,
+  person1Name,
+  activationToken,
+  otp,
+  locale,
+}: {
+  to: string;
+  person1Name: string;
+  activationToken: string;
+  otp: string;
+  locale: string;
+}) {
+  const activationUrl = `${BASE_URL}/${locale}/membership/activate/${activationToken}`;
+  const loginUrl = `${BASE_URL}/${locale}/login`;
+  const expiry = new Date();
+  expiry.setDate(expiry.getDate() + 7);
+  const expiryStr = expiry.toLocaleDateString(locale === "de" ? "de-DE" : "en-GB");
+
+  const isDE = locale === "de";
+  const subject = isDE
+    ? "Willkommen beim Ski-Club Walldorf – Bitte bestätigen Sie Ihre Anmeldung"
+    : "Welcome to Ski-Club Walldorf – Please confirm your registration";
+
+  const html = isDE
+    ? `<p>Guten Tag ${person1Name},</p>
+       <p>vielen Dank für Ihre Anmeldung beim Walldorfer Ski-Club 81 e.V.</p>
+       <p>Wir haben für Sie automatisch ein Benutzerkonto angelegt. Bitte klicken Sie auf den folgenden Link, um Ihre E-Mail-Adresse zu bestätigen und Ihre Mitgliedschaft zu aktivieren:</p>
+       <p><a href="${activationUrl}">Mitgliedschaft aktivieren &amp; E-Mail bestätigen</a></p>
+       <p>Dieser Link ist bis zum ${expiryStr} gültig.</p>
+       <p>Nach der Bestätigung können Sie sich mit folgenden Zugangsdaten anmelden:</p>
+       <p><strong>E-Mail:</strong> ${to}<br/>
+       <strong>Einmalpasswort:</strong> <code style="background:#f3f4f6;padding:2px 6px;border-radius:4px;">${otp}</code></p>
+       <p>Sie werden beim ersten Login aufgefordert, ein neues Passwort zu vergeben.</p>
+       <p><a href="${loginUrl}">Jetzt anmelden</a></p>
+       <p>Falls Sie diese Anmeldung nicht veranlasst haben, können Sie diese E-Mail ignorieren.</p>`
+    : `<p>Dear ${person1Name},</p>
+       <p>Thank you for applying to join Walldorfer Ski-Club 81 e.V.</p>
+       <p>We have automatically created a user account for you. Please click the link below to confirm your email address and activate your membership:</p>
+       <p><a href="${activationUrl}">Activate membership &amp; confirm email</a></p>
+       <p>This link is valid until ${expiryStr}.</p>
+       <p>After confirmation you can log in with the following credentials:</p>
+       <p><strong>Email:</strong> ${to}<br/>
+       <strong>One-time password:</strong> <code style="background:#f3f4f6;padding:2px 6px;border-radius:4px;">${otp}</code></p>
+       <p>You will be asked to set a new password on first login.</p>
+       <p><a href="${loginUrl}">Sign in now</a></p>
+       <p>If you did not initiate this, you can safely ignore this email.</p>`;
+
+  await sendMail({ to, subject, html });
+}
+
 // ─── Membership Welcome ───────────────────────────────────────────────────────
 
 export async function sendMembershipWelcome({

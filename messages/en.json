@@ -321,7 +321,8 @@
       "wrongPassword": "The current password is incorrect.",
       "mismatch": "Passwords do not match.",
       "tooShort": "Password must be at least 8 characters.",
-      "error": "Error changing password."
+      "error": "Error changing password.",
+      "forceChangeSubtitle": "Please set a new password before continuing."
     },
     "memberStatus": "Membership status",
     "statusMember": "Active member",

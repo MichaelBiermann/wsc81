@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
   if (!valid) return NextResponse.json({ error: "wrong_password" }, { status: 400 });
 
   const newHash = await bcrypt.hash(parsed.data.newPassword, 12);
-  await prisma.user.update({ where: { id: userId }, data: { passwordHash: newHash } });
+  await prisma.user.update({ where: { id: userId }, data: { passwordHash: newHash, mustChangePassword: false } });
 
   return NextResponse.json({ ok: true });
 }

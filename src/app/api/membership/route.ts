@@ -2,8 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { encryptIBAN, ibanLast4 } from "@/lib/crypto";
 import { generateActivationToken, tokenExpiresAt } from "@/lib/tokens";
-import { sendMembershipConfirmation } from "@/lib/mailer";
+import { sendMembershipConfirmation, sendMembershipAccountCreated } from "@/lib/mailer";
 import { MembershipSchema } from "@/lib/validation";
+import bcrypt from "bcryptjs";
+import crypto from "crypto";
+
+function generateOTP(): string {
+  // 10-char alphanumeric OTP
+  return crypto.randomBytes(8).toString("base64url").slice(0, 10);
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -71,16 +78,60 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      try {
-        await sendMembershipConfirmation({
-          to: data.email,
-          person1Name: data.person1.name,
-          activationToken: token,
-          locale: data.locale,
+      // Auto-create user account if none exists for this email
+      const existingUser = await prisma.user.findUnique({ where: { email: data.email } });
+      let accountCreated = false;
+      let otp = "";
+
+      if (!existingUser) {
+        otp = generateOTP();
+        const passwordHash = await bcrypt.hash(otp, 12);
+        // Parse name: use person1Name, split on first space
+        const nameParts = data.person1.name.trim().split(/\s+/);
+        const firstName = nameParts[0];
+        const lastName = nameParts.slice(1).join(" ") || "-";
+        const dobDate = new Date(data.person1.dob);
+
+        await prisma.user.create({
+          data: {
+            email: data.email,
+            passwordHash,
+            firstName,
+            lastName,
+            dob: dobDate,
+            street: data.street,
+            postalCode: data.postalCode,
+            city: data.city,
+            phone: data.phone,
+            locale: data.locale,
+            emailVerified: false,
+            verificationToken: token, // same token as membership activation
+            tokenExpiresAt: expiresAt,
+            mustChangePassword: true,
+          },
         });
+        accountCreated = true;
+      }
+
+      try {
+        if (accountCreated) {
+          await sendMembershipAccountCreated({
+            to: data.email,
+            person1Name: data.person1.name,
+            activationToken: token,
+            otp,
+            locale: data.locale,
+          });
+        } else {
+          await sendMembershipConfirmation({
+            to: data.email,
+            person1Name: data.person1.name,
+            activationToken: token,
+            locale: data.locale,
+          });
+        }
       } catch (mailError) {
         console.error("[POST /api/membership] Email send failed:", mailError);
-        // DB record created successfully; email failure is non-fatal
       }
     }
 

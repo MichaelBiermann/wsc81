@@ -61,10 +61,10 @@ export async function GET(request: NextRequest) {
       },
     });
     await tx.pendingMembership.delete({ where: { id: pending.id } });
-    // Link to User account if one exists with the same email
+    // Link to User account if one exists with the same email, and verify email
     await tx.user.updateMany({
       where: { email: pending.email, memberId: null },
-      data: { memberId: newMember.id },
+      data: { memberId: newMember.id, emailVerified: true, verificationToken: null, tokenExpiresAt: null },
     });
     return newMember;
   });
