@@ -21,7 +21,7 @@ Homepage for **Walldorfer Ski-Club 81 e.V. (WSC 81)**. Modelled after the existi
 - **Icons:** Material Symbols Rounded (loaded via Google Fonts in root layout)
 - **Validation:** Zod
 - **Rich text editor:** TipTap (newsletter editor, content editor, event descriptions)
-- **AI:** Anthropic Claude API (`claude-sonnet-4-6`) — content actions: rephrase, shorten, expand, fix grammar, translate DE↔EN, optimize_event; admin chat assistant: natural language DB management via tool use
+- **AI:** Anthropic Claude API (`claude-sonnet-4-6`) — content actions: rephrase, shorten, expand, fix grammar, translate → DE, translate → EN, optimize_event; admin chat assistant: natural language DB management via tool use
 - **File storage:** Vercel Blob (avatars only — sponsor images now self-hosted in `public/images/sponsors/`)
 - **Deployment:** Vercel
 
@@ -101,7 +101,16 @@ Registered users (email + password) get a persistent account at `/[locale]/accou
 - Admin EventForm has a "Buchbar" checkbox to toggle this flag
 - 4 regular activities seeded as non-bookable events: `regular-ski-gymnastics`, `regular-nordic-walking`, `regular-lauftreff`, `regular-sportabzeichen`
 
-### 7. Content (News & Static Pages)
+### 10. Formulare (Forms Section)
+- Public homepage section between "Weitere Veranstaltungen" and sponsors strip
+- 5 cards in a responsive grid (`src/components/FormsSection.tsx`, `"use client"`)
+- Card 1: Walldorf-Pass → download `/documents/walldorfpass.pdf`
+- Card 2: Aktualisierung Mitgliederdaten → download `/documents/aktualisierung-mitgliederdaten.pdf`
+- Card 3: Erklärung für Erziehungsberechtigte → download `/documents/erziehungsberechtigte.pdf`
+- Card 4: Beitrittsformular → navigates to `/{locale}/membership`
+- Card 5: Anmeldung für eine Freizeit → opens event-picker modal (fetches `GET /api/forms/events` on first open — public, no auth)
+- PDFs stored in `public/documents/`
+- i18n via `Forms` namespace in `messages/de.json` + `messages/en.json`
 - News articles: public at `/[locale]/news/[slug]` — shows published `NewsPost` with date, title, body
 - Static pages: public at `/[locale]/seite/[slug]` — shows published `Page` with title, body
 - Both return 404 for drafts or unknown slugs
@@ -172,6 +181,8 @@ Protected by `role === "admin"`. All i18n via `src/lib/admin-i18n.ts` (DE + EN).
 | News (public) | `src/app/[locale]/news/[slug]/page.tsx` |
 | Static pages (public) | `src/app/[locale]/seite/[slug]/page.tsx` |
 | Content (admin) | `src/app/admin/content/` |
+| Forms section | `src/components/FormsSection.tsx` |
+| Forms API | `src/app/api/forms/events/route.ts` |
 | RegularActivities | `src/components/RegularActivities.tsx` (static fallback) |
 
 ## Conventions
@@ -185,7 +196,7 @@ Protected by `role === "admin"`. All i18n via `src/lib/admin-i18n.ts` (DE + EN).
 - Material Symbols Rounded loaded globally in `src/app/layout.tsx`
 - Avatar images stored in Vercel Blob store `wsc81-avatars`
 - `EventSchema.imageUrl` accepts empty string and transforms it to `null` (Zod `.or(z.literal("")).transform(...)`) — needed because the form sends `""` when no URL is entered
-- Homepage section order: Neuigkeiten → Kommende Veranstaltungen → Weitere Veranstaltungen → Unsere Sponsoren
+- Homepage section order: Neuigkeiten → Kommende Veranstaltungen → Weitere Veranstaltungen → Formulare → Unsere Sponsoren
 
 ## Environment Variables
 
