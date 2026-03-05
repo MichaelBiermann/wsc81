@@ -86,7 +86,10 @@
     "busSurcharge": "+ Bus surcharge",
     "roomSingleSurcharge": "+ Single room surcharge",
     "roomDoubleSurcharge": "+ Double room surcharge",
-    "totalPrice": "Total",
+    "totalSurcharges": "Surcharges total",
+    "noSurcharges": "No surcharges for current selection",
+    "depositDue": "Deposit due now",
+    "remainingDue": "Remaining due later",
     "terms": "By submitting I accept the WSC81 travel terms.",
     "submit": "Register now",
     "submitPay": "Proceed to payment (deposit €{amount})",
@@ -351,6 +354,32 @@
       "tooLarge": "File too large (max 2 MB).",
       "error": "Upload failed."
     }
+  },
+  "Chat": {
+    "title": "Assistant",
+    "subtitle": "WSC 81",
+    "emptyHeading": "How can I help?",
+    "emptySubtext": "Ask about events, membership, or the club.",
+    "placeholder": "Type a question…",
+    "clearTitle": "Clear history",
+    "errorGeneric": "Error – please try again.",
+    "errorConnection": "Connection error. Please try again.",
+    "suggestions": [
+      "What events are coming up?",
+      "How do I become a member?",
+      "What is WSC 81?"
+    ]
+  },
+  "Forms": {
+    "title": "Forms",
+    "walldorfPass": "Reimbursements for the Walldorf-Pass",
+    "updateMemberData": "Update Member Data",
+    "guardianDeclaration": "Declaration for Legal Guardians",
+    "membershipForm": "Membership Application",
+    "eventRegistration": "Register for a Trip",
+    "comingSoon": "Coming soon",
+    "pickEventTitle": "Select a Trip",
+    "noEvents": "No bookable events available."
   },
   "Verification": {
     "success": {

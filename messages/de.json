@@ -86,7 +86,10 @@
     "busSurcharge": "+ Buszuschlag",
     "roomSingleSurcharge": "+ Einzelzimmer-Aufschlag",
     "roomDoubleSurcharge": "+ Doppelzimmer-Aufschlag",
-    "totalPrice": "Gesamtbetrag",
+    "totalSurcharges": "Aufschläge gesamt",
+    "noSurcharges": "Keine Aufschläge für aktuelle Auswahl",
+    "depositDue": "Anzahlung jetzt fällig",
+    "remainingDue": "Restbetrag später fällig",
     "terms": "Mit der Anmeldung akzeptiere ich die WSC81 Reisebedingungen.",
     "submit": "Jetzt anmelden",
     "submitPay": "Weiter zur Zahlung (Anzahlung €{amount})",
@@ -351,6 +354,32 @@
       "tooLarge": "Datei ist zu groß (max. 2 MB).",
       "error": "Hochladen fehlgeschlagen."
     }
+  },
+  "Chat": {
+    "title": "Assistent",
+    "subtitle": "WSC 81",
+    "emptyHeading": "Wie kann ich helfen?",
+    "emptySubtext": "Fragen zu Veranstaltungen, Mitgliedschaft oder dem Verein.",
+    "placeholder": "Frage eingeben…",
+    "clearTitle": "Verlauf löschen",
+    "errorGeneric": "Fehler – bitte erneut versuchen.",
+    "errorConnection": "Verbindungsfehler. Bitte erneut versuchen.",
+    "suggestions": [
+      "Welche Veranstaltungen stehen an?",
+      "Wie werde ich Mitglied?",
+      "Was ist der WSC 81?"
+    ]
+  },
+  "Forms": {
+    "title": "Formulare",
+    "walldorfPass": "Erstattungen für den Walldorf-Pass",
+    "updateMemberData": "Aktualisierung der Mitgliederdaten",
+    "guardianDeclaration": "Erklärung für Erziehungsberechtigte",
+    "membershipForm": "Beitrittsformular",
+    "eventRegistration": "Anmeldung für eine Freizeit",
+    "comingSoon": "Demnächst verfügbar",
+    "pickEventTitle": "Freizeit auswählen",
+    "noEvents": "Keine buchbaren Veranstaltungen verfügbar."
   },
   "Verification": {
     "success": {

@@ -8,14 +8,15 @@ import Underline from "@tiptap/extension-underline";
 import Placeholder from "@tiptap/extension-placeholder";
 import { useState, useRef } from "react";
 
-type AIAction = "rephrase" | "shorten" | "expand" | "fix_grammar" | "translate" | "optimize_event";
+type AIAction = "rephrase" | "shorten" | "expand" | "fix_grammar" | "translate_to_de" | "translate_to_en" | "optimize_event";
 
 const AI_ACTIONS: { key: AIAction; label: string }[] = [
   { key: "rephrase", label: "Umformulieren" },
   { key: "shorten", label: "Kürzen" },
   { key: "expand", label: "Erweitern" },
   { key: "fix_grammar", label: "Grammatik korrigieren" },
-  { key: "translate", label: "Übersetzen DE↔EN" },
+  { key: "translate_to_de", label: "Übersetzen → DE" },
+  { key: "translate_to_en", label: "Übersetzen → EN" },
 ];
 
 const EVENT_ACTIONS: { key: AIAction; label: string }[] = [

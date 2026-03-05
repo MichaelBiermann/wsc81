@@ -89,7 +89,6 @@ export const EventSchema = z.object({
   startDate: z.string().datetime(),
   endDate: z.string().datetime(),
   depositAmount: z.number().min(0),
-  totalAmount: z.number().min(0),
   imageUrl: z.string().url().optional().nullable().or(z.literal("")).transform(v => v === "" ? null : v),
   maxParticipants: z.number().int().min(1).optional().nullable(),
   registrationDeadline: z.string().datetime().optional().nullable(),
@@ -131,13 +130,13 @@ export const RecapSchema = z.object({
   bodyDe: z.string().min(1).trim(),
   bodyEn: z.string().min(1).trim(),
   eventDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().nullable(),
-  imageUrl: z.string().url().optional().nullable(),
+  imageUrl: z.string().url().optional().nullable().or(z.literal("")).transform(v => v === "" ? null : v),
   status: z.enum(["DRAFT", "PUBLISHED"]).default("DRAFT"),
 });
 
 export const AIRephraseSchema = z.object({
   text: z.string().min(1).max(5000),
-  action: z.enum(["rephrase", "shorten", "expand", "fix_grammar", "translate", "optimize_event"]),
+  action: z.enum(["rephrase", "shorten", "expand", "fix_grammar", "translate_to_de", "translate_to_en", "optimize_event", "extract_surcharges"]),
   locale: z.enum(["de", "en"]).default("de"),
 });
 
@@ -157,6 +156,7 @@ export const ClubSettingsSchema = z.object({
     .refine((v) => bicRegex.test(v), "Invalid BIC format"),
   feeCollectionDay: z.number().int().min(1).max(28),
   feeCollectionMonth: z.number().int().min(1).max(12),
+  paymentReminderWeeks: z.number().int().min(1).max(52),
 });
 
 export const UserRegisterSchema = z.object({

@@ -7,6 +7,7 @@ import NewsBlock from "@/components/NewsBlock";
 import HeroSlider from "@/components/HeroSlider";
 import WelcomeBlock from "@/components/WelcomeBlock";
 import Image from "next/image";
+import FormsSection from "@/components/FormsSection";
 
 export default async function HomePage({
   params,
@@ -69,6 +70,8 @@ export default async function HomePage({
           )}
         </div>
       </section>
+
+      <FormsSection />
 
       {sponsors.length > 0 && (
         <section className="py-8 border-t border-gray-100">
