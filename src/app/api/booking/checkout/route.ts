@@ -6,7 +6,11 @@ import { BookingSchema } from "@/lib/validation";
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
 
 async function createStripeCheckoutSession(params: Record<string, string>): Promise<{ url: string; id: string }> {
-  const body = new URLSearchParams(params);
+  // Build form-encoded body manually to avoid URLSearchParams percent-encoding
+  // Stripe template variables like {CHECKOUT_SESSION_ID} must not be encoded
+  const body = Object.entries(params)
+    .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v).replace(/%7B/g, "{").replace(/%7D/g, "}")}`)
+    .join("&");
   const res = await fetch("https://api.stripe.com/v1/checkout/sessions", {
     method: "POST",
     headers: {
