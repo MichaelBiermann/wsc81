@@ -67,7 +67,7 @@ export default function FormsSection() {
 
           {/* 1 — Walldorf-Pass PDF */}
           <div className={cardBase}>
-            <span className="material-symbols-rounded text-[#4577ac] text-3xl">description_2</span>
+            <span className="material-symbols-rounded text-[#4577ac] text-3xl">picture_as_pdf</span>
             <p className="font-semibold text-gray-800">{t("walldorfPass")}</p>
             <a
               href="/documents/walldorfpass.pdf"
@@ -81,7 +81,7 @@ export default function FormsSection() {
 
           {/* 2 — Aktualisierung Mitgliederdaten PDF */}
           <div className={cardBase}>
-            <span className="material-symbols-rounded text-[#4577ac] text-3xl">description_2</span>
+            <span className="material-symbols-rounded text-[#4577ac] text-3xl">picture_as_pdf</span>
             <p className="font-semibold text-gray-800">{t("updateMemberData")}</p>
             <a
               href="/documents/aktualisierung-mitgliederdaten.pdf"
@@ -95,7 +95,7 @@ export default function FormsSection() {
 
           {/* 3 — Erziehungsberechtigte PDF */}
           <div className={cardBase}>
-            <span className="material-symbols-rounded text-[#4577ac] text-3xl">description_2</span>
+            <span className="material-symbols-rounded text-[#4577ac] text-3xl">picture_as_pdf</span>
             <p className="font-semibold text-gray-800">{t("guardianDeclaration")}</p>
             <a
               href="/documents/erziehungsberechtigte.pdf"

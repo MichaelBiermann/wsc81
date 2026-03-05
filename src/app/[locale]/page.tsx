@@ -60,8 +60,8 @@ export default async function HomePage({
           </h2>
           <p className="text-sm text-gray-500 mb-6">
             {locale === "de"
-              ? "Regelmäßige Aktivitäten des WSC 81 – keine Anmeldung erforderlich."
-              : "Regular WSC 81 activities — no booking required."}
+              ? "Regelmäßige Aktivitäten des WSC 81"
+              : "Regular WSC 81 activities"}
           </p>
           {regularEvents.length > 0 ? (
             <EventCalendar events={regularEvents} locale={locale} isLoggedIn={isLoggedIn} />

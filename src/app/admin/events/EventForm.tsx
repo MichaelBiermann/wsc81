@@ -7,13 +7,14 @@ import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
 import RichTextEditor from "@/components/admin/RichTextEditor";
+import AdminImageUpload from "@/components/admin/AdminImageUpload";
 import { useAdminI18n } from "@/components/admin/AdminI18nProvider";
 
 interface EventFormData {
   titleDe: string; titleEn: string;
   descriptionDe: string; descriptionEn: string;
   location: string; startDate: string; endDate: string;
-  depositAmount: string; totalAmount: string;
+  depositAmount: string;
   maxParticipants: string; registrationDeadline: string;
   imageUrl: string;
   bookable: boolean;
@@ -27,7 +28,7 @@ interface EventFormData {
 const EMPTY: EventFormData = {
   titleDe: "", titleEn: "", descriptionDe: "", descriptionEn: "",
   location: "", startDate: "", endDate: "",
-  depositAmount: "", totalAmount: "", maxParticipants: "", registrationDeadline: "",
+  depositAmount: "", maxParticipants: "", registrationDeadline: "",
   imageUrl: "",
   bookable: true,
   surchargeNonMemberAdult: "0",
@@ -49,6 +50,7 @@ export default function EventForm({
   const [form, setForm] = useState(initial);
   const [status, setStatus] = useState<"idle" | "saving" | "error">("idle");
   const [error, setError] = useState("");
+  const [derivingPrices, setDerivingPrices] = useState(false);
 
   const set = (field: keyof EventFormData) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((f) => ({ ...f, [field]: e.target.value }));
@@ -60,7 +62,6 @@ export default function EventForm({
       ...form,
       bookable: form.bookable,
       depositAmount: Number(form.depositAmount),
-      totalAmount: Number(form.totalAmount),
       maxParticipants: form.maxParticipants ? Number(form.maxParticipants) : null,
       registrationDeadline: form.registrationDeadline ? new Date(form.registrationDeadline).toISOString() : null,
       startDate: new Date(form.startDate).toISOString(),
@@ -92,6 +93,35 @@ export default function EventForm({
     await fetch(`/api/admin/events/${eventId}`, { method: "DELETE" });
     router.push("/admin/events");
     router.refresh();
+  };
+
+  const handleDeriveSurcharges = async () => {
+    const text = form.descriptionDe || form.descriptionEn;
+    if (!text) return;
+    setDerivingPrices(true);
+    try {
+      const res = await fetch("/api/admin/ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text, action: "extract_surcharges", locale: "de" }),
+      });
+      if (!res.ok) return;
+      const { suggestion } = await res.json();
+      const parsed = JSON.parse(suggestion);
+      setForm((f) => ({
+        ...f,
+        ...(parsed.depositAmount != null && { depositAmount: String(parsed.depositAmount) }),
+        ...(parsed.surchargeNonMemberAdult != null && { surchargeNonMemberAdult: String(parsed.surchargeNonMemberAdult) }),
+        ...(parsed.surchargeNonMemberChild != null && { surchargeNonMemberChild: String(parsed.surchargeNonMemberChild) }),
+        ...(parsed.busSurcharge != null && { busSurcharge: String(parsed.busSurcharge) }),
+        ...(parsed.roomSingleSurcharge != null && { roomSingleSurcharge: String(parsed.roomSingleSurcharge) }),
+        ...(parsed.roomDoubleSurcharge != null && { roomDoubleSurcharge: String(parsed.roomDoubleSurcharge) }),
+      }));
+    } catch {
+      // silently ignore parse errors
+    } finally {
+      setDerivingPrices(false);
+    }
   };
 
   return (
@@ -136,20 +166,16 @@ export default function EventForm({
         <FormField label={t.eventForm.endDate} required>
           <Input type="datetime-local" value={form.endDate} onChange={set("endDate")} required />
         </FormField>
-        <FormField label={t.eventForm.depositAmount} required>
-          <Input type="number" min="0" step="0.01" value={form.depositAmount} onChange={set("depositAmount")} required />
-        </FormField>
-        <FormField label={t.eventForm.totalAmount} required>
-          <Input type="number" min="0" step="0.01" value={form.totalAmount} onChange={set("totalAmount")} required />
-        </FormField>
         <FormField label={t.eventForm.maxParticipants}>
           <Input type="number" min="1" value={form.maxParticipants} onChange={set("maxParticipants")} />
         </FormField>
       </div>
 
-      <FormField label={t.eventForm.imageUrl}>
-        <Input type="url" value={form.imageUrl} onChange={set("imageUrl")} placeholder="https://..." />
-      </FormField>
+      <AdminImageUpload
+        label={t.eventForm.imageUrl}
+        value={form.imageUrl}
+        onChange={(url) => setForm((f) => ({ ...f, imageUrl: url }))}
+      />
 
       <label className="flex items-center gap-3 cursor-pointer select-none">
         <input
@@ -161,9 +187,24 @@ export default function EventForm({
         <span className="text-sm font-medium text-gray-700">{t.eventForm.bookable}</span>
       </label>
 
+      {form.bookable && (
       <div>
-        <p className="text-sm font-semibold text-gray-700 mb-3">{t.eventForm.pricingSurchargesSection}</p>
+        <div className="flex items-center gap-3 mb-3">
+          <p className="text-sm font-semibold text-gray-700">{t.eventForm.pricingSurchargesSection}</p>
+          <button
+            type="button"
+            onClick={handleDeriveSurcharges}
+            disabled={derivingPrices || (!form.descriptionDe && !form.descriptionEn)}
+            className="inline-flex items-center gap-1 text-xs text-[#4577ac] hover:underline disabled:opacity-40 disabled:no-underline"
+          >
+            <span className="material-symbols-rounded text-sm">{derivingPrices ? "progress_activity" : "auto_awesome"}</span>
+            {t.eventForm.deriveSurcharges}
+          </button>
+        </div>
         <div className="grid gap-4 sm:grid-cols-2">
+          <FormField label={t.eventForm.depositAmount} required>
+            <Input type="number" min="0" step="0.01" value={form.depositAmount} onChange={set("depositAmount")} required />
+          </FormField>
           <FormField label={t.eventForm.surchargeNonMemberAdult}>
             <Input type="number" min="0" step="0.01" value={form.surchargeNonMemberAdult} onChange={set("surchargeNonMemberAdult")} />
           </FormField>
@@ -181,6 +222,7 @@ export default function EventForm({
           </FormField>
         </div>
       </div>
+      )}
 
       {status === "error" && <Alert variant="error">{error}</Alert>}
 
