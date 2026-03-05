@@ -158,6 +158,12 @@ export async function POST(request: NextRequest) {
       ? `Anzahlung für ${eventTitle} (${event.startDate.toLocaleDateString("de-DE")}). Restbetrag: €${Math.max(0, totalWithSurcharge - depositAmount).toFixed(2)}`
       : `Deposit for ${eventTitle} (${event.startDate.toLocaleDateString("en-GB")}). Remaining: €${Math.max(0, totalWithSurcharge - depositAmount).toFixed(2)}`;
 
+    const successUrl = `${BASE_URL}/${locale}/events/${event.id}/book/success?session_id={CHECKOUT_SESSION_ID}&email=${encodeURIComponent(data.email)}`;
+    const cancelUrl = `${BASE_URL}/${locale}/events/${event.id}`;
+    console.log("[checkout] BASE_URL:", BASE_URL);
+    console.log("[checkout] success_url:", successUrl);
+    console.log("[checkout] cancel_url:", cancelUrl);
+
     const checkoutSession = await stripe.checkout.sessions.create({
       mode: "payment",
       payment_method_types: ["card"],
@@ -171,14 +177,18 @@ export async function POST(request: NextRequest) {
       }],
       customer_email: data.email,
       metadata,
-      success_url: `${BASE_URL}/${locale}/events/${event.id}/book/success?session_id={CHECKOUT_SESSION_ID}&email=${encodeURIComponent(data.email)}`,
-      cancel_url: `${BASE_URL}/${locale}/events/${event.id}`,
+      success_url: successUrl,
+      cancel_url: cancelUrl,
       locale: locale === "de" ? "de" : "en",
     });
 
     return NextResponse.json({ url: checkoutSession.url });
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
+    // Log full Stripe error details
+    if (error && typeof error === "object" && "raw" in error) {
+      console.error("[POST /api/booking/checkout] Stripe raw error:", JSON.stringify((error as Record<string, unknown>).raw));
+    }
     console.error("[POST /api/booking/checkout]", msg);
     return NextResponse.json({ error: "Internal server error", detail: msg }, { status: 500 });
   }
