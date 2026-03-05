@@ -160,9 +160,6 @@ export async function POST(request: NextRequest) {
 
     const successUrl = `${BASE_URL}/${locale}/events/${event.id}/book/success?session_id={CHECKOUT_SESSION_ID}&email=${encodeURIComponent(data.email)}`;
     const cancelUrl = `${BASE_URL}/${locale}/events/${event.id}`;
-    console.log("[checkout] BASE_URL:", BASE_URL);
-    console.log("[checkout] success_url:", successUrl);
-    console.log("[checkout] cancel_url:", cancelUrl);
 
     const checkoutSession = await stripe.checkout.sessions.create({
       mode: "payment",
@@ -185,10 +182,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ url: checkoutSession.url });
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
-    // Log full Stripe error details
-    if (error && typeof error === "object" && "raw" in error) {
-      console.error("[POST /api/booking/checkout] Stripe raw error:", JSON.stringify((error as Record<string, unknown>).raw));
-    }
     console.error("[POST /api/booking/checkout]", msg);
     return NextResponse.json({ error: "Internal server error", detail: msg }, { status: 500 });
   }
