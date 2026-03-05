@@ -31,7 +31,15 @@ const SYSTEM_PROMPTS: Record<string, string> = {
   "roomDoubleSurcharge": <number|null>,
   "agePrices": [{ "label": "<string>", "price": <number> }]
 }
-"depositAmount" is the deposit or down-payment due at booking time (Anzahlung). Room surcharges are the ADDITIONAL cost above the base double-room price (e.g. if double = €182 and single = €230, roomSingleSurcharge = 48). busSurcharge is bus cost per person. "agePrices" is an array of up to 10 age-based price entries (children, teens, etc.) each with a descriptive label and the full price for that group. Use [] if none are mentioned. Use null for any top-level field not found.`,
+Field rules:
+- "depositAmount": the base per-person price for a member in a double room, OR a deposit/Anzahlung if explicitly stated. This is the primary price paid at booking.
+- "roomDoubleSurcharge": ADDITIONAL cost above the base price for choosing a double room. If the double room price IS the base price (depositAmount), set this to 0.
+- "roomSingleSurcharge": ADDITIONAL cost per room above the double room price (e.g. if double = €499.50 and single = €681.00, roomSingleSurcharge = 181.50).
+- "busSurcharge": bus cost per person (separate from accommodation).
+- "surchargeNonMemberAdult": extra charge for non-members aged 18+.
+- "surchargeNonMemberChild": extra charge for non-members under 18.
+- "agePrices": array of up to 10 age-based price entries (children, teens, etc.) each with a descriptive label and the full price for that group. Use [] if none.
+- Use null for any field not found in the description.`,
 };
 
 export async function POST(request: NextRequest) {
