@@ -56,6 +56,7 @@ npx prisma generate              # after any schema change
 - Pages: `/verein`, `/vorstand`, `/uebungsleiter`, `/sponsoren`, `/satzung`, `/agb`, `/datenschutz`, `/impressum`
 - Full-text search via PostgreSQL `tsvector` / `plainto_tsquery`
 - All images/assets self-hosted in `public/images/` and `public/documents/` (no verwaltungsportal.de dependencies)
+- **Public Chat Assistant** — floating panel on all public pages (`src/components/PublicChatPanel.tsx`); answers questions about events, membership, and the club via `POST /api/chat`; tools in `src/lib/public-chat-tools.ts`
 
 ### 2. User Accounts
 Registered users (email + password) get a persistent account at `/[locale]/account`.
@@ -69,14 +70,17 @@ Registered users (email + password) get a persistent account at `/[locale]/accou
 - Password reset via email token (`/forgot-password`, `/reset-password`)
 
 ### 3. Event Booking
-- Up to **10 participants** per booking, contact fields, member checkbox, remarks
-- Non-member surcharge: **€40** added automatically
-- Surcharge waived if `user.member` exists and `feesPaid = true`
+- Up to **10 participants** per booking, contact fields, member checkbox, room selection, remarks
+- Per-person pricing with age-based surcharges: non-member surcharge (adult 18+ vs under 18), bus surcharge, single/double room surcharge
+- Surcharges waived if `user.member` exists and `feesPaid = true`
 - Booking form pre-filled from user account when logged in
+- **Stripe Checkout** for events with `depositAmount > 0`: deposit paid online via `POST /api/booking/checkout`; `checkout.session.completed` webhook at `POST /api/webhooks/stripe` creates the `EventBooking` row and stores `stripePaymentIntentId` and `balanceDue`
+- Free events (all surcharges zero): direct booking without payment via `POST /api/booking`
 - On submit: confirmation email to user + admin notification
 - Admin can delete bookings → cancellation email sent to user
 - Admin can **download PDF** per event (`GET /api/admin/events/[id]/pdf`) — includes event details + full booking list with all participants, DOB, contact info
 - Bookings queried by `userId OR email` (legacy support)
+- **Payment reminders**: cron sends `sendPaymentReminder` email to bookings with outstanding `balanceDue` within the configured reminder window; `paymentReminderSentAt` stamped to prevent duplicates
 
 ### 4. Membership Application
 - Form covers up to **10 persons**, contact, IBAN (AES-256-GCM encrypted), SEPA consent
@@ -101,16 +105,7 @@ Registered users (email + password) get a persistent account at `/[locale]/accou
 - Admin EventForm has a "Buchbar" checkbox to toggle this flag
 - 4 regular activities seeded as non-bookable events: `regular-ski-gymnastics`, `regular-nordic-walking`, `regular-lauftreff`, `regular-sportabzeichen`
 
-### 10. Formulare (Forms Section)
-- Public homepage section between "Weitere Veranstaltungen" and sponsors strip
-- 5 cards in a responsive grid (`src/components/FormsSection.tsx`, `"use client"`)
-- Card 1: Walldorf-Pass → download `/documents/walldorfpass.pdf`
-- Card 2: Aktualisierung Mitgliederdaten → download `/documents/aktualisierung-mitgliederdaten.pdf`
-- Card 3: Erklärung für Erziehungsberechtigte → download `/documents/erziehungsberechtigte.pdf`
-- Card 4: Beitrittsformular → navigates to `/{locale}/membership`
-- Card 5: Anmeldung für eine Freizeit → opens event-picker modal (fetches `GET /api/forms/events` on first open — public, no auth)
-- PDFs stored in `public/documents/`
-- i18n via `Forms` namespace in `messages/de.json` + `messages/en.json`
+### 7. Content (News & Static Pages)
 - News articles: public at `/[locale]/news/[slug]` — shows published `NewsPost` with date, title, body
 - Static pages: public at `/[locale]/seite/[slug]` — shows published `Page` with title, body
 - Both return 404 for drafts or unknown slugs
@@ -122,20 +117,31 @@ Registered users (email + password) get a persistent account at `/[locale]/accou
 - Results link to correct public URLs: `/events/[id]`, `/news/[slug]`, `/rueckblicke/[slug]`, `/seite/[slug]`
 - Type badges: Veranstaltung / Event, Neuigkeit / News, Rückblick / Recap, Seite / Page
 
-### 9. Admin Area (`/admin`)
+### 9. Formulare (Forms Section)
+- Public homepage section between "Weitere Veranstaltungen" and sponsors strip
+- 5 cards in a responsive grid (`src/components/FormsSection.tsx`, `"use client"`)
+- Card 1: Walldorf-Pass → download `/documents/walldorfpass.pdf`
+- Card 2: Aktualisierung Mitgliederdaten → download `/documents/aktualisierung-mitgliederdaten.pdf`
+- Card 3: Erklärung für Erziehungsberechtigte → download `/documents/erziehungsberechtigte.pdf`
+- Card 4: Beitrittsformular → navigates to `/{locale}/membership`
+- Card 5: Anmeldung für eine Freizeit → opens event-picker modal (fetches `GET /api/forms/events` on first open — public, no auth)
+- PDFs stored in `public/documents/`
+- i18n via `Forms` namespace in `messages/de.json` + `messages/en.json`
+
+### 10. Admin Area (`/admin`)
 Protected by `role === "admin"`. All i18n via `src/lib/admin-i18n.ts` (DE + EN).
 
 - **Dashboard** — 5 cards (brand color `#4577ac`): Events, Memberships, Pending Applications, Newsletter Drafts, Rückblicke
-- **Events** — CRUD + `bookable` toggle + view/delete bookings per event; saving correctly persists `bookable` flag
+- **Events** — CRUD + `bookable` toggle + view/delete bookings per event; image field uses `AdminImageUpload` (upload file or paste URL with crop); "Aus Beschreibung ableiten" AI button extracts pricing from description
 - **Memberships** — list activated members, toggle `feesPaid` per member
 - **Pending Applications** — list + **Activate** button (creates Member, links User, sends welcome email) + Delete button
 - **Users** — list registered user accounts, delete
-- **Sponsors** — CRUD with Vercel Blob image upload; sponsor images also self-hosted in `public/images/sponsors/`
+- **Sponsors** — CRUD with `AdminImageUpload` component (file upload + URL + crop via `react-easy-crop`); sponsor images also self-hosted in `public/images/sponsors/`
 - **Newsletter** — compose DE+EN rich-text newsletters, save draft, delete, use as template; send to **members only** (feesPaid=true) or **all users** (members + verified Users, deduplicated by email)
 - **Content** — create/edit News articles and static Pages with TipTap + AI rephrase (`POST /api/admin/ai`); slug field shows `open_in_new` link to live public URL
 - **Rückblicke** — create/edit event recap reports with TipTap + AI actions; `eventDate` and `imageUrl` optional
-- **Settings** — club bank account (IBAN encrypted), annual fee collection day/month
-- **AI Chat Assistant** — floating panel (bottom-right) on all admin pages; natural language commands mapped to Prisma operations via Claude tool use (`POST /api/admin/chat`); 29 tools covering all models + a `navigate` tool that opens admin UI pages directly (closes panel on navigation)
+- **Settings** — club bank account (IBAN encrypted), annual fee collection day/month, payment reminder weeks (triggers cron reminder emails for outstanding `balanceDue`)
+- **AI Chat Assistant** — floating panel (bottom-right) on all admin pages; natural language commands mapped to Prisma operations via Claude tool use (`POST /api/admin/chat`); tools in `src/lib/chat-tools.ts`; `navigate` tool opens admin UI pages directly
 
 ## Database Models
 
@@ -145,12 +151,12 @@ Protected by `role === "admin"`. All i18n via `src/lib/admin-i18n.ts` (DE + EN).
 | `User` | Public user accounts (email + bcrypt, email verification, avatar, `memberId` FK) |
 | `PendingMembership` | Unactivated membership applications (7-day token) |
 | `Member` | Activated club members (IBAN encrypted, `feesPaid`) |
-| `Event` + `EventBooking` | Events and bookings (up to 10 persons); `Event.bookable` flag controls booking vs. informational |
+| `Event` + `EventBooking` | Events and bookings (up to 10 persons); `Event.bookable` flag; `EventBooking` stores `stripePaymentIntentId`, `balanceDue`, `paymentReminderSentAt` |
 | `Sponsor` | Club sponsors (self-hosted images in `public/images/sponsors/`) |
 | `Newsletter` | Draft/sent newsletters |
 | `NewsPost` + `Page` | CMS content; search uses runtime `to_tsvector()` (no stored tsvector column) |
 | `Recap` | Event recap reports (slug, title/body DE+EN, eventDate, imageUrl, status); also included in search |
-| `ClubSettings` | Single-row global settings (bank account, fee day/month) |
+| `ClubSettings` | Single-row global settings (bank account, fee day/month, `paymentReminderWeeks`) |
 
 ## Auth Details
 
@@ -176,6 +182,12 @@ Protected by `role === "admin"`. All i18n via `src/lib/admin-i18n.ts` (DE + EN).
 | Admin chat API | `src/app/api/admin/chat/route.ts` |
 | Admin chat tools | `src/lib/chat-tools.ts` |
 | Admin chat UI | `src/components/admin/AdminChatPanel.tsx` |
+| Public chat API | `src/app/api/chat/route.ts` |
+| Public chat tools | `src/lib/public-chat-tools.ts` |
+| Public chat UI | `src/components/PublicChatPanel.tsx` |
+| Admin image upload | `src/components/admin/AdminImageUpload.tsx` |
+| Stripe webhook | `src/app/api/webhooks/stripe/route.ts` |
+| Booking checkout | `src/app/api/booking/checkout/route.ts` |
 | Recaps (public) | `src/app/[locale]/rueckblicke/` |
 | Recaps (admin) | `src/app/admin/recaps/` |
 | News (public) | `src/app/[locale]/news/[slug]/page.tsx` |
@@ -210,7 +222,10 @@ IBAN_ENCRYPTION_KEY            # 64-char hex (32 bytes AES key)
 CRON_SECRET                    # Protects /api/cron/cleanup
 AUTH_SECRET                    # NextAuth secret
 BLOB_READ_WRITE_TOKEN          # Vercel Blob token
-ANTHROPIC_API_KEY              # Claude API for content AI actions
+ANTHROPIC_API_KEY              # Claude API for content AI actions + chat assistants
+STRIPE_SECRET_KEY              # Stripe secret key (server-side)
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY  # Stripe publishable key (client-side)
+STRIPE_WEBHOOK_SECRET          # Stripe webhook signing secret for /api/webhooks/stripe
 ```
 
 ## Notes
