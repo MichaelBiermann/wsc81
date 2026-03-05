@@ -8,6 +8,7 @@ import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
 import RichTextEditor from "@/components/admin/RichTextEditor";
+import AdminImageUpload from "@/components/admin/AdminImageUpload";
 import { useAdminI18n } from "@/components/admin/AdminI18nProvider";
 
 interface RecapFormProps {
@@ -111,10 +112,13 @@ export default function RecapForm({ recapId, initial }: RecapFormProps) {
         <FormField label={t.recapForm.eventDate}>
           <Input type="date" value={form.eventDate} onChange={(e) => setForm((f) => ({ ...f, eventDate: e.target.value }))} />
         </FormField>
-        <FormField label={t.recapForm.imageUrl}>
-          <Input type="url" value={form.imageUrl} onChange={(e) => setForm((f) => ({ ...f, imageUrl: e.target.value }))} placeholder="https://..." />
-        </FormField>
       </div>
+
+      <AdminImageUpload
+        label={t.recapForm.imageUrl}
+        value={form.imageUrl}
+        onChange={(url) => setForm((f) => ({ ...f, imageUrl: url }))}
+      />
 
       <FormField label={t.recapForm.status}>
         <Select value={form.status} onChange={(e) => setForm((f) => ({ ...f, status: e.target.value as "DRAFT" | "PUBLISHED" }))}>

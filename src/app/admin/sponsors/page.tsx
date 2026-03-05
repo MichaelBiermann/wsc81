@@ -6,6 +6,7 @@ import Button from "@/components/ui/Button";
 import FormField from "@/components/ui/FormField";
 import Input from "@/components/ui/Input";
 import Alert from "@/components/ui/Alert";
+import AdminImageUpload from "@/components/admin/AdminImageUpload";
 import { useAdminI18n } from "@/components/admin/AdminI18nProvider";
 
 interface Sponsor { id: string; name: string; websiteUrl: string; imageUrl: string; displayOrder: number; }
@@ -60,7 +61,11 @@ export default function AdminSponsorsPage() {
           <div className="flex flex-col gap-3">
             <FormField label={t.sponsors.fieldName} required><Input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} /></FormField>
             <FormField label={t.sponsors.fieldWebsite} required><Input type="url" value={form.websiteUrl} onChange={(e) => setForm((f) => ({ ...f, websiteUrl: e.target.value }))} /></FormField>
-            <FormField label={t.sponsors.fieldImage} required><Input type="url" value={form.imageUrl} onChange={(e) => setForm((f) => ({ ...f, imageUrl: e.target.value }))} /></FormField>
+            <AdminImageUpload
+              label={t.sponsors.fieldImage}
+              value={form.imageUrl}
+              onChange={(url) => setForm((f) => ({ ...f, imageUrl: url }))}
+            />
             <FormField label={t.sponsors.fieldOrder}><Input type="number" min="0" value={form.displayOrder} onChange={(e) => setForm((f) => ({ ...f, displayOrder: e.target.value }))} /></FormField>
             {error && <Alert variant="error">{error}</Alert>}
             <div className="flex gap-2 mt-2">
