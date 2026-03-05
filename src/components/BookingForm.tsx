@@ -96,14 +96,21 @@ export default function BookingForm({
       locale,
     };
 
-    const res = await fetch("/api/booking", {
+    const res = await fetch("/api/booking/checkout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
 
     if (res.ok) {
-      router.push(`/${locale}/events/${event.id}/book/success?email=${encodeURIComponent(form.email)}`);
+      const data = await res.json();
+      if (data.free) {
+        // Free event — booking already created, go to success page
+        router.push(data.redirectUrl);
+      } else if (data.url) {
+        // Paid event — redirect to Stripe Checkout
+        window.location.href = data.url;
+      }
     } else {
       const data = await res.json();
       setStatus("error");
@@ -219,12 +226,12 @@ export default function BookingForm({
       </FormField>
 
       {/* Payment info */}
+      {!isFree && (
       <div className="rounded-lg bg-blue-50 border border-blue-200 p-4 text-sm text-blue-800">
         <p className="font-semibold mb-1">{t("payment.title")}</p>
-        <p>{t("payment.info")}</p>
-        <p className="mt-1"><strong>{t("payment.bank")}</strong> · {t("payment.iban")} · {t("payment.bic")}</p>
-        <p className="mt-1 text-xs text-blue-600">{t("payment.depositNote")}</p>
+        <p className="text-xs text-blue-600">{t("payment.depositNote")}</p>
       </div>
+      )}
 
       {/* Terms */}
       <p className="text-xs text-gray-500">{t("terms")}</p>
@@ -232,7 +239,7 @@ export default function BookingForm({
       {status === "error" && <Alert variant="error">{errorMsg}</Alert>}
 
       <Button type="submit" loading={status === "submitting"} className="w-full">
-        {t("submit")}
+        {isFree ? t("submit") : t("submitPay", { amount: event.depositAmount.toFixed(2) })}
       </Button>
     </form>
   );

@@ -81,6 +81,7 @@
     "totalPrice": "Gesamtbetrag",
     "terms": "Mit der Anmeldung akzeptiere ich die WSC81 Reisebedingungen.",
     "submit": "Jetzt anmelden",
+    "submitPay": "Weiter zur Zahlung (Anzahlung €{amount})",
     "submitting": "Wird gesendet...",
     "success": {
       "title": "Anmeldung erfolgreich!",

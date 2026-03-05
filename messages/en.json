@@ -81,6 +81,7 @@
     "totalPrice": "Total",
     "terms": "By submitting I accept the WSC81 travel terms.",
     "submit": "Register now",
+    "submitPay": "Proceed to payment (deposit €{amount})",
     "submitting": "Sending...",
     "success": {
       "title": "Registration successful!",

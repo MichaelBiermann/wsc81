@@ -91,6 +91,8 @@ export async function sendBookingConfirmation({
   eventTitleEn,
   startDate,
   locale,
+  depositAmount,
+  totalAmount,
 }: {
   to: string;
   person1Name: string;
@@ -98,6 +100,8 @@ export async function sendBookingConfirmation({
   eventTitleEn: string;
   startDate: Date;
   locale: string;
+  depositAmount?: number;
+  totalAmount?: number;
 }) {
   const isDE = locale === "de";
   const eventTitle = isDE ? eventTitleDe : eventTitleEn;
@@ -106,12 +110,20 @@ export async function sendBookingConfirmation({
     ? `Buchungsbestätigung: ${eventTitle}`
     : `Booking confirmation: ${eventTitle}`;
 
+  const paymentInfo = depositAmount && totalAmount
+    ? isDE
+      ? `<p>Anzahlung bezahlt: <strong>€${depositAmount.toFixed(2)}</strong><br>Verbleibender Betrag: <strong>€${(totalAmount - depositAmount).toFixed(2)}</strong><br>Gesamtbetrag: <strong>€${totalAmount.toFixed(2)}</strong></p>`
+      : `<p>Deposit paid: <strong>€${depositAmount.toFixed(2)}</strong><br>Remaining balance: <strong>€${(totalAmount - depositAmount).toFixed(2)}</strong><br>Total: <strong>€${totalAmount.toFixed(2)}</strong></p>`
+    : "";
+
   const html = isDE
     ? `<p>Guten Tag ${person1Name},</p>
        <p>Ihre Anmeldung für <strong>${eventTitle}</strong> (${dateStr}) ist eingegangen.</p>
+       ${paymentInfo}
        <p>Wir melden uns bei Ihnen mit weiteren Details.</p>`
     : `<p>Dear ${person1Name},</p>
        <p>Your registration for <strong>${eventTitle}</strong> (${dateStr}) has been received.</p>
+       ${paymentInfo}
        <p>We will be in touch with further details.</p>`;
 
   await sendMail({ to, subject, html });
@@ -330,6 +342,65 @@ export async function sendUserWelcome({
        <p>Your account with Walldorfer Ski-Club 81 has been successfully verified.</p>
        <p>You can now log in and book events.</p>
        <p><a href="${BASE_URL}/en/login">Sign in now</a></p>`;
+
+  await sendMail({ to, subject, html });
+}
+
+// ─── Remaining Balance Reminder ───────────────────────────────────────────────
+
+export async function sendRemainingBalanceReminder({
+  to,
+  person1Name,
+  eventTitleDe,
+  eventTitleEn,
+  startDate,
+  depositAmount,
+  remainingAmount,
+  totalAmount,
+  locale,
+}: {
+  to: string;
+  person1Name: string;
+  eventTitleDe: string;
+  eventTitleEn: string;
+  startDate: Date;
+  depositAmount: number;
+  remainingAmount: number;
+  totalAmount: number;
+  locale: string;
+}) {
+  const isDE = locale === "de";
+  const eventTitle = isDE ? eventTitleDe : eventTitleEn;
+  const dateStr = startDate.toLocaleDateString(isDE ? "de-DE" : "en-GB");
+  const subject = isDE
+    ? `Restbetrag fällig: ${eventTitle}`
+    : `Remaining balance due: ${eventTitle}`;
+
+  const html = isDE
+    ? `<p>Guten Tag ${person1Name},</p>
+       <p>Vielen Dank für Ihre Anzahlung für <strong>${eventTitle}</strong> (${dateStr}).</p>
+       <p>Bitte überweisen Sie den Restbetrag rechtzeitig vor der Veranstaltung:</p>
+       <table style="border-collapse:collapse;width:100%;max-width:400px">
+         <tr><td style="padding:4px 8px">Anzahlung (bezahlt):</td><td style="padding:4px 8px;text-align:right">€${depositAmount.toFixed(2)}</td></tr>
+         <tr><td style="padding:4px 8px;font-weight:bold">Restbetrag:</td><td style="padding:4px 8px;text-align:right;font-weight:bold">€${remainingAmount.toFixed(2)}</td></tr>
+         <tr style="border-top:1px solid #ccc"><td style="padding:4px 8px">Gesamtbetrag:</td><td style="padding:4px 8px;text-align:right">€${totalAmount.toFixed(2)}</td></tr>
+       </table>
+       <p>Bitte überweisen Sie den Restbetrag auf folgendes Konto:<br>
+       <strong>Walldorfer Ski-Club 81 e.V.</strong><br>
+       Verwendungszweck: ${eventTitle} – ${person1Name}</p>
+       <p>Bei Fragen wenden Sie sich bitte an <a href="mailto:vorstand@wsc81.de">vorstand@wsc81.de</a>.</p>`
+    : `<p>Dear ${person1Name},</p>
+       <p>Thank you for your deposit for <strong>${eventTitle}</strong> (${dateStr}).</p>
+       <p>Please transfer the remaining balance before the event:</p>
+       <table style="border-collapse:collapse;width:100%;max-width:400px">
+         <tr><td style="padding:4px 8px">Deposit (paid):</td><td style="padding:4px 8px;text-align:right">€${depositAmount.toFixed(2)}</td></tr>
+         <tr><td style="padding:4px 8px;font-weight:bold">Remaining balance:</td><td style="padding:4px 8px;text-align:right;font-weight:bold">€${remainingAmount.toFixed(2)}</td></tr>
+         <tr style="border-top:1px solid #ccc"><td style="padding:4px 8px">Total:</td><td style="padding:4px 8px;text-align:right">€${totalAmount.toFixed(2)}</td></tr>
+       </table>
+       <p>Please transfer the remaining balance to:<br>
+       <strong>Walldorfer Ski-Club 81 e.V.</strong><br>
+       Reference: ${eventTitle} – ${person1Name}</p>
+       <p>For questions please contact <a href="mailto:vorstand@wsc81.de">vorstand@wsc81.de</a>.</p>`;
 
   await sendMail({ to, subject, html });
 }

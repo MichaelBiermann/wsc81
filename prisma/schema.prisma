@@ -200,6 +200,8 @@ model EventBooking {
   remarks     String?   @db.Text
   locale      String    @default("de")
   createdAt   DateTime  @default(now())
+  // Payment
+  stripePaymentIntentId String?
   // Optional link to registered User account
   userId      String?
   user        User?     @relation(fields: [userId], references: [id])
