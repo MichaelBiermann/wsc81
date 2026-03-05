@@ -4,7 +4,10 @@ import { prisma } from "@/lib/prisma";
 import { BookingSchema } from "@/lib/validation";
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  timeout: 10000,
+  maxNetworkRetries: 0,
+});
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
 
 function calcAge(dob: string): number {
