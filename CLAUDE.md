@@ -71,7 +71,8 @@ Registered users (email + password) get a persistent account at `/[locale]/accou
 
 ### 3. Event Booking
 - Up to **10 participants** per booking, contact fields, member checkbox, room selection, remarks
-- Per-person pricing with age-based surcharges: non-member surcharge (adult 18+ vs under 18), bus surcharge, single/double room surcharge
+- Per-person pricing: non-member surcharge (adult 18+ vs under 18), bus surcharge, single/double room price per person
+- `roomSingleSurcharge` and `roomDoubleSurcharge` on `Event` are full per-person prices (not deltas); `roomDoubleSurcharge=0` means double room is included in the base `depositAmount`
 - Surcharges waived if `user.member` exists and `feesPaid = true`
 - Booking form pre-filled from user account when logged in
 - **Stripe Checkout** for events with `depositAmount > 0`: deposit paid online via `POST /api/booking/checkout`; `checkout.session.completed` webhook at `POST /api/webhooks/stripe` creates the `EventBooking` row and stores `stripePaymentIntentId` and `balanceDue`
@@ -133,16 +134,17 @@ Registered users (email + password) get a persistent account at `/[locale]/accou
 Protected by `role === "admin"`. All i18n via `src/lib/admin-i18n.ts` (DE + EN).
 
 - **Dashboard** — 5 cards (brand color `#4577ac`): Events, Memberships, Pending Applications, Newsletter Drafts, Rückblicke
-- **Events** — CRUD + `bookable` toggle + view/delete bookings per event; image field uses `AdminImageUpload` (upload file or paste URL with crop via `react-easy-crop`); "Aus Beschreibung ableiten" AI button extracts all pricing fields (surcharges + age-based prices) from description text
+- **Events** — CRUD + `bookable` toggle + view/delete bookings per event; image field uses `AdminImageUpload` (upload file or paste URL with crop via `react-easy-crop`); "Aus Beschreibung ableiten" AI button extracts all pricing fields (surcharges + room prices + age-based prices) from description text
 - **Memberships** — list activated members, toggle `feesPaid` per member
 - **Pending Applications** — list + **Activate** button (creates Member, links User, sends welcome email) + Delete button
 - **Users** — list registered user accounts, delete
 - **Sponsors** — CRUD with `AdminImageUpload` component (file upload + URL + crop via `react-easy-crop`); sponsor images also self-hosted in `public/images/sponsors/`
 - **Newsletter** — compose DE+EN rich-text newsletters, save draft, delete, use as template; send to **members only** (feesPaid=true) or **all users** (members + verified Users, deduplicated by email)
 - **Content** — create/edit News articles and static Pages with TipTap + AI rephrase (`POST /api/admin/ai`); slug field shows `open_in_new` link to live public URL
-- **Rückblicke** — create/edit event recap reports with TipTap + AI actions; `eventDate` and `imageUrl` optional
+- **Rückblicke** — create/edit event recap reports with TipTap + AI actions; `eventDate` and `imageUrl` optional; image field uses `AdminImageUpload`
 - **Settings** — club bank account (IBAN encrypted), annual fee collection day/month, payment reminder weeks (triggers cron reminder emails for outstanding `balanceDue`)
 - **AI Chat Assistant** — floating panel (bottom-right) on all admin pages; natural language commands mapped to Prisma operations via Claude tool use (`POST /api/admin/chat`); tools in `src/lib/chat-tools.ts`; `navigate` tool opens admin UI pages directly
+- **RichTextEditor AI buttons** — fully localized via `admin-i18n.ts` (`richText` namespace); `optimize_event` uses explicit locale so EN editors always produce English output
 
 ## Database Models
 
@@ -209,6 +211,8 @@ Protected by `role === "admin"`. All i18n via `src/lib/admin-i18n.ts` (DE + EN).
 - Material Symbols Rounded loaded globally in `src/app/layout.tsx`
 - Avatar images stored in Vercel Blob store `wsc81-avatars`
 - `EventSchema.imageUrl` accepts empty string and transforms it to `null` (Zod `.or(z.literal("")).transform(...)`) — needed because the form sends `""` when no URL is entered
+- `roomSingleSurcharge` / `roomDoubleSurcharge` are full per-person room prices, not deltas — `roomDoubleSurcharge=0` means double room is included in base `depositAmount`
+- `AdminImageUpload` (`src/components/admin/AdminImageUpload.tsx`): used in Events, Recaps, Sponsors; supports file upload, URL load, crop (`react-easy-crop`), and rotation; preview thumbnail is 192×112px
 - Homepage section order: Neuigkeiten → Kommende Veranstaltungen → Weitere Veranstaltungen → Formulare → Unsere Sponsoren
 
 ## Environment Variables
