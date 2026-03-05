@@ -2,13 +2,25 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { BookingSchema } from "@/lib/validation";
-import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  timeout: 10000,
-  maxNetworkRetries: 0,
-});
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
+
+async function createStripeCheckoutSession(params: Record<string, string>): Promise<{ url: string; id: string }> {
+  const body = new URLSearchParams(params);
+  const res = await fetch("https://api.stripe.com/v1/checkout/sessions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${process.env.STRIPE_SECRET_KEY}`,
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: body.toString(),
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err?.error?.message ?? `Stripe error ${res.status}`);
+  }
+  return res.json();
+}
 
 function calcAge(dob: string): number {
   if (!dob) return 99;
@@ -157,32 +169,30 @@ export async function POST(request: NextRequest) {
       ? `Anzahlung – ${eventTitle}`
       : `Deposit – ${eventTitle}`;
 
-    const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [
-      {
-        price_data: {
-          currency: "eur",
-          product_data: {
-            name: depositLabel,
-            description: isDE
-              ? `Anzahlung für ${eventTitle} (${event.startDate.toLocaleDateString("de-DE")}). Restbetrag: €${Math.max(0, totalWithSurcharge - depositAmount).toFixed(2)}`
-              : `Deposit for ${eventTitle} (${event.startDate.toLocaleDateString("en-GB")}). Remaining: €${Math.max(0, totalWithSurcharge - depositAmount).toFixed(2)}`,
-          },
-          unit_amount: Math.round(depositAmount * 100), // cents
-        },
-        quantity: 1,
-      },
-    ];
+    const productDescription = isDE
+      ? `Anzahlung für ${eventTitle} (${event.startDate.toLocaleDateString("de-DE")}). Restbetrag: €${Math.max(0, totalWithSurcharge - depositAmount).toFixed(2)}`
+      : `Deposit for ${eventTitle} (${event.startDate.toLocaleDateString("en-GB")}). Remaining: €${Math.max(0, totalWithSurcharge - depositAmount).toFixed(2)}`;
 
-    const checkoutSession = await stripe.checkout.sessions.create({
+    // Build flat form-encoded params for Stripe REST API
+    const stripeParams: Record<string, string> = {
       mode: "payment",
-      payment_method_types: ["card"],
-      line_items: lineItems,
+      "payment_method_types[0]": "card",
+      "line_items[0][price_data][currency]": "eur",
+      "line_items[0][price_data][product_data][name]": depositLabel,
+      "line_items[0][price_data][product_data][description]": productDescription,
+      "line_items[0][price_data][unit_amount]": String(Math.round(depositAmount * 100)),
+      "line_items[0][quantity]": "1",
       customer_email: data.email,
-      metadata,
       success_url: `${BASE_URL}/${locale}/events/${event.id}/book/success?session_id={CHECKOUT_SESSION_ID}&email=${encodeURIComponent(data.email)}`,
       cancel_url: `${BASE_URL}/${locale}/events/${event.id}`,
       locale: locale === "de" ? "de" : "en",
-    });
+    };
+    // Flatten metadata
+    for (const [k, v] of Object.entries(metadata)) {
+      stripeParams[`metadata[${k}]`] = v;
+    }
+
+    const checkoutSession = await createStripeCheckoutSession(stripeParams);
 
     return NextResponse.json({ url: checkoutSession.url });
   } catch (error) {
