@@ -21,8 +21,8 @@ Homepage for **Walldorfer Ski-Club 81 e.V. (WSC 81)**. Modelled after the existi
 - **Icons:** Material Symbols Rounded (loaded via Google Fonts in root layout)
 - **Validation:** Zod
 - **Rich text editor:** TipTap (newsletter editor, content editor, event descriptions)
-- **AI:** Anthropic Claude API (`claude-sonnet-4-6`) — actions: rephrase, shorten, expand, fix grammar, translate DE↔EN, optimize_event (event descriptions only)
-- **File storage:** Vercel Blob (avatars, sponsor images)
+- **AI:** Anthropic Claude API (`claude-sonnet-4-6`) — content actions: rephrase, shorten, expand, fix grammar, translate DE↔EN, optimize_event; admin chat assistant: natural language DB management via tool use
+- **File storage:** Vercel Blob (avatars only — sponsor images now self-hosted in `public/images/sponsors/`)
 - **Deployment:** Vercel
 
 ## Build & Development
@@ -52,9 +52,10 @@ npx prisma generate              # after any schema change
 ## Key Features
 
 ### 1. Public Site
-- Sticky navigation, hero image slider, events calendar, news block, contact, weather widget, footer
+- Sticky navigation, hero image slider, events calendar, news block, sponsors strip, footer
 - Pages: `/verein`, `/vorstand`, `/uebungsleiter`, `/sponsoren`, `/satzung`, `/agb`, `/datenschutz`, `/impressum`
 - Full-text search via PostgreSQL `tsvector` / `plainto_tsquery`
+- All images/assets self-hosted in `public/images/` and `public/documents/` (no verwaltungsportal.de dependencies)
 
 ### 2. User Accounts
 Registered users (email + password) get a persistent account at `/[locale]/account`.
@@ -120,11 +121,12 @@ Protected by `role === "admin"`. All i18n via `src/lib/admin-i18n.ts` (DE + EN).
 - **Memberships** — list activated members, toggle `feesPaid` per member
 - **Pending Applications** — list + **Activate** button (creates Member, links User, sends welcome email) + Delete button
 - **Users** — list registered user accounts, delete
-- **Sponsors** — CRUD with Vercel Blob image upload
+- **Sponsors** — CRUD with Vercel Blob image upload; sponsor images also self-hosted in `public/images/sponsors/`
 - **Newsletter** — compose DE+EN rich-text newsletters, save draft, delete, use as template; send to **members only** (feesPaid=true) or **all users** (members + verified Users, deduplicated by email)
 - **Content** — create/edit News articles and static Pages with TipTap + AI rephrase (`POST /api/admin/ai`); slug field shows `open_in_new` link to live public URL
 - **Rückblicke** — create/edit event recap reports with TipTap + AI actions; `eventDate` and `imageUrl` optional
 - **Settings** — club bank account (IBAN encrypted), annual fee collection day/month
+- **AI Chat Assistant** — floating panel (bottom-right) on all admin pages; natural language commands mapped to Prisma operations via Claude tool use (`POST /api/admin/chat`); 28 tools covering all models
 
 ## Database Models
 
@@ -135,7 +137,7 @@ Protected by `role === "admin"`. All i18n via `src/lib/admin-i18n.ts` (DE + EN).
 | `PendingMembership` | Unactivated membership applications (7-day token) |
 | `Member` | Activated club members (IBAN encrypted, `feesPaid`) |
 | `Event` + `EventBooking` | Events and bookings (up to 10 persons); `Event.bookable` flag controls booking vs. informational |
-| `Sponsor` | Club sponsors (image via Vercel Blob) |
+| `Sponsor` | Club sponsors (self-hosted images in `public/images/sponsors/`) |
 | `Newsletter` | Draft/sent newsletters |
 | `NewsPost` + `Page` | CMS content; search uses runtime `to_tsvector()` (no stored tsvector column) |
 | `Recap` | Event recap reports (slug, title/body DE+EN, eventDate, imageUrl, status); also included in search |
@@ -162,6 +164,9 @@ Protected by `role === "admin"`. All i18n via `src/lib/admin-i18n.ts` (DE + EN).
 | Booking API | `src/app/api/booking/route.ts` |
 | User APIs | `src/app/api/user/{avatar,email,profile}/route.ts` |
 | Admin APIs | `src/app/api/admin/{events,members,bookings,users,recaps,...}/` |
+| Admin chat API | `src/app/api/admin/chat/route.ts` |
+| Admin chat tools | `src/lib/chat-tools.ts` |
+| Admin chat UI | `src/components/admin/AdminChatPanel.tsx` |
 | Recaps (public) | `src/app/[locale]/rueckblicke/` |
 | Recaps (admin) | `src/app/admin/recaps/` |
 | News (public) | `src/app/[locale]/news/[slug]/page.tsx` |
@@ -180,7 +185,7 @@ Protected by `role === "admin"`. All i18n via `src/lib/admin-i18n.ts` (DE + EN).
 - Material Symbols Rounded loaded globally in `src/app/layout.tsx`
 - Avatar images stored in Vercel Blob store `wsc81-avatars`
 - `EventSchema.imageUrl` accepts empty string and transforms it to `null` (Zod `.or(z.literal("")).transform(...)`) — needed because the form sends `""` when no URL is entered
-- Homepage section order: Neuigkeiten → Kommende Veranstaltungen → Weitere Veranstaltungen → Kontakt
+- Homepage section order: Neuigkeiten → Kommende Veranstaltungen → Weitere Veranstaltungen → Unsere Sponsoren
 
 ## Environment Variables
 
