@@ -6,6 +6,7 @@ import { BookingSchema } from "@/lib/validation";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   maxNetworkRetries: 0,
+  httpClient: Stripe.createFetchHttpClient(),
 });
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";

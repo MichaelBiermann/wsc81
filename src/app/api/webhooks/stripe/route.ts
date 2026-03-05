@@ -8,8 +8,8 @@ import {
 } from "@/lib/mailer";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  timeout: 10000,
   maxNetworkRetries: 0,
+  httpClient: Stripe.createFetchHttpClient(),
 });
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
