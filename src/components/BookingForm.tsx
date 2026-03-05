@@ -32,7 +32,6 @@ interface EventProps {
   id: string;
   titleDe: string;
   titleEn: string;
-  totalAmount: number;
   depositAmount: number;
   registrationDeadline: string | null;
   surchargeNonMemberAdult: number;
@@ -93,9 +92,14 @@ export default function BookingForm({
     setForm((f) => ({ ...f, persons: f.persons.filter((_, idx) => idx !== i) }));
   };
 
-  const isFree = event.totalAmount === 0;
+  const isFree = event.depositAmount === 0 &&
+    event.surchargeNonMemberAdult === 0 &&
+    event.surchargeNonMemberChild === 0 &&
+    event.busSurcharge === 0 &&
+    event.roomSingleSurcharge === 0 &&
+    event.roomDoubleSurcharge === 0;
 
-  function calcPricing(): { lines: { label: string; amount: number }[]; total: number } {
+  function calcPricing(): { lines: { label: string; amount: number }[]; total: number; deposit: number; remaining: number } {
     const lines: { label: string; amount: number }[] = [];
     let total = 0;
 
@@ -103,7 +107,7 @@ export default function BookingForm({
 
     for (const person of namedPersons) {
       const age = calcAge(person.dob);
-      let personTotal = event.totalAmount;
+      let personTotal = 0;
 
       if (!person.isMember) {
         const surcharge = age < 18
@@ -111,30 +115,34 @@ export default function BookingForm({
           : event.surchargeNonMemberAdult;
         if (surcharge > 0) {
           personTotal += surcharge;
+          const surchargeLabel = age < 18 ? t("surchargeNonMemberChild") : t("surchargeNonMemberAdult");
+          lines.push({ label: `${person.name || "Person"} – ${surchargeLabel}`, amount: surcharge });
         }
       }
 
       if (event.busSurcharge > 0) {
         personTotal += event.busSurcharge;
+        lines.push({ label: `${person.name || "Person"} – ${t("busSurcharge")}`, amount: event.busSurcharge });
       }
 
-      lines.push({ label: person.name || "Person", amount: personTotal });
       total += personTotal;
     }
 
     if (form.roomsSingle > 0 && event.roomSingleSurcharge > 0) {
       const roomTotal = form.roomsSingle * event.roomSingleSurcharge;
-      lines.push({ label: `${form.roomsSingle}× ${t("fields.roomsSingle")}`, amount: roomTotal });
+      lines.push({ label: `${form.roomsSingle}× ${t("fields.roomsSingle")} (${t("roomSingleSurcharge")})`, amount: roomTotal });
       total += roomTotal;
     }
 
     if (form.roomsDouble > 0 && event.roomDoubleSurcharge > 0) {
       const roomTotal = form.roomsDouble * event.roomDoubleSurcharge;
-      lines.push({ label: `${form.roomsDouble}× ${t("fields.roomsDouble")}`, amount: roomTotal });
+      lines.push({ label: `${form.roomsDouble}× ${t("fields.roomsDouble")} (${t("roomDoubleSurcharge")})`, amount: roomTotal });
       total += roomTotal;
     }
 
-    return { lines, total };
+    const deposit = event.depositAmount;
+    const remaining = Math.max(0, total - deposit);
+    return { lines, total, deposit, remaining };
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -297,15 +305,29 @@ export default function BookingForm({
         {pricing && (
           <div className="bg-[#eef3f9] rounded p-3 text-sm">
             <p className="font-semibold mb-2">{t("priceSummary")}</p>
-            {pricing.lines.map((line, idx) => (
-              <div key={idx} className="flex justify-between py-0.5">
-                <span className="text-gray-700">{line.label}</span>
-                <span>€{line.amount.toFixed(2)}</span>
-              </div>
-            ))}
+            {pricing.lines.length === 0 ? (
+              <p className="text-gray-500 text-xs">{t("noSurcharges")}</p>
+            ) : (
+              pricing.lines.map((line, idx) => (
+                <div key={idx} className="flex justify-between py-0.5">
+                  <span className="text-gray-700">{line.label}</span>
+                  <span>€{line.amount.toFixed(2)}</span>
+                </div>
+              ))
+            )}
             <div className="flex justify-between font-bold border-t border-gray-300 mt-2 pt-2">
-              <span>{t("totalPrice")}</span><span>€{pricing.total.toFixed(2)}</span>
+              <span>{t("totalSurcharges")}</span><span>€{pricing.total.toFixed(2)}</span>
             </div>
+            {pricing.deposit > 0 && (
+              <div className="flex justify-between text-gray-600 mt-1">
+                <span>{t("depositDue")}</span><span>€{pricing.deposit.toFixed(2)}</span>
+              </div>
+            )}
+            {pricing.remaining > 0 && (
+              <div className="flex justify-between text-gray-500 text-xs mt-0.5">
+                <span>{t("remainingDue")}</span><span>€{pricing.remaining.toFixed(2)}</span>
+              </div>
+            )}
           </div>
         )}
       </div>

@@ -21,16 +21,17 @@ const SYSTEM_PROMPTS: Record<string, string> = {
   optimize_event:
     "You are a copywriter for a German ski club website. Optimize the given event description so it works perfectly in two contexts: (1) as a short teaser on an event tile card (the first sentence or two must be a compelling 1–2 sentence summary that works standalone when HTML is stripped and truncated to ~120 characters), and (2) as a full event detail page description (well-structured with headings, bullet points for key facts like included services, what to bring, schedule, etc.). Use HTML formatting (h2, h3, ul, li, p, strong). Keep the language matching the input language (German if German, English if English). Return only the optimized HTML, nothing else.",
   extract_surcharges:
-    `You are a pricing assistant for a German ski club. Read the event description (HTML) and extract any price or surcharge amounts mentioned. Return ONLY a JSON object with exactly these keys (use null if a value is not mentioned):
+    `You are a pricing assistant for a German ski club. Read the event description (HTML) and extract any price or surcharge amounts mentioned. Return ONLY a raw JSON object with exactly these keys. Do NOT wrap in markdown code fences. No explanation, no markdown, just the raw JSON object:
 {
   "depositAmount": <number|null>,
   "surchargeNonMemberAdult": <number|null>,
   "surchargeNonMemberChild": <number|null>,
   "busSurcharge": <number|null>,
   "roomSingleSurcharge": <number|null>,
-  "roomDoubleSurcharge": <number|null>
+  "roomDoubleSurcharge": <number|null>,
+  "agePrices": [{ "label": "<string>", "price": <number> }]
 }
-"depositAmount" is the deposit or down-payment due at booking time (may be absent). No markdown, no explanation, just the JSON object.`,
+"depositAmount" is the deposit or down-payment due at booking time (Anzahlung). Room surcharges are the ADDITIONAL cost above the base double-room price (e.g. if double = €182 and single = €230, roomSingleSurcharge = 48). busSurcharge is bus cost per person. "agePrices" is an array of up to 10 age-based price entries (children, teens, etc.) each with a descriptive label and the full price for that group. Use [] if none are mentioned. Use null for any top-level field not found.`,
 };
 
 export async function POST(request: NextRequest) {

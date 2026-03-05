@@ -36,6 +36,7 @@ interface EventDetail {
   busSurcharge: string;
   roomSingleSurcharge: string;
   roomDoubleSurcharge: string;
+  agePrices: Array<{ label: string; price: number }>;
   bookings: Booking[];
 }
 
@@ -81,7 +82,6 @@ export default function EditEventPage() {
           startDate: toDatetimeLocal(event.startDate),
           endDate: toDatetimeLocal(event.endDate),
           depositAmount: String(event.depositAmount),
-          totalAmount: String(event.totalAmount),
           maxParticipants: event.maxParticipants ? String(event.maxParticipants) : "",
           registrationDeadline: event.registrationDeadline ? toDatetimeLocal(event.registrationDeadline) : "",
           imageUrl: event.imageUrl ?? "",
@@ -91,6 +91,10 @@ export default function EditEventPage() {
           busSurcharge: String(event.busSurcharge),
           roomSingleSurcharge: String(event.roomSingleSurcharge),
           roomDoubleSurcharge: String(event.roomDoubleSurcharge),
+          agePrices: (Array.isArray(event.agePrices) ? event.agePrices : []).map((ap: { label: string; price: number }) => ({
+            label: ap.label,
+            price: String(ap.price),
+          })),
         }}
       />
 

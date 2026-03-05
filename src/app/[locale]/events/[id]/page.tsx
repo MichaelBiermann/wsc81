@@ -98,16 +98,48 @@ export default async function EventDetailPage({
 
           {event.bookable && (
           <div className="bg-[#eef3f9] rounded-lg p-4 text-sm space-y-2">
-            {Number(event.totalAmount) > 0 && (<>
-            <div className="flex justify-between">
-              <span className="font-medium text-gray-700">{isDE ? "Gesamtpreis" : "Total price"}</span>
-              <span className="font-semibold">€{Number(event.totalAmount).toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between text-gray-500">
-              <span>{isDE ? "Anzahlung" : "Deposit"}</span>
-              <span>€{Number(event.depositAmount).toFixed(2)}</span>
-            </div>
-            </>)}
+            {Number(event.depositAmount) > 0 && (
+              <div className="flex justify-between">
+                <span className="font-medium text-gray-700">{isDE ? "Anzahlung" : "Deposit"}</span>
+                <span className="font-semibold">€{Number(event.depositAmount).toFixed(2)}</span>
+              </div>
+            )}
+            {Number(event.surchargeNonMemberAdult) > 0 && (
+              <div className="flex justify-between text-gray-500">
+                <span>{isDE ? "Aufschlag Nichtmitglied (18+)" : "Non-member surcharge (18+)"}</span>
+                <span>€{Number(event.surchargeNonMemberAdult).toFixed(2)}</span>
+              </div>
+            )}
+            {Number(event.surchargeNonMemberChild) > 0 && (
+              <div className="flex justify-between text-gray-500">
+                <span>{isDE ? "Aufschlag Nichtmitglied (unter 18)" : "Non-member surcharge (under 18)"}</span>
+                <span>€{Number(event.surchargeNonMemberChild).toFixed(2)}</span>
+              </div>
+            )}
+            {Number(event.busSurcharge) > 0 && (
+              <div className="flex justify-between text-gray-500">
+                <span>{isDE ? "Buszuschlag" : "Bus surcharge"}</span>
+                <span>€{Number(event.busSurcharge).toFixed(2)}</span>
+              </div>
+            )}
+            {Number(event.roomSingleSurcharge) > 0 && (
+              <div className="flex justify-between text-gray-500">
+                <span>{isDE ? "Einzelzimmer" : "Single room"}</span>
+                <span>€{Number(event.roomSingleSurcharge).toFixed(2)}</span>
+              </div>
+            )}
+            {Number(event.roomDoubleSurcharge) > 0 && (
+              <div className="flex justify-between text-gray-500">
+                <span>{isDE ? "Doppelzimmer" : "Double room"}</span>
+                <span>€{Number(event.roomDoubleSurcharge).toFixed(2)}</span>
+              </div>
+            )}
+            {Array.isArray(event.agePrices) && (event.agePrices as { label: string; price: number }[]).map((ap, i) => (
+              <div key={i} className="flex justify-between text-gray-500">
+                <span>{ap.label}</span>
+                <span>€{Number(ap.price).toFixed(2)}</span>
+              </div>
+            ))}
             {event.registrationDeadline && (
               <div className="flex justify-between text-gray-500">
                 <span>{isDE ? "Anmeldeschluss" : "Registration deadline"}</span>
@@ -136,7 +168,6 @@ export default async function EventDetailPage({
                     id: event.id,
                     titleDe: event.titleDe,
                     titleEn: event.titleEn,
-                    totalAmount: Number(event.totalAmount),
                     depositAmount: Number(event.depositAmount),
                     registrationDeadline: event.registrationDeadline?.toISOString() ?? null,
                     surchargeNonMemberAdult: Number(event.surchargeNonMemberAdult),

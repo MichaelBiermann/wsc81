@@ -153,7 +153,7 @@ model Event {
   startDate            DateTime
   endDate              DateTime
   depositAmount        Decimal        @db.Decimal(8, 2)
-  totalAmount          Decimal        @db.Decimal(8, 2)
+  totalAmount          Decimal        @default(0) @db.Decimal(8, 2)
   imageUrl             String?
   maxParticipants      Int?
   registrationDeadline DateTime?
@@ -163,6 +163,7 @@ model Event {
   busSurcharge             Decimal        @default(0) @db.Decimal(8, 2)
   roomSingleSurcharge      Decimal        @default(0) @db.Decimal(8, 2)
   roomDoubleSurcharge      Decimal        @default(0) @db.Decimal(8, 2)
+  agePrices                Json           @default("[]")
   createdAt            DateTime       @default(now())
   updatedAt            DateTime       @updatedAt
   bookings             EventBooking[]

@@ -98,6 +98,7 @@ export const EventSchema = z.object({
   busSurcharge: z.number().min(0).default(0),
   roomSingleSurcharge: z.number().min(0).default(0),
   roomDoubleSurcharge: z.number().min(0).default(0),
+  agePrices: z.array(z.object({ label: z.string().min(1), price: z.number().min(0) })).max(10).default([]),
 });
 
 export const SponsorSchema = z.object({

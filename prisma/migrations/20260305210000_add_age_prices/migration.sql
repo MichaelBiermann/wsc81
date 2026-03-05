@@ -1,0 +1,1 @@
+ALTER TABLE "Event" ADD COLUMN "agePrices" JSONB NOT NULL DEFAULT '[]';

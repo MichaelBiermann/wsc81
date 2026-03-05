@@ -45,7 +45,6 @@ export async function PUT(
       startDate: new Date(d.startDate),
       endDate: new Date(d.endDate),
       depositAmount: d.depositAmount,
-      totalAmount: d.totalAmount,
       maxParticipants: d.maxParticipants ?? null,
       registrationDeadline: d.registrationDeadline ? new Date(d.registrationDeadline) : null,
       imageUrl: d.imageUrl ?? null,
@@ -55,6 +54,7 @@ export async function PUT(
       busSurcharge: d.busSurcharge,
       roomSingleSurcharge: d.roomSingleSurcharge,
       roomDoubleSurcharge: d.roomDoubleSurcharge,
+      agePrices: d.agePrices,
     },
   });
   return NextResponse.json(event);

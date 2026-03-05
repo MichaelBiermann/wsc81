@@ -10,6 +10,8 @@ import RichTextEditor from "@/components/admin/RichTextEditor";
 import AdminImageUpload from "@/components/admin/AdminImageUpload";
 import { useAdminI18n } from "@/components/admin/AdminI18nProvider";
 
+interface AgePrice { label: string; price: string; }
+
 interface EventFormData {
   titleDe: string; titleEn: string;
   descriptionDe: string; descriptionEn: string;
@@ -23,6 +25,7 @@ interface EventFormData {
   busSurcharge: string;
   roomSingleSurcharge: string;
   roomDoubleSurcharge: string;
+  agePrices: AgePrice[];
 }
 
 const EMPTY: EventFormData = {
@@ -36,6 +39,7 @@ const EMPTY: EventFormData = {
   busSurcharge: "0",
   roomSingleSurcharge: "0",
   roomDoubleSurcharge: "0",
+  agePrices: [],
 };
 
 export default function EventForm({
@@ -71,6 +75,9 @@ export default function EventForm({
       busSurcharge: Number(form.busSurcharge),
       roomSingleSurcharge: Number(form.roomSingleSurcharge),
       roomDoubleSurcharge: Number(form.roomDoubleSurcharge),
+      agePrices: form.agePrices
+        .filter((ap) => ap.label.trim() !== "")
+        .map((ap) => ({ label: ap.label.trim(), price: Number(ap.price) })),
     };
 
     const res = await fetch(eventId ? `/api/admin/events/${eventId}` : "/api/admin/events", {
@@ -107,7 +114,9 @@ export default function EventForm({
       });
       if (!res.ok) return;
       const { suggestion } = await res.json();
-      const parsed = JSON.parse(suggestion);
+      // Strip markdown code fences if present (e.g. ```json ... ```)
+      const cleaned = suggestion.replace(/^```[\w]*\n?/m, "").replace(/```$/m, "").trim();
+      const parsed = JSON.parse(cleaned);
       setForm((f) => ({
         ...f,
         ...(parsed.depositAmount != null && { depositAmount: String(parsed.depositAmount) }),
@@ -116,6 +125,12 @@ export default function EventForm({
         ...(parsed.busSurcharge != null && { busSurcharge: String(parsed.busSurcharge) }),
         ...(parsed.roomSingleSurcharge != null && { roomSingleSurcharge: String(parsed.roomSingleSurcharge) }),
         ...(parsed.roomDoubleSurcharge != null && { roomDoubleSurcharge: String(parsed.roomDoubleSurcharge) }),
+        ...(Array.isArray(parsed.agePrices) && parsed.agePrices.length > 0 && {
+          agePrices: parsed.agePrices.slice(0, 10).map((ap: { label: string; price: number }) => ({
+            label: String(ap.label),
+            price: String(ap.price),
+          })),
+        }),
       }));
     } catch {
       // silently ignore parse errors
@@ -220,6 +235,56 @@ export default function EventForm({
           <FormField label={t.eventForm.roomDoubleSurcharge}>
             <Input type="number" min="0" step="0.01" value={form.roomDoubleSurcharge} onChange={set("roomDoubleSurcharge")} />
           </FormField>
+        </div>
+
+        {/* Age-based prices */}
+        <div className="mt-4">
+          <p className="text-sm font-medium text-gray-700 mb-2">{t.eventForm.agePricesSection}</p>
+          <div className="flex flex-col gap-2">
+            {form.agePrices.map((ap, i) => (
+              <div key={i} className="flex gap-2 items-center">
+                <Input
+                  placeholder={t.eventForm.agePriceLabel}
+                  value={ap.label}
+                  onChange={(e) => setForm((f) => {
+                    const agePrices = [...f.agePrices];
+                    agePrices[i] = { ...agePrices[i], label: e.target.value };
+                    return { ...f, agePrices };
+                  })}
+                  className="flex-1"
+                />
+                <Input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder={t.eventForm.agePriceAmount}
+                  value={ap.price}
+                  onChange={(e) => setForm((f) => {
+                    const agePrices = [...f.agePrices];
+                    agePrices[i] = { ...agePrices[i], price: e.target.value };
+                    return { ...f, agePrices };
+                  })}
+                  className="w-28"
+                />
+                <button
+                  type="button"
+                  onClick={() => setForm((f) => ({ ...f, agePrices: f.agePrices.filter((_, idx) => idx !== i) }))}
+                  className="text-red-400 hover:text-red-600 text-xs shrink-0"
+                >
+                  {t.eventForm.agePriceRemove}
+                </button>
+              </div>
+            ))}
+          </div>
+          {form.agePrices.length < 10 && (
+            <button
+              type="button"
+              onClick={() => setForm((f) => ({ ...f, agePrices: [...f.agePrices, { label: "", price: "0" }] }))}
+              className="mt-2 text-xs text-[#4577ac] hover:underline"
+            >
+              + {t.eventForm.agePriceAdd}
+            </button>
+          )}
         </div>
       </div>
       )}
