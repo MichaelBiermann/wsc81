@@ -64,6 +64,9 @@
       "phone": "Phone",
       "email": "Email address",
       "isMember": "I am a member of WSC 81",
+      "rooms": "Room selection",
+      "roomsSingle": "Single room",
+      "roomsDouble": "Double room",
       "remarks": "Remarks"
     },
     "payment": {

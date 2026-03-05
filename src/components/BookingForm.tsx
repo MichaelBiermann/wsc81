@@ -14,6 +14,7 @@ interface FormState {
   persons: PersonData[];
   street: string; postalCode: string; city: string; phone: string; email: string;
   isMember: boolean; remarks: string;
+  roomsSingle: number; roomsDouble: number;
 }
 
 interface Prefill {
@@ -51,6 +52,8 @@ export default function BookingForm({
     email: prefill?.email ?? "",
     isMember: prefill?.isMember ?? false,
     remarks: "",
+    roomsSingle: 0,
+    roomsDouble: 0,
   });
 
   const updatePerson = (i: number, field: keyof PersonData, value: string) => {
@@ -93,6 +96,7 @@ export default function BookingForm({
       street: form.street, postalCode: form.postalCode, city: form.city,
       phone: form.phone, email: form.email,
       isMember: form.isMember, remarks: form.remarks || undefined,
+      roomsSingle: form.roomsSingle, roomsDouble: form.roomsDouble,
       locale,
     };
 
@@ -205,6 +209,29 @@ export default function BookingForm({
             <span className="text-xs text-green-600 ml-1">(automatisch — Mitglied)</span>
           )}
         </label>
+
+        {/* Room selection */}
+        <div className="mb-4">
+          <p className="text-sm font-medium text-gray-700 mb-2">{t("fields.rooms")}</p>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="flex items-center gap-2">
+              <label className="text-sm text-gray-600 w-28 shrink-0">{t("fields.roomsSingle")}</label>
+              <div className="flex items-center border border-gray-300 rounded overflow-hidden">
+                <button type="button" onClick={() => setForm((f) => ({ ...f, roomsSingle: Math.max(0, f.roomsSingle - 1) }))} className="px-2 py-1 text-gray-500 hover:bg-gray-100 text-base leading-none">−</button>
+                <span className="px-3 py-1 text-sm min-w-[2rem] text-center">{form.roomsSingle}</span>
+                <button type="button" onClick={() => setForm((f) => ({ ...f, roomsSingle: f.roomsSingle + 1 }))} className="px-2 py-1 text-gray-500 hover:bg-gray-100 text-base leading-none">+</button>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <label className="text-sm text-gray-600 w-28 shrink-0">{t("fields.roomsDouble")}</label>
+              <div className="flex items-center border border-gray-300 rounded overflow-hidden">
+                <button type="button" onClick={() => setForm((f) => ({ ...f, roomsDouble: Math.max(0, f.roomsDouble - 1) }))} className="px-2 py-1 text-gray-500 hover:bg-gray-100 text-base leading-none">−</button>
+                <span className="px-3 py-1 text-sm min-w-[2rem] text-center">{form.roomsDouble}</span>
+                <button type="button" onClick={() => setForm((f) => ({ ...f, roomsDouble: f.roomsDouble + 1 }))} className="px-2 py-1 text-gray-500 hover:bg-gray-100 text-base leading-none">+</button>
+              </div>
+            </div>
+          </div>
+        </div>
 
         {!isFree && (
         <div className="bg-[#eef3f9] rounded p-3 text-sm">

@@ -239,6 +239,17 @@ export async function GET(
 
                 b.remarks
                   ? React.createElement(Text, { style: styles.remarksText }, `Hinweis: ${b.remarks}`)
+                  : null,
+
+                (b.roomsSingle > 0 || b.roomsDouble > 0)
+                  ? React.createElement(
+                      View, { style: styles.contactRow },
+                      React.createElement(Text, { style: styles.contactLabel }, "Zimmer:"),
+                      React.createElement(Text, {}, [
+                        b.roomsSingle > 0 ? `EZ: ${b.roomsSingle}` : "",
+                        b.roomsDouble > 0 ? `DZ: ${b.roomsDouble}` : "",
+                      ].filter(Boolean).join("  ·  "))
+                    )
                   : null
               );
             })

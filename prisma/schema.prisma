@@ -199,6 +199,8 @@ model EventBooking {
   isMember    Boolean   @default(false)
   remarks     String?   @db.Text
   locale      String    @default("de")
+  roomsSingle Int       @default(0)
+  roomsDouble Int       @default(0)
   createdAt   DateTime  @default(now())
   // Payment
   stripePaymentIntentId String?

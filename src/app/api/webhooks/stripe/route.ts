@@ -89,6 +89,8 @@ export async function POST(request: NextRequest) {
         street: meta.street, postalCode: meta.postalCode, city: meta.city,
         phone: meta.phone, email: meta.email,
         isMember, remarks: meta.remarks || null, locale,
+        roomsSingle: Number(meta.roomsSingle ?? 0),
+        roomsDouble: Number(meta.roomsDouble ?? 0),
       },
     });
 

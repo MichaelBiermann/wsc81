@@ -70,6 +70,8 @@ export const BookingSchema = z.object({
   email: z.string().email().max(254).toLowerCase(),
   isMember: z.boolean().default(false),
   remarks: z.string().max(2000).trim().optional(),
+  roomsSingle: z.number().int().min(0).max(50).default(0),
+  roomsDouble: z.number().int().min(0).max(50).default(0),
   locale: z.enum(["de", "en"]).default("de"),
 });
 

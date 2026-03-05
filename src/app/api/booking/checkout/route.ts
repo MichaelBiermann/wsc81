@@ -66,6 +66,8 @@ export async function POST(request: NextRequest) {
           street: data.street, postalCode: data.postalCode, city: data.city,
           phone: data.phone, email: data.email,
           isMember: data.isMember, remarks: data.remarks ?? null, locale,
+          roomsSingle: data.roomsSingle ?? 0,
+          roomsDouble: data.roomsDouble ?? 0,
         },
       });
 
@@ -94,6 +96,8 @@ export async function POST(request: NextRequest) {
       isMember: String(data.isMember),
       remarks: data.remarks ?? "",
       locale,
+      roomsSingle: String(data.roomsSingle ?? 0),
+      roomsDouble: String(data.roomsDouble ?? 0),
       // Persons — store as compact JSON strings
       p1: JSON.stringify(data.person1),
       p2: data.person2?.name ? JSON.stringify(data.person2) : "",

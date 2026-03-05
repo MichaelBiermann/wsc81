@@ -12,6 +12,8 @@ interface Booking {
   email: string;
   isMember: boolean;
   createdAt: string;
+  roomsSingle: number;
+  roomsDouble: number;
 }
 
 interface EventDetail {
@@ -102,6 +104,7 @@ export default function EditEventPage() {
                   <th className="px-4 py-3 text-left font-medium text-gray-600">{t.events.colName}</th>
                   <th className="px-4 py-3 text-left font-medium text-gray-600">{t.events.colEmail}</th>
                   <th className="px-4 py-3 text-left font-medium text-gray-600">{t.events.colMember}</th>
+                  <th className="px-4 py-3 text-left font-medium text-gray-600">Zimmer</th>
                   <th className="px-4 py-3 text-left font-medium text-gray-600">{t.events.colDate2}</th>
                   <th className="px-4 py-3" />
                 </tr>
@@ -112,6 +115,12 @@ export default function EditEventPage() {
                     <td className="px-4 py-3">{b.person1Name}</td>
                     <td className="px-4 py-3 text-gray-600">{b.email}</td>
                     <td className="px-4 py-3">{b.isMember ? "✅" : "—"}</td>
+                    <td className="px-4 py-3 text-gray-600 text-xs">
+                      {b.roomsSingle > 0 && <span>EZ: {b.roomsSingle}</span>}
+                      {b.roomsSingle > 0 && b.roomsDouble > 0 && <span className="mx-1">·</span>}
+                      {b.roomsDouble > 0 && <span>DZ: {b.roomsDouble}</span>}
+                      {b.roomsSingle === 0 && b.roomsDouble === 0 && <span>—</span>}
+                    </td>
                     <td className="px-4 py-3 text-gray-600">{new Date(b.createdAt).toLocaleDateString("de-DE")}</td>
                     <td className="px-4 py-3 text-right">
                       <button
