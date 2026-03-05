@@ -102,8 +102,9 @@ Registered users (email + password) get a persistent account at `/[locale]/accou
 - `bookable = true`: shows "Jetzt buchen" button in EventCalendar; detail page shows booking form + pricing panel
 - `bookable = false`: shows "Anmeldung: siehe Beschreibung" label; detail page hides booking form, pricing panel, and registration info box; content column is full-width; event appears in "Weitere Veranstaltungen" section on homepage
 - Homepage "Weitere Veranstaltungen" section is driven by DB events with `bookable = false`; falls back to static `RegularActivities` component if none exist
-- Admin EventForm has a "Buchbar" checkbox to toggle this flag
+- Admin EventForm has a "Buchbar" checkbox to toggle this flag; prices section is only shown when bookable=true
 - 4 regular activities seeded as non-bookable events: `regular-ski-gymnastics`, `regular-nordic-walking`, `regular-lauftreff`, `regular-sportabzeichen`
+- **Age-based prices**: `Event.agePrices` JSON column stores up to 10 `{ label, price }` entries (e.g. "Kinder 3–5 Jahre", €25); shown in admin EventForm as dynamic add/remove rows and in the public event detail pricing panel; derived from description by the AI "Aus Beschreibung ableiten" button (`extract_surcharges` action)
 
 ### 7. Content (News & Static Pages)
 - News articles: public at `/[locale]/news/[slug]` — shows published `NewsPost` with date, title, body
@@ -132,7 +133,7 @@ Registered users (email + password) get a persistent account at `/[locale]/accou
 Protected by `role === "admin"`. All i18n via `src/lib/admin-i18n.ts` (DE + EN).
 
 - **Dashboard** — 5 cards (brand color `#4577ac`): Events, Memberships, Pending Applications, Newsletter Drafts, Rückblicke
-- **Events** — CRUD + `bookable` toggle + view/delete bookings per event; image field uses `AdminImageUpload` (upload file or paste URL with crop); "Aus Beschreibung ableiten" AI button extracts pricing from description
+- **Events** — CRUD + `bookable` toggle + view/delete bookings per event; image field uses `AdminImageUpload` (upload file or paste URL with crop via `react-easy-crop`); "Aus Beschreibung ableiten" AI button extracts all pricing fields (surcharges + age-based prices) from description text
 - **Memberships** — list activated members, toggle `feesPaid` per member
 - **Pending Applications** — list + **Activate** button (creates Member, links User, sends welcome email) + Delete button
 - **Users** — list registered user accounts, delete
@@ -151,7 +152,7 @@ Protected by `role === "admin"`. All i18n via `src/lib/admin-i18n.ts` (DE + EN).
 | `User` | Public user accounts (email + bcrypt, email verification, avatar, `memberId` FK) |
 | `PendingMembership` | Unactivated membership applications (7-day token) |
 | `Member` | Activated club members (IBAN encrypted, `feesPaid`) |
-| `Event` + `EventBooking` | Events and bookings (up to 10 persons); `Event.bookable` flag; `EventBooking` stores `stripePaymentIntentId`, `balanceDue`, `paymentReminderSentAt` |
+| `Event` + `EventBooking` | Events and bookings (up to 10 persons); `Event.bookable` flag; `Event.agePrices` JSON (age-based price entries); `EventBooking` stores `stripePaymentIntentId`, `balanceDue`, `paymentReminderSentAt` |
 | `Sponsor` | Club sponsors (self-hosted images in `public/images/sponsors/`) |
 | `Newsletter` | Draft/sent newsletters |
 | `NewsPost` + `Page` | CMS content; search uses runtime `to_tsvector()` (no stored tsvector column) |
