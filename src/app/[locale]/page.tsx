@@ -7,6 +7,7 @@ import NewsBlock from "@/components/NewsBlock";
 import HeroSlider from "@/components/HeroSlider";
 import WelcomeBlock from "@/components/WelcomeBlock";
 import ContactBlock from "@/components/ContactBlock";
+import Image from "next/image";
 
 export default async function HomePage({
   params,
@@ -18,7 +19,7 @@ export default async function HomePage({
   const session = await auth();
   const isLoggedIn = !!session?.user;
 
-  const [events, regularEvents, newsPosts] = await Promise.all([
+  const [events, regularEvents, newsPosts, sponsors] = await Promise.all([
     prisma.event.findMany({
       where: { startDate: { gte: new Date() }, bookable: true },
       orderBy: { startDate: "asc" },
@@ -33,6 +34,7 @@ export default async function HomePage({
       orderBy: { publishedAt: "desc" },
       take: 4,
     }).catch(() => []),
+    prisma.sponsor.findMany({ orderBy: { displayOrder: "asc" } }).catch(() => []),
   ]);
 
   return (
@@ -68,6 +70,36 @@ export default async function HomePage({
           )}
         </div>
       </section>
+
+      {sponsors.length > 0 && (
+        <section className="py-8 border-t border-gray-100">
+          <div className="mx-auto max-w-7xl px-4">
+            <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 text-center mb-4">
+              {locale === "de" ? "Unsere Sponsoren" : "Our Sponsors"}
+            </p>
+            <div className="flex flex-wrap justify-center items-center gap-3">
+              {sponsors.map((s) => (
+                <a
+                  key={s.id}
+                  href={s.websiteUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title={s.name}
+                  className="flex items-center justify-center rounded border border-gray-100 bg-white p-2 hover:border-gray-300 transition-colors"
+                >
+                  <Image
+                    src={s.imageUrl}
+                    alt={s.name}
+                    width={80}
+                    height={40}
+                    className="object-contain h-8 w-auto"
+                  />
+                </a>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       <ContactBlock />
     </>
