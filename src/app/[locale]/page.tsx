@@ -6,7 +6,6 @@ import RegularActivities from "@/components/RegularActivities";
 import NewsBlock from "@/components/NewsBlock";
 import HeroSlider from "@/components/HeroSlider";
 import WelcomeBlock from "@/components/WelcomeBlock";
-import ContactBlock from "@/components/ContactBlock";
 import Image from "next/image";
 
 export default async function HomePage({
@@ -100,8 +99,6 @@ export default async function HomePage({
           </div>
         </section>
       )}
-
-      <ContactBlock />
     </>
   );
 }
