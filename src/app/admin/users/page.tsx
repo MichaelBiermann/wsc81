@@ -15,10 +15,20 @@ interface User {
   _count: { bookings: number };
 }
 
+interface EditForm {
+  firstName: string;
+  lastName: string;
+  email: string;
+  emailVerified: boolean;
+}
+
 export default function AdminUsersPage() {
   const { t } = useAdminI18n();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editUser, setEditUser] = useState<User | null>(null);
+  const [editForm, setEditForm] = useState<EditForm>({ firstName: "", lastName: "", email: "", emailVerified: false });
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     fetch("/api/admin/users").then((r) => r.json()).then((data) => {
@@ -31,6 +41,27 @@ export default function AdminUsersPage() {
     if (!confirm(t.users.deleteConfirm.replace("{name}", name))) return;
     await fetch(`/api/admin/users/${id}`, { method: "DELETE" });
     setUsers((prev) => prev.filter((u) => u.id !== id));
+  };
+
+  const openEdit = (u: User) => {
+    setEditUser(u);
+    setEditForm({ firstName: u.firstName, lastName: u.lastName, email: u.email, emailVerified: u.emailVerified });
+  };
+
+  const handleSave = async () => {
+    if (!editUser) return;
+    setSaving(true);
+    const res = await fetch(`/api/admin/users/${editUser.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(editForm),
+    });
+    if (res.ok) {
+      const updated = await res.json();
+      setUsers((prev) => prev.map((u) => u.id === updated.id ? updated : u));
+      setEditUser(null);
+    }
+    setSaving(false);
   };
 
   return (
@@ -75,7 +106,13 @@ export default function AdminUsersPage() {
                 </td>
                 <td className="px-4 py-3 text-gray-600">{u._count.bookings}</td>
                 <td className="px-4 py-3 text-gray-500">{new Date(u.createdAt).toLocaleDateString("de-DE")}</td>
-                <td className="px-4 py-3">
+                <td className="px-4 py-3 flex items-center gap-3">
+                  <button
+                    onClick={() => openEdit(u)}
+                    className="text-sm text-[#4577ac] hover:underline"
+                  >
+                    {t.edit}
+                  </button>
                   <button
                     onClick={() => handleDelete(u.id, `${u.firstName} ${u.lastName}`)}
                     className="text-sm text-red-600 hover:underline"
@@ -88,6 +125,69 @@ export default function AdminUsersPage() {
           </tbody>
         </table>
       </div>
+
+      {/* Edit modal */}
+      {editUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md mx-4">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">{t.users.editTitle}</h2>
+            <div className="flex flex-col gap-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t.users.fieldFirstName}</label>
+                <input
+                  type="text"
+                  value={editForm.firstName}
+                  onChange={(e) => setEditForm((f) => ({ ...f, firstName: e.target.value }))}
+                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#4577ac]"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t.users.fieldLastName}</label>
+                <input
+                  type="text"
+                  value={editForm.lastName}
+                  onChange={(e) => setEditForm((f) => ({ ...f, lastName: e.target.value }))}
+                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#4577ac]"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t.users.fieldEmail}</label>
+                <input
+                  type="email"
+                  value={editForm.email}
+                  onChange={(e) => setEditForm((f) => ({ ...f, email: e.target.value }))}
+                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#4577ac]"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="emailVerified"
+                  checked={editForm.emailVerified}
+                  onChange={(e) => setEditForm((f) => ({ ...f, emailVerified: e.target.checked }))}
+                  className="accent-[#4577ac]"
+                />
+                <label htmlFor="emailVerified" className="text-sm text-gray-700">{t.users.fieldVerified}</label>
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 mt-5">
+              <button
+                onClick={() => setEditUser(null)}
+                className="px-4 py-2 text-sm text-gray-600 bg-gray-100 hover:bg-gray-200 rounded transition-colors"
+              >
+                {t.cancel}
+              </button>
+              <button
+                onClick={handleSave}
+                disabled={saving}
+                className="px-4 py-2 text-sm text-white bg-[#4577ac] hover:bg-[#3a6699] disabled:opacity-50 rounded transition-colors"
+              >
+                {saving ? "…" : t.save}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

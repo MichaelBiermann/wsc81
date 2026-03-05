@@ -32,6 +32,12 @@ export const ADMIN_TRANSLATIONS = {
       isMember: "Mitglied",
       noUsers: "Keine Benutzerkonten vorhanden.",
       deleteConfirm: "Benutzerkonto von {name} wirklich löschen?",
+      editTitle: "Benutzer bearbeiten",
+      fieldFirstName: "Vorname",
+      fieldLastName: "Nachname",
+      fieldEmail: "E-Mail",
+      fieldVerified: "E-Mail bestätigt",
+      saveSuccess: "Gespeichert.",
     },
     // Dashboard
     dashboard: {
@@ -328,6 +334,9 @@ export const ADMIN_TRANSLATIONS = {
     },
     // Delete button
     delete: "Löschen",
+    edit: "Bearbeiten",
+    save: "Speichern",
+    cancel: "Abbrechen",
     loading: "…",
   },
   en: {
@@ -360,6 +369,12 @@ export const ADMIN_TRANSLATIONS = {
       isMember: "Member",
       noUsers: "No user accounts found.",
       deleteConfirm: "Really delete account for {name}?",
+      editTitle: "Edit User",
+      fieldFirstName: "First Name",
+      fieldLastName: "Last Name",
+      fieldEmail: "Email",
+      fieldVerified: "Email verified",
+      saveSuccess: "Saved.",
     },
     // Dashboard
     dashboard: {
@@ -647,6 +662,9 @@ export const ADMIN_TRANSLATIONS = {
       error: "Upload error.",
     },
     delete: "Delete",
+    edit: "Edit",
+    save: "Save",
+    cancel: "Cancel",
     loading: "…",
   },
 } as const;
