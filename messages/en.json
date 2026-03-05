@@ -303,12 +303,26 @@
       "street": "Street",
       "postalCode": "Postal code",
       "city": "City",
-      "dob": "Date of birth"
+      "dob": "Date of birth",
+      "password": "Password"
     },
     "edit": "Edit",
     "save": "Save",
     "cancel": "Cancel",
     "saved": "Saved ✓",
+    "password": {
+      "changePassword": "Change password",
+      "currentPassword": "Current password",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm password",
+      "save": "Save",
+      "cancel": "Cancel",
+      "saved": "Password changed ✓",
+      "wrongPassword": "The current password is incorrect.",
+      "mismatch": "Passwords do not match.",
+      "tooShort": "Password must be at least 8 characters.",
+      "error": "Error changing password."
+    },
     "memberStatus": "Membership status",
     "statusMember": "Active member",
     "statusUser": "Not a member",

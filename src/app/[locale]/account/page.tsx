@@ -6,6 +6,7 @@ import Link from "next/link";
 import ProfileEditor from "@/components/ProfileEditor";
 import EmailEditor from "@/components/EmailEditor";
 import AvatarUpload from "@/components/AvatarUpload";
+import PasswordEditor from "@/components/PasswordEditor";
 
 export default async function AccountPage({
   params,
@@ -121,6 +122,25 @@ export default async function AccountPage({
                 sent: t("emailChange.sent"),
                 emailTaken: t("emailChange.emailTaken"),
                 error: t("emailChange.error"),
+              }}
+            />
+          </dd>
+
+          <dt className="text-gray-500">{t("fields.password")}</dt>
+          <dd>
+            <PasswordEditor
+              labels={{
+                changePassword: t("password.changePassword"),
+                currentPassword: t("password.currentPassword"),
+                newPassword: t("password.newPassword"),
+                confirmPassword: t("password.confirmPassword"),
+                save: t("password.save"),
+                cancel: t("password.cancel"),
+                saved: t("password.saved"),
+                wrongPassword: t("password.wrongPassword"),
+                mismatch: t("password.mismatch"),
+                tooShort: t("password.tooShort"),
+                error: t("password.error"),
               }}
             />
           </dd>
