@@ -126,7 +126,7 @@ Protected by `role === "admin"`. All i18n via `src/lib/admin-i18n.ts` (DE + EN).
 - **Content** — create/edit News articles and static Pages with TipTap + AI rephrase (`POST /api/admin/ai`); slug field shows `open_in_new` link to live public URL
 - **Rückblicke** — create/edit event recap reports with TipTap + AI actions; `eventDate` and `imageUrl` optional
 - **Settings** — club bank account (IBAN encrypted), annual fee collection day/month
-- **AI Chat Assistant** — floating panel (bottom-right) on all admin pages; natural language commands mapped to Prisma operations via Claude tool use (`POST /api/admin/chat`); 28 tools covering all models
+- **AI Chat Assistant** — floating panel (bottom-right) on all admin pages; natural language commands mapped to Prisma operations via Claude tool use (`POST /api/admin/chat`); 29 tools covering all models + a `navigate` tool that opens admin UI pages directly (closes panel on navigation)
 
 ## Database Models
 
