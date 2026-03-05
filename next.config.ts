@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "daten.verwaltungsportal.de" },
       { protocol: "https", hostname: "fotos.verwaltungsportal.de" },
+      { protocol: "https", hostname: "layout.verwaltungsportal.de" },
       { protocol: "https", hostname: "*.vercel-storage.com" },
       { protocol: "https", hostname: "*.public.blob.vercel-storage.com" },
     ],

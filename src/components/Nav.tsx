@@ -76,6 +76,16 @@ export default function Nav() {
 
   return (
     <nav className="sticky top-0 z-50 bg-[#4577ac] text-white shadow-md overflow-visible">
+      {/* Mountain silhouette decorative bar */}
+      <div className="w-full h-16 overflow-hidden bg-white pt-1">        <Image
+          src="https://layout.verwaltungsportal.de/15922/img/berge-maske-header.png"
+          alt=""
+          width={1920}
+          height={64}
+          className="w-full h-full object-contain object-bottom"
+          priority
+        />
+      </div>
       <div className="mx-auto max-w-7xl px-4">
         <div className="flex h-16 items-center justify-between overflow-visible">
           {/* Logo / site title */}
