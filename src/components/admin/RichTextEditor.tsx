@@ -7,21 +7,9 @@ import Link from "@tiptap/extension-link";
 import Underline from "@tiptap/extension-underline";
 import Placeholder from "@tiptap/extension-placeholder";
 import { useState, useRef } from "react";
+import { useAdminI18n } from "@/components/admin/AdminI18nProvider";
 
 type AIAction = "rephrase" | "shorten" | "expand" | "fix_grammar" | "translate_to_de" | "translate_to_en" | "optimize_event";
-
-const AI_ACTIONS: { key: AIAction; label: string }[] = [
-  { key: "rephrase", label: "Umformulieren" },
-  { key: "shorten", label: "Kürzen" },
-  { key: "expand", label: "Erweitern" },
-  { key: "fix_grammar", label: "Grammatik korrigieren" },
-  { key: "translate_to_de", label: "Übersetzen → DE" },
-  { key: "translate_to_en", label: "Übersetzen → EN" },
-];
-
-const EVENT_ACTIONS: { key: AIAction; label: string }[] = [
-  { key: "optimize_event", label: "Für Website optimieren" },
-];
 
 export default function RichTextEditor({
   content,
@@ -36,6 +24,22 @@ export default function RichTextEditor({
   placeholder?: string;
   isEventDescription?: boolean;
 }) {
+  const { t } = useAdminI18n();
+  const rt = t.richText;
+
+  const AI_ACTIONS: { key: AIAction; label: string }[] = [
+    { key: "rephrase", label: rt.rephrase },
+    { key: "shorten", label: rt.shorten },
+    { key: "expand", label: rt.expand },
+    { key: "fix_grammar", label: rt.fixGrammar },
+    { key: "translate_to_de", label: rt.translateToDe },
+    { key: "translate_to_en", label: rt.translateToEn },
+  ];
+
+  const EVENT_ACTIONS: { key: AIAction; label: string }[] = [
+    { key: "optimize_event", label: rt.optimizeEvent },
+  ];
+
   const [aiLoading, setAiLoading] = useState(false);
   const [aiSuggestion, setAiSuggestion] = useState<string | null>(null);
   const [aiSuggestionIsHtml, setAiSuggestionIsHtml] = useState(false);
@@ -191,7 +195,7 @@ export default function RichTextEditor({
 
         {/* Standard AI actions */}
         <div className="flex flex-wrap items-center gap-1 ml-1">
-          <span className="text-xs text-purple-600 font-medium">✨ KI:</span>
+          <span className="text-xs text-purple-600 font-medium">✨ {rt.aiLabel}</span>
           {AI_ACTIONS.map((a) => (
             <button
               key={a.key}
@@ -212,7 +216,7 @@ export default function RichTextEditor({
               disabled={aiLoading}
               onClick={() => runAI(a.key)}
               className="rounded px-2 py-0.5 text-xs bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors disabled:opacity-50"
-              title="Beschreibung für Kachel und Detailseite optimieren"
+              title={rt.optimizeEventTitle}
             >
               {a.label}
             </button>
@@ -242,7 +246,7 @@ export default function RichTextEditor({
       {/* AI suggestion banner */}
       {aiSuggestion && (
         <div className="bg-purple-50 border-b border-purple-200 p-3 text-sm">
-          <p className="text-purple-800 font-medium mb-2">✨ KI-Vorschlag:</p>
+          <p className="text-purple-800 font-medium mb-2">{rt.suggestionLabel}</p>
           {aiSuggestionIsHtml ? (
             <div
               className="prose prose-sm max-w-none mb-3 bg-white rounded border border-purple-200 p-2 text-gray-700"
@@ -252,8 +256,8 @@ export default function RichTextEditor({
             <p className="text-gray-700 whitespace-pre-wrap mb-3 bg-white rounded border border-purple-200 p-2">{aiSuggestion}</p>
           )}
           <div className="flex gap-2">
-            <button type="button" onClick={acceptSuggestion} className="rounded bg-purple-600 px-3 py-1 text-xs text-white hover:bg-purple-700">Übernehmen</button>
-            <button type="button" onClick={() => { setAiSuggestion(null); setAiSuggestionIsHtml(false); }} className="rounded border border-gray-300 px-3 py-1 text-xs text-gray-600 hover:bg-gray-50">Verwerfen</button>
+            <button type="button" onClick={acceptSuggestion} className="rounded bg-purple-600 px-3 py-1 text-xs text-white hover:bg-purple-700">{rt.accept}</button>
+            <button type="button" onClick={() => { setAiSuggestion(null); setAiSuggestionIsHtml(false); }} className="rounded border border-gray-300 px-3 py-1 text-xs text-gray-600 hover:bg-gray-50">{rt.discard}</button>
           </div>
         </div>
       )}

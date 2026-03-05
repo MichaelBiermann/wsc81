@@ -296,6 +296,21 @@ export const ADMIN_TRANSLATIONS = {
         "Wie viele ausstehende Mitgliedschaftsanträge gibt es?",
       ],
     },
+    // Rich text editor
+    richText: {
+      aiLabel: "KI:",
+      rephrase: "Umformulieren",
+      shorten: "Kürzen",
+      expand: "Erweitern",
+      fixGrammar: "Grammatik korrigieren",
+      translateToDe: "Übersetzen → DE",
+      translateToEn: "Übersetzen → EN",
+      optimizeEvent: "Für Website optimieren",
+      optimizeEventTitle: "Beschreibung für Kachel und Detailseite optimieren",
+      suggestionLabel: "✨ KI-Vorschlag:",
+      accept: "Übernehmen",
+      discard: "Verwerfen",
+    },
     // Image upload
     imageUpload: {
       uploadFile: "Datei hochladen",
@@ -600,6 +615,21 @@ export const ADMIN_TRANSLATIONS = {
         "Create a new event",
         "How many pending membership applications are there?",
       ],
+    },
+    // Rich text editor
+    richText: {
+      aiLabel: "AI:",
+      rephrase: "Rephrase",
+      shorten: "Shorten",
+      expand: "Expand",
+      fixGrammar: "Fix grammar",
+      translateToDe: "Translate → DE",
+      translateToEn: "Translate → EN",
+      optimizeEvent: "Optimize for website",
+      optimizeEventTitle: "Optimize description for tile and detail page",
+      suggestionLabel: "✨ AI suggestion:",
+      accept: "Accept",
+      discard: "Discard",
     },
     // Image upload
     imageUpload: {

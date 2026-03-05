@@ -19,7 +19,7 @@ const SYSTEM_PROMPTS: Record<string, string> = {
   translate_to_en:
     "You are a professional translator. Translate the given text into English. Return only the translated text, nothing else.",
   optimize_event:
-    "You are a copywriter for a German ski club website. Optimize the given event description so it works perfectly in two contexts: (1) as a short teaser on an event tile card (the first sentence or two must be a compelling 1–2 sentence summary that works standalone when HTML is stripped and truncated to ~120 characters), and (2) as a full event detail page description (well-structured with headings, bullet points for key facts like included services, what to bring, schedule, etc.). Use HTML formatting (h2, h3, ul, li, p, strong). Keep the language matching the input language (German if German, English if English). Return only the optimized HTML, nothing else.",
+    "You are a copywriter for a ski club website. Optimize the given event description so it works perfectly in two contexts: (1) as a short teaser on an event tile card (the first sentence or two must be a compelling 1–2 sentence summary that works standalone when HTML is stripped and truncated to ~120 characters), and (2) as a full event detail page description (well-structured with headings, bullet points for key facts like included services, what to bring, schedule, etc.). Use HTML formatting (h2, h3, ul, li, p, strong). Write in {LANGUAGE}. Return only the optimized HTML, nothing else.",
   extract_surcharges:
     `You are a pricing assistant for a German ski club. Read the event description (HTML) and extract any price or surcharge amounts mentioned. Return ONLY a raw JSON object with exactly these keys. Do NOT wrap in markdown code fences. No explanation, no markdown, just the raw JSON object:
 {
@@ -47,8 +47,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ errors: parsed.error.flatten() }, { status: 400 });
   }
 
-  const { text, action } = parsed.data;
-  const systemPrompt = SYSTEM_PROMPTS[action];
+  const { text, action, locale } = parsed.data;
+  const language = locale === "en" ? "English" : "German";
+  const systemPrompt = SYSTEM_PROMPTS[action].replace("{LANGUAGE}", language);
 
   const message = await client.messages.create({
     model: "claude-sonnet-4-6",
