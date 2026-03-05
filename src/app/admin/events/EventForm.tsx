@@ -17,6 +17,11 @@ interface EventFormData {
   maxParticipants: string; registrationDeadline: string;
   imageUrl: string;
   bookable: boolean;
+  surchargeNonMemberAdult: string;
+  surchargeNonMemberChild: string;
+  busSurcharge: string;
+  roomSingleSurcharge: string;
+  roomDoubleSurcharge: string;
 }
 
 const EMPTY: EventFormData = {
@@ -25,6 +30,11 @@ const EMPTY: EventFormData = {
   depositAmount: "", totalAmount: "", maxParticipants: "", registrationDeadline: "",
   imageUrl: "",
   bookable: true,
+  surchargeNonMemberAdult: "0",
+  surchargeNonMemberChild: "0",
+  busSurcharge: "0",
+  roomSingleSurcharge: "0",
+  roomDoubleSurcharge: "0",
 };
 
 export default function EventForm({
@@ -55,6 +65,11 @@ export default function EventForm({
       registrationDeadline: form.registrationDeadline ? new Date(form.registrationDeadline).toISOString() : null,
       startDate: new Date(form.startDate).toISOString(),
       endDate: new Date(form.endDate).toISOString(),
+      surchargeNonMemberAdult: Number(form.surchargeNonMemberAdult),
+      surchargeNonMemberChild: Number(form.surchargeNonMemberChild),
+      busSurcharge: Number(form.busSurcharge),
+      roomSingleSurcharge: Number(form.roomSingleSurcharge),
+      roomDoubleSurcharge: Number(form.roomDoubleSurcharge),
     };
 
     const res = await fetch(eventId ? `/api/admin/events/${eventId}` : "/api/admin/events", {
@@ -145,6 +160,27 @@ export default function EventForm({
         />
         <span className="text-sm font-medium text-gray-700">{t.eventForm.bookable}</span>
       </label>
+
+      <div>
+        <p className="text-sm font-semibold text-gray-700 mb-3">{t.eventForm.pricingSurchargesSection}</p>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <FormField label={t.eventForm.surchargeNonMemberAdult}>
+            <Input type="number" min="0" step="0.01" value={form.surchargeNonMemberAdult} onChange={set("surchargeNonMemberAdult")} />
+          </FormField>
+          <FormField label={t.eventForm.surchargeNonMemberChild}>
+            <Input type="number" min="0" step="0.01" value={form.surchargeNonMemberChild} onChange={set("surchargeNonMemberChild")} />
+          </FormField>
+          <FormField label={t.eventForm.busSurcharge}>
+            <Input type="number" min="0" step="0.01" value={form.busSurcharge} onChange={set("busSurcharge")} />
+          </FormField>
+          <FormField label={t.eventForm.roomSingleSurcharge}>
+            <Input type="number" min="0" step="0.01" value={form.roomSingleSurcharge} onChange={set("roomSingleSurcharge")} />
+          </FormField>
+          <FormField label={t.eventForm.roomDoubleSurcharge}>
+            <Input type="number" min="0" step="0.01" value={form.roomDoubleSurcharge} onChange={set("roomDoubleSurcharge")} />
+          </FormField>
+        </div>
+      </div>
 
       {status === "error" && <Alert variant="error">{error}</Alert>}
 

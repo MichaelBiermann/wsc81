@@ -139,6 +139,11 @@ export default async function EventDetailPage({
                     totalAmount: Number(event.totalAmount),
                     depositAmount: Number(event.depositAmount),
                     registrationDeadline: event.registrationDeadline?.toISOString() ?? null,
+                    surchargeNonMemberAdult: Number(event.surchargeNonMemberAdult),
+                    surchargeNonMemberChild: Number(event.surchargeNonMemberChild),
+                    busSurcharge: Number(event.busSurcharge),
+                    roomSingleSurcharge: Number(event.roomSingleSurcharge),
+                    roomDoubleSurcharge: Number(event.roomDoubleSurcharge),
                   }}
                   locale={locale}
                   prefill={prefill}

@@ -42,6 +42,11 @@ export const CHAT_TOOLS: Anthropic.Tool[] = [
         registrationDeadline: { type: "string", description: "ISO 8601 datetime, optional" },
         imageUrl: { type: "string" },
         bookable: { type: "boolean", description: "Default true" },
+        surchargeNonMemberAdult: { type: "number", description: "Extra cost for non-member adults (default 0)" },
+        surchargeNonMemberChild: { type: "number", description: "Extra cost for non-member children under 18 (default 0)" },
+        busSurcharge: { type: "number", description: "Bus surcharge per person (default 0)" },
+        roomSingleSurcharge: { type: "number", description: "Single room surcharge per room (default 0)" },
+        roomDoubleSurcharge: { type: "number", description: "Double room surcharge per room (default 0)" },
       },
       required: ["titleDe", "titleEn", "descriptionDe", "descriptionEn", "location", "startDate", "endDate", "depositAmount", "totalAmount"],
     },
@@ -64,6 +69,11 @@ export const CHAT_TOOLS: Anthropic.Tool[] = [
         totalAmount: { type: "number" },
         maxParticipants: { type: "number" },
         bookable: { type: "boolean" },
+        surchargeNonMemberAdult: { type: "number" },
+        surchargeNonMemberChild: { type: "number" },
+        busSurcharge: { type: "number" },
+        roomSingleSurcharge: { type: "number" },
+        roomDoubleSurcharge: { type: "number" },
       },
       required: ["id"],
     },
@@ -372,6 +382,11 @@ export async function executeTool(name: string, input: Record<string, any>): Pro
         ...event,
         depositAmount: Number(event.depositAmount),
         totalAmount: Number(event.totalAmount),
+        surchargeNonMemberAdult: Number(event.surchargeNonMemberAdult),
+        surchargeNonMemberChild: Number(event.surchargeNonMemberChild),
+        busSurcharge: Number(event.busSurcharge),
+        roomSingleSurcharge: Number(event.roomSingleSurcharge),
+        roomDoubleSurcharge: Number(event.roomDoubleSurcharge),
         startDate: event.startDate.toISOString(),
         endDate: event.endDate.toISOString(),
       };
@@ -393,6 +408,11 @@ export async function executeTool(name: string, input: Record<string, any>): Pro
           registrationDeadline: input.registrationDeadline ? new Date(input.registrationDeadline as string) : null,
           imageUrl: (input.imageUrl as string) ?? null,
           bookable: (input.bookable as boolean) ?? true,
+          surchargeNonMemberAdult: (input.surchargeNonMemberAdult as number) ?? 0,
+          surchargeNonMemberChild: (input.surchargeNonMemberChild as number) ?? 0,
+          busSurcharge: (input.busSurcharge as number) ?? 0,
+          roomSingleSurcharge: (input.roomSingleSurcharge as number) ?? 0,
+          roomDoubleSurcharge: (input.roomDoubleSurcharge as number) ?? 0,
         },
       });
       return { id: event.id, titleDe: event.titleDe, startDate: event.startDate.toISOString() };
@@ -401,7 +421,7 @@ export async function executeTool(name: string, input: Record<string, any>): Pro
     case "update_event": {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const data: Record<string, any> = {};
-      for (const f of ["titleDe", "titleEn", "descriptionDe", "descriptionEn", "location", "bookable", "depositAmount", "totalAmount", "maxParticipants"]) {
+      for (const f of ["titleDe", "titleEn", "descriptionDe", "descriptionEn", "location", "bookable", "depositAmount", "totalAmount", "maxParticipants", "surchargeNonMemberAdult", "surchargeNonMemberChild", "busSurcharge", "roomSingleSurcharge", "roomDoubleSurcharge"]) {
         if (input[f] !== undefined) data[f] = input[f];
       }
       if (input.startDate) data.startDate = new Date(input.startDate as string);

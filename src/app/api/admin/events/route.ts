@@ -41,6 +41,11 @@ export async function POST(request: NextRequest) {
       registrationDeadline: d.registrationDeadline ? new Date(d.registrationDeadline) : null,
       imageUrl: d.imageUrl ?? null,
       bookable: d.bookable,
+      surchargeNonMemberAdult: d.surchargeNonMemberAdult,
+      surchargeNonMemberChild: d.surchargeNonMemberChild,
+      busSurcharge: d.busSurcharge,
+      roomSingleSurcharge: d.roomSingleSurcharge,
+      roomDoubleSurcharge: d.roomDoubleSurcharge,
     },
   });
   return NextResponse.json(event, { status: 201 });

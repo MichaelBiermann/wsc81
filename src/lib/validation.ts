@@ -8,11 +8,13 @@ const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
 const PersonSchema = z.object({
   name: z.string().min(1).max(200).trim(),
   dob: z.string().regex(dateRegex, "Invalid date format (YYYY-MM-DD)"),
+  isMember: z.boolean().default(false),
 });
 
 const OptionalPersonSchema = z.object({
   name: z.string().max(200).trim().optional(),
   dob: z.string().regex(dateRegex).optional(),
+  isMember: z.boolean().default(false).optional(),
 });
 
 export const MembershipSchema = z.object({
@@ -68,7 +70,6 @@ export const BookingSchema = z.object({
   city: z.string().min(1).max(100).trim(),
   phone: z.string().min(1).max(50).trim(),
   email: z.string().email().max(254).toLowerCase(),
-  isMember: z.boolean().default(false),
   remarks: z.string().max(2000).trim().optional(),
   roomsSingle: z.number().int().min(0).max(50).default(0),
   roomsDouble: z.number().int().min(0).max(50).default(0),
@@ -93,6 +94,11 @@ export const EventSchema = z.object({
   maxParticipants: z.number().int().min(1).optional().nullable(),
   registrationDeadline: z.string().datetime().optional().nullable(),
   bookable: z.boolean().default(true),
+  surchargeNonMemberAdult: z.number().min(0).default(0),
+  surchargeNonMemberChild: z.number().min(0).default(0),
+  busSurcharge: z.number().min(0).default(0),
+  roomSingleSurcharge: z.number().min(0).default(0),
+  roomDoubleSurcharge: z.number().min(0).default(0),
 });
 
 export const SponsorSchema = z.object({

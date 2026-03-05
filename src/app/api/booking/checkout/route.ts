@@ -6,7 +6,38 @@ import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
-const NON_MEMBER_SURCHARGE = 40;
+
+function calcAge(dob: string): number {
+  if (!dob) return 99;
+  const birth = new Date(dob);
+  const today = new Date();
+  let age = today.getFullYear() - birth.getFullYear();
+  const m = today.getMonth() - birth.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+  return age;
+}
+
+function calcTotalWithSurcharge(
+  persons: Array<{ name?: string; dob?: string; isMember?: boolean } | undefined>,
+  event: { totalAmount: number; surchargeNonMemberAdult: number; surchargeNonMemberChild: number; busSurcharge: number; roomSingleSurcharge: number; roomDoubleSurcharge: number },
+  roomsSingle: number,
+  roomsDouble: number
+): number {
+  let total = 0;
+  for (const p of persons) {
+    if (!p?.name) continue;
+    let personTotal = event.totalAmount;
+    if (!p.isMember) {
+      const age = calcAge(p.dob ?? "");
+      personTotal += age < 18 ? event.surchargeNonMemberChild : event.surchargeNonMemberAdult;
+    }
+    personTotal += event.busSurcharge;
+    total += personTotal;
+  }
+  total += roomsSingle * event.roomSingleSurcharge;
+  total += roomsDouble * event.roomDoubleSurcharge;
+  return total;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -36,18 +67,29 @@ export async function POST(request: NextRequest) {
     }
 
     const depositAmount = Number(event.depositAmount);
-    const totalAmount = Number(event.totalAmount);
-    const surcharge = data.isMember ? 0 : NON_MEMBER_SURCHARGE;
-    const totalWithSurcharge = totalAmount + surcharge;
+    const eventPricing = {
+      totalAmount: Number(event.totalAmount),
+      surchargeNonMemberAdult: Number(event.surchargeNonMemberAdult),
+      surchargeNonMemberChild: Number(event.surchargeNonMemberChild),
+      busSurcharge: Number(event.busSurcharge),
+      roomSingleSurcharge: Number(event.roomSingleSurcharge),
+      roomDoubleSurcharge: Number(event.roomDoubleSurcharge),
+    };
+
+    const persons = [
+      data.person1, data.person2, data.person3, data.person4, data.person5,
+      data.person6, data.person7, data.person8, data.person9, data.person10,
+    ];
+    const roomsSingle = data.roomsSingle ?? 0;
+    const roomsDouble = data.roomsDouble ?? 0;
+    const totalWithSurcharge = calcTotalWithSurcharge(persons, eventPricing, roomsSingle, roomsDouble);
+    const isMember = data.person1.isMember ?? false;
     const locale = data.locale ?? "de";
     const isDE = locale === "de";
 
     // For free events (depositAmount = 0), skip Stripe and create booking directly
     if (depositAmount === 0) {
-      const participantCount = [
-        data.person1, data.person2, data.person3, data.person4, data.person5,
-        data.person6, data.person7, data.person8, data.person9, data.person10,
-      ].filter((p) => p?.name).length;
+      const participantCount = persons.filter((p) => p?.name).length;
 
       const booking = await prisma.eventBooking.create({
         data: {
@@ -65,9 +107,9 @@ export async function POST(request: NextRequest) {
           person10Name: data.person10?.name ?? null, person10Dob: data.person10?.dob ? new Date(data.person10.dob) : null,
           street: data.street, postalCode: data.postalCode, city: data.city,
           phone: data.phone, email: data.email,
-          isMember: data.isMember, remarks: data.remarks ?? null, locale,
-          roomsSingle: data.roomsSingle ?? 0,
-          roomsDouble: data.roomsDouble ?? 0,
+          isMember, remarks: data.remarks ?? null, locale,
+          roomsSingle,
+          roomsDouble,
         },
       });
 
@@ -84,7 +126,6 @@ export async function POST(request: NextRequest) {
     }
 
     // Serialize booking data into Stripe metadata (max 500 chars per value, 50 keys)
-    // We store persons as JSON chunks and contacts separately
     const metadata: Record<string, string> = {
       eventId: data.eventId,
       userId: sessionUser.id,
@@ -93,12 +134,12 @@ export async function POST(request: NextRequest) {
       city: data.city,
       phone: data.phone,
       email: data.email,
-      isMember: String(data.isMember),
+      isMember: String(isMember),
       remarks: data.remarks ?? "",
       locale,
-      roomsSingle: String(data.roomsSingle ?? 0),
-      roomsDouble: String(data.roomsDouble ?? 0),
-      // Persons — store as compact JSON strings
+      roomsSingle: String(roomsSingle),
+      roomsDouble: String(roomsDouble),
+      // Persons — store as compact JSON strings (include isMember per person)
       p1: JSON.stringify(data.person1),
       p2: data.person2?.name ? JSON.stringify(data.person2) : "",
       p3: data.person3?.name ? JSON.stringify(data.person3) : "",

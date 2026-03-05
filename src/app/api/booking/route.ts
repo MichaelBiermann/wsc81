@@ -4,8 +4,6 @@ import { prisma } from "@/lib/prisma";
 import { BookingSchema } from "@/lib/validation";
 import { sendBookingConfirmation, sendBookingAdminNotification } from "@/lib/mailer";
 
-const NON_MEMBER_SURCHARGE = 40;
-
 export async function POST(request: NextRequest) {
   try {
     const session = await auth();
@@ -72,14 +70,13 @@ export async function POST(request: NextRequest) {
         city: data.city,
         phone: data.phone,
         email: data.email,
-        isMember: data.isMember,
+        isMember: data.person1.isMember ?? false,
         remarks: data.remarks ?? null,
         locale: data.locale,
       },
     });
 
-    const surcharge = data.isMember ? 0 : NON_MEMBER_SURCHARGE;
-    const totalAmount = Number(event.totalAmount) + surcharge;
+    const totalAmount = Number(event.totalAmount);
 
     await Promise.allSettled([
       sendBookingConfirmation({

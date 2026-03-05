@@ -9,11 +9,11 @@ import Textarea from "@/components/ui/Textarea";
 import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
 
-interface PersonData { name: string; dob: string; }
+interface PersonData { name: string; dob: string; isMember: boolean; }
 interface FormState {
   persons: PersonData[];
   street: string; postalCode: string; city: string; phone: string; email: string;
-  isMember: boolean; remarks: string;
+  remarks: string;
   roomsSingle: number; roomsDouble: number;
 }
 
@@ -28,14 +28,36 @@ interface Prefill {
   isMember?: boolean;
 }
 
-const NON_MEMBER_SURCHARGE = 40;
+interface EventProps {
+  id: string;
+  titleDe: string;
+  titleEn: string;
+  totalAmount: number;
+  depositAmount: number;
+  registrationDeadline: string | null;
+  surchargeNonMemberAdult: number;
+  surchargeNonMemberChild: number;
+  busSurcharge: number;
+  roomSingleSurcharge: number;
+  roomDoubleSurcharge: number;
+}
+
+function calcAge(dob: string): number {
+  if (!dob) return 99;
+  const birth = new Date(dob);
+  const today = new Date();
+  let age = today.getFullYear() - birth.getFullYear();
+  const m = today.getMonth() - birth.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+  return age;
+}
 
 export default function BookingForm({
   event,
   locale,
   prefill,
 }: {
-  event: { id: string; titleDe: string; titleEn: string; totalAmount: number; depositAmount: number; registrationDeadline: string | null };
+  event: EventProps;
   locale: string;
   prefill?: Prefill;
 }) {
@@ -44,19 +66,18 @@ export default function BookingForm({
   const [status, setStatus] = useState<"idle" | "submitting" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const [form, setForm] = useState<FormState>({
-    persons: [{ name: prefill?.person1Name ?? "", dob: prefill?.person1Dob ?? "" }],
+    persons: [{ name: prefill?.person1Name ?? "", dob: prefill?.person1Dob ?? "", isMember: prefill?.isMember ?? false }],
     street: prefill?.street ?? "",
     postalCode: prefill?.postalCode ?? "",
     city: prefill?.city ?? "",
     phone: prefill?.phone ?? "",
     email: prefill?.email ?? "",
-    isMember: prefill?.isMember ?? false,
     remarks: "",
     roomsSingle: 0,
     roomsDouble: 0,
   });
 
-  const updatePerson = (i: number, field: keyof PersonData, value: string) => {
+  const updatePerson = (i: number, field: keyof PersonData, value: string | boolean) => {
     setForm((f) => {
       const persons = [...f.persons];
       persons[i] = { ...persons[i], [field]: value };
@@ -65,7 +86,7 @@ export default function BookingForm({
   };
 
   const addPerson = () => {
-    if (form.persons.length < 10) setForm((f) => ({ ...f, persons: [...f.persons, { name: "", dob: "" }] }));
+    if (form.persons.length < 10) setForm((f) => ({ ...f, persons: [...f.persons, { name: "", dob: "", isMember: false }] }));
   };
   const removePerson = (i: number) => {
     if (i === 0) return;
@@ -73,7 +94,48 @@ export default function BookingForm({
   };
 
   const isFree = event.totalAmount === 0;
-  const totalWithSurcharge = event.totalAmount + (!isFree && !form.isMember ? NON_MEMBER_SURCHARGE : 0);
+
+  function calcPricing(): { lines: { label: string; amount: number }[]; total: number } {
+    const lines: { label: string; amount: number }[] = [];
+    let total = 0;
+
+    const namedPersons = form.persons.filter((p) => p.name.trim() !== "");
+
+    for (const person of namedPersons) {
+      const age = calcAge(person.dob);
+      let personTotal = event.totalAmount;
+
+      if (!person.isMember) {
+        const surcharge = age < 18
+          ? event.surchargeNonMemberChild
+          : event.surchargeNonMemberAdult;
+        if (surcharge > 0) {
+          personTotal += surcharge;
+        }
+      }
+
+      if (event.busSurcharge > 0) {
+        personTotal += event.busSurcharge;
+      }
+
+      lines.push({ label: person.name || "Person", amount: personTotal });
+      total += personTotal;
+    }
+
+    if (form.roomsSingle > 0 && event.roomSingleSurcharge > 0) {
+      const roomTotal = form.roomsSingle * event.roomSingleSurcharge;
+      lines.push({ label: `${form.roomsSingle}× ${t("fields.roomsSingle")}`, amount: roomTotal });
+      total += roomTotal;
+    }
+
+    if (form.roomsDouble > 0 && event.roomDoubleSurcharge > 0) {
+      const roomTotal = form.roomsDouble * event.roomDoubleSurcharge;
+      lines.push({ label: `${form.roomsDouble}× ${t("fields.roomsDouble")}`, amount: roomTotal });
+      total += roomTotal;
+    }
+
+    return { lines, total };
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,7 +157,7 @@ export default function BookingForm({
       person10: p10?.name ? p10 : undefined,
       street: form.street, postalCode: form.postalCode, city: form.city,
       phone: form.phone, email: form.email,
-      isMember: form.isMember, remarks: form.remarks || undefined,
+      remarks: form.remarks || undefined,
       roomsSingle: form.roomsSingle, roomsDouble: form.roomsDouble,
       locale,
     };
@@ -109,10 +171,8 @@ export default function BookingForm({
     if (res.ok) {
       const data = await res.json();
       if (data.free) {
-        // Free event — booking already created, go to success page
         router.push(data.redirectUrl);
       } else if (data.url) {
-        // Paid event — redirect to Stripe Checkout
         window.location.href = data.url;
       }
     } else {
@@ -132,6 +192,8 @@ export default function BookingForm({
     t("person1"), t("person2"), t("person3"), t("person4"), t("person5"),
     t("person6"), t("person7"), t("person8"), t("person9"), t("person10"),
   ];
+
+  const pricing = isFree ? null : calcPricing();
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
@@ -163,6 +225,19 @@ export default function BookingForm({
               />
             </FormField>
           </div>
+          <label className="flex items-center gap-2 cursor-pointer mt-3">
+            <input
+              type="checkbox"
+              checked={person.isMember}
+              onChange={(e) => updatePerson(i, "isMember", e.target.checked)}
+              className="w-4 h-4 accent-[#4577ac]"
+              disabled={i === 0 && prefill?.isMember === true}
+            />
+            <span className="text-sm">{t("fields.isMemberPerson")}</span>
+            {i === 0 && prefill?.isMember === true && (
+              <span className="text-xs text-green-600 ml-1">(automatisch — Mitglied)</span>
+            )}
+          </label>
         </div>
       ))}
 
@@ -194,22 +269,8 @@ export default function BookingForm({
         </div>
       </div>
 
-      {/* Member checkbox + price summary */}
+      {/* Room selection + price summary */}
       <div className="rounded-lg border border-gray-200 bg-white p-4">
-        <label className="flex items-center gap-2 cursor-pointer mb-4">
-          <input
-            type="checkbox"
-            checked={form.isMember}
-            onChange={(e) => setForm((f) => ({ ...f, isMember: e.target.checked }))}
-            className="w-4 h-4 accent-[#4577ac]"
-            disabled={prefill?.isMember === true}
-          />
-          <span className="text-sm">{t("fields.isMember")}</span>
-          {prefill?.isMember === true && (
-            <span className="text-xs text-green-600 ml-1">(automatisch — Mitglied)</span>
-          )}
-        </label>
-
         {/* Room selection */}
         <div className="mb-4">
           <p className="text-sm font-medium text-gray-700 mb-2">{t("fields.rooms")}</p>
@@ -233,17 +294,19 @@ export default function BookingForm({
           </div>
         </div>
 
-        {!isFree && (
-        <div className="bg-[#eef3f9] rounded p-3 text-sm">
-          <p className="font-semibold mb-1">{t("priceSummary")}</p>
-          <div className="flex justify-between"><span>{t("basePrice")}</span><span>€{event.totalAmount.toFixed(2)}</span></div>
-          {!form.isMember && (
-            <div className="flex justify-between text-orange-600"><span>{t("surcharge")}</span><span>+€{NON_MEMBER_SURCHARGE.toFixed(2)}</span></div>
-          )}
-          <div className="flex justify-between font-bold border-t border-gray-300 mt-2 pt-2">
-            <span>{t("totalPrice")}</span><span>€{totalWithSurcharge.toFixed(2)}</span>
+        {pricing && (
+          <div className="bg-[#eef3f9] rounded p-3 text-sm">
+            <p className="font-semibold mb-2">{t("priceSummary")}</p>
+            {pricing.lines.map((line, idx) => (
+              <div key={idx} className="flex justify-between py-0.5">
+                <span className="text-gray-700">{line.label}</span>
+                <span>€{line.amount.toFixed(2)}</span>
+              </div>
+            ))}
+            <div className="flex justify-between font-bold border-t border-gray-300 mt-2 pt-2">
+              <span>{t("totalPrice")}</span><span>€{pricing.total.toFixed(2)}</span>
+            </div>
           </div>
-        </div>
         )}
       </div>
 

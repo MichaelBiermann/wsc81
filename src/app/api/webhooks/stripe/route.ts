@@ -58,10 +58,6 @@ export async function POST(request: NextRequest) {
 
     const isMember = meta.isMember === "true";
     const locale = meta.locale ?? "de";
-    const surcharge = isMember ? 0 : 40;
-    const totalWithSurcharge = Number(dbEvent.totalAmount) + surcharge;
-    const depositAmount = Number(dbEvent.depositAmount);
-    const remainingAmount = totalWithSurcharge - depositAmount;
 
     const participantList = [
       parsePerson(meta.p1), parsePerson(meta.p2), parsePerson(meta.p3),
@@ -70,6 +66,43 @@ export async function POST(request: NextRequest) {
       parsePerson(meta.p10),
     ];
     const participantCount = participantList.filter(Boolean).length;
+
+    function calcAge(dob: string): number {
+      if (!dob) return 99;
+      const birth = new Date(dob);
+      const today = new Date();
+      let age = today.getFullYear() - birth.getFullYear();
+      const m = today.getMonth() - birth.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+      return age;
+    }
+
+    const allPersons = participantList.filter(Boolean) as { name: string; dob: string; isMember?: boolean }[];
+    const roomsSingle = Number(meta.roomsSingle ?? 0);
+    const roomsDouble = Number(meta.roomsDouble ?? 0);
+    const surchargeNonMemberAdult = Number(dbEvent.surchargeNonMemberAdult);
+    const surchargeNonMemberChild = Number(dbEvent.surchargeNonMemberChild);
+    const busSurcharge = Number(dbEvent.busSurcharge);
+    const roomSingleSurcharge = Number(dbEvent.roomSingleSurcharge);
+    const roomDoubleSurcharge = Number(dbEvent.roomDoubleSurcharge);
+    const baseAmount = Number(dbEvent.totalAmount);
+
+    let totalWithSurcharge = 0;
+    for (const p of allPersons) {
+      let personTotal = baseAmount;
+      const personIsMember = p.isMember ?? false;
+      if (!personIsMember) {
+        const age = calcAge(p.dob ?? "");
+        personTotal += age < 18 ? surchargeNonMemberChild : surchargeNonMemberAdult;
+      }
+      personTotal += busSurcharge;
+      totalWithSurcharge += personTotal;
+    }
+    totalWithSurcharge += roomsSingle * roomSingleSurcharge;
+    totalWithSurcharge += roomsDouble * roomDoubleSurcharge;
+
+    const depositAmount = Number(dbEvent.depositAmount);
+    const remainingAmount = totalWithSurcharge - depositAmount;
 
     const booking = await prisma.eventBooking.create({
       data: {

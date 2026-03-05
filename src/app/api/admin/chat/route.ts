@@ -29,14 +29,20 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json();
-  const { message, history } = body as {
+  const { message, history, locale } = body as {
     message: string;
     history: Anthropic.MessageParam[];
+    locale?: string;
   };
 
   if (!message || typeof message !== "string") {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
+
+  const uiLocale = locale === "en" ? "en" : "de";
+  const langInstruction = uiLocale === "en"
+    ? "The admin UI is set to English. Respond in English unless the user writes in German."
+    : "The admin UI is set to German. Respond in German unless the user writes in English.";
 
   const messages: Anthropic.MessageParam[] = [
     ...(history ?? []),
@@ -51,7 +57,7 @@ export async function POST(request: NextRequest) {
     response = await client.messages.create({
       model: "claude-sonnet-4-6",
       max_tokens: 4096,
-      system: SYSTEM_PROMPT,
+      system: SYSTEM_PROMPT + "\n" + langInstruction,
       tools: CHAT_TOOLS,
       messages,
     });

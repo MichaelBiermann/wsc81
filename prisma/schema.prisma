@@ -157,7 +157,12 @@ model Event {
   imageUrl             String?
   maxParticipants      Int?
   registrationDeadline DateTime?
-  bookable             Boolean        @default(true)
+  bookable                 Boolean        @default(true)
+  surchargeNonMemberAdult  Decimal        @default(0) @db.Decimal(8, 2)
+  surchargeNonMemberChild  Decimal        @default(0) @db.Decimal(8, 2)
+  busSurcharge             Decimal        @default(0) @db.Decimal(8, 2)
+  roomSingleSurcharge      Decimal        @default(0) @db.Decimal(8, 2)
+  roomDoubleSurcharge      Decimal        @default(0) @db.Decimal(8, 2)
   createdAt            DateTime       @default(now())
   updatedAt            DateTime       @updatedAt
   bookings             EventBooking[]
