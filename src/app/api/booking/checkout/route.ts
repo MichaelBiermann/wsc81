@@ -161,8 +161,8 @@ export async function POST(request: NextRequest) {
           product_data: {
             name: depositLabel,
             description: isDE
-              ? `Anzahlung für ${eventTitle} (${event.startDate.toLocaleDateString("de-DE")}). Restbetrag: €${(totalWithSurcharge - depositAmount).toFixed(2)}`
-              : `Deposit for ${eventTitle} (${event.startDate.toLocaleDateString("en-GB")}). Remaining: €${(totalWithSurcharge - depositAmount).toFixed(2)}`,
+              ? `Anzahlung für ${eventTitle} (${event.startDate.toLocaleDateString("de-DE")}). Restbetrag: €${Math.max(0, totalWithSurcharge - depositAmount).toFixed(2)}`
+              : `Deposit for ${eventTitle} (${event.startDate.toLocaleDateString("en-GB")}). Remaining: €${Math.max(0, totalWithSurcharge - depositAmount).toFixed(2)}`,
           },
           unit_amount: Math.round(depositAmount * 100), // cents
         },
@@ -172,7 +172,7 @@ export async function POST(request: NextRequest) {
 
     const checkoutSession = await stripe.checkout.sessions.create({
       mode: "payment",
-      payment_method_types: ["card", "sepa_debit"],
+      payment_method_types: ["card"],
       line_items: lineItems,
       customer_email: data.email,
       metadata,
@@ -183,7 +183,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ url: checkoutSession.url });
   } catch (error) {
-    console.error("[POST /api/booking/checkout]", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    const msg = error instanceof Error ? error.message : String(error);
+    console.error("[POST /api/booking/checkout]", msg);
+    return NextResponse.json({ error: "Internal server error", detail: msg }, { status: 500 });
   }
 }
