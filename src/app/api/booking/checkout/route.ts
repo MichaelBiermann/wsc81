@@ -21,6 +21,7 @@ async function createStripeCheckoutSession(params: Record<string, string>): Prom
   });
   if (!res.ok) {
     const err = await res.json();
+    console.error("[stripe] error response:", JSON.stringify(err));
     throw new Error(err?.error?.message ?? `Stripe error ${res.status}`);
   }
   return res.json();
@@ -187,7 +188,7 @@ export async function POST(request: NextRequest) {
       "line_items[0][price_data][unit_amount]": String(Math.round(depositAmount * 100)),
       "line_items[0][quantity]": "1",
       customer_email: data.email,
-      success_url: `${BASE_URL}/${locale}/events/${event.id}/book/success?session_id={CHECKOUT_SESSION_ID}&email=${encodeURIComponent(data.email)}`,
+      success_url: `${BASE_URL}/${locale}/events/${event.id}/book/success?session_id={CHECKOUT_SESSION_ID}&email=${data.email}`,
       cancel_url: `${BASE_URL}/${locale}/events/${event.id}`,
       locale: locale === "de" ? "de" : "en",
     };
