@@ -84,7 +84,7 @@ export default async function HomePage({
                   target="_blank"
                   rel="noopener noreferrer"
                   title={s.name}
-                  className="flex items-center justify-center rounded border border-gray-100 bg-white p-3 hover:border-gray-300 transition-colors w-64 h-32"
+                  className="flex items-center justify-center rounded border border-gray-100 bg-white p-3 hover:border-gray-300 transition-colors w-64 h-40"
                 >
                   <Image
                     src={s.imageUrl}
