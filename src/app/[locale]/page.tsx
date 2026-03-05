@@ -42,7 +42,7 @@ export default async function HomePage({
       <HeroSlider locale={locale} />
       <WelcomeBlock locale={locale} />
 
-      <section className="py-12">
+      <section>
         <div className="mx-auto max-w-7xl px-4">
           <NewsBlock posts={newsPosts} locale={locale} />
         </div>
@@ -85,14 +85,14 @@ export default async function HomePage({
                   target="_blank"
                   rel="noopener noreferrer"
                   title={s.name}
-                  className="flex items-center justify-center rounded border border-gray-100 bg-white p-3 hover:border-gray-300 transition-colors"
+                  className="flex items-center justify-center rounded border border-gray-100 bg-white p-3 hover:border-gray-300 transition-colors w-64 h-32"
                 >
                   <Image
                     src={s.imageUrl}
                     alt={s.name}
-                    width={320}
-                    height={160}
-                    className="object-contain h-32 w-auto"
+                    width={640}
+                    height={320}
+                    className="object-contain w-full h-full"
                   />
                 </a>
               ))}
