@@ -124,13 +124,13 @@ export default async function EventDetailPage({
             )}
             {Number(event.roomSingleSurcharge) > 0 && (
               <div className="flex justify-between text-gray-500">
-                <span>{isDE ? "Einzelzimmer" : "Single room"}</span>
+                <span>{isDE ? "Einzelzimmer (pro Person)" : "Single room (per person)"}</span>
                 <span>€{Number(event.roomSingleSurcharge).toFixed(2)}</span>
               </div>
             )}
             {Number(event.roomDoubleSurcharge) > 0 && (
               <div className="flex justify-between text-gray-500">
-                <span>{isDE ? "Doppelzimmer" : "Double room"}</span>
+                <span>{isDE ? "Doppelzimmer (pro Person)" : "Double room (per person)"}</span>
                 <span>€{Number(event.roomDoubleSurcharge).toFixed(2)}</span>
               </div>
             )}

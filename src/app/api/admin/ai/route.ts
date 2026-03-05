@@ -32,9 +32,9 @@ const SYSTEM_PROMPTS: Record<string, string> = {
   "agePrices": [{ "label": "<string>", "price": <number> }]
 }
 Field rules:
-- "depositAmount": the base per-person price for a member in a double room, OR a deposit/Anzahlung if explicitly stated. This is the primary price paid at booking.
-- "roomDoubleSurcharge": ADDITIONAL cost above the base price for choosing a double room. If the double room price IS the base price (depositAmount), set this to 0.
-- "roomSingleSurcharge": ADDITIONAL cost per room above the double room price (e.g. if double = €499.50 and single = €681.00, roomSingleSurcharge = 181.50).
+- "depositAmount": the deposit or down-payment due at booking time (Anzahlung). If no explicit deposit is mentioned but a base price is stated as the cheapest option, use that as depositAmount.
+- "roomDoubleSurcharge": the full per-person price for a double room. If a double room price is explicitly stated, use it. If the double room price IS the base/deposit amount, set this to 0.
+- "roomSingleSurcharge": the full per-person price for a single room. If only a delta above double is given, add it to the double room price to get the full single room price.
 - "busSurcharge": bus cost per person (separate from accommodation).
 - "surchargeNonMemberAdult": extra charge for non-members aged 18+.
 - "surchargeNonMemberChild": extra charge for non-members under 18.
