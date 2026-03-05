@@ -1,36 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
+import Stripe from "stripe";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { BookingSchema } from "@/lib/validation";
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  maxNetworkRetries: 0,
+});
 
-async function createStripeCheckoutSession(params: Record<string, string>): Promise<{ url: string; id: string }> {
-  // URL values must not be encoded (Stripe validates them as-is, and {CHECKOUT_SESSION_ID} must be literal)
-  // Other values are encoded normally
-  const urlKeys = new Set(["success_url", "cancel_url"]);
-  const body = Object.entries(params)
-    .map(([k, v]) => {
-      const encodedKey = encodeURIComponent(k);
-      const encodedVal = urlKeys.has(k) ? v : encodeURIComponent(v).replace(/%7B/g, "{").replace(/%7D/g, "}");
-      return `${encodedKey}=${encodedVal}`;
-    })
-    .join("&");
-  const res = await fetch("https://api.stripe.com/v1/checkout/sessions", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${process.env.STRIPE_SECRET_KEY}`,
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: body.toString(),
-  });
-  if (!res.ok) {
-    const err = await res.json();
-    console.error("[stripe] error response:", JSON.stringify(err));
-    throw new Error(err?.error?.message ?? `Stripe error ${res.status}`);
-  }
-  return res.json();
-}
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
 
 function calcAge(dob: string): number {
   if (!dob) return 99;
@@ -161,7 +139,6 @@ export async function POST(request: NextRequest) {
       locale,
       roomsSingle: String(roomsSingle),
       roomsDouble: String(roomsDouble),
-      // Persons — store as compact JSON strings (include isMember per person)
       p1: JSON.stringify(data.person1),
       p2: data.person2?.name ? JSON.stringify(data.person2) : "",
       p3: data.person3?.name ? JSON.stringify(data.person3) : "",
@@ -175,34 +152,28 @@ export async function POST(request: NextRequest) {
     };
 
     const eventTitle = isDE ? event.titleDe : event.titleEn;
-    const depositLabel = isDE
-      ? `Anzahlung – ${eventTitle}`
-      : `Deposit – ${eventTitle}`;
-
+    const depositLabel = isDE ? `Anzahlung – ${eventTitle}` : `Deposit – ${eventTitle}`;
     const productDescription = isDE
       ? `Anzahlung für ${eventTitle} (${event.startDate.toLocaleDateString("de-DE")}). Restbetrag: €${Math.max(0, totalWithSurcharge - depositAmount).toFixed(2)}`
       : `Deposit for ${eventTitle} (${event.startDate.toLocaleDateString("en-GB")}). Remaining: €${Math.max(0, totalWithSurcharge - depositAmount).toFixed(2)}`;
 
-    // Build flat form-encoded params for Stripe REST API
-    const stripeParams: Record<string, string> = {
+    const checkoutSession = await stripe.checkout.sessions.create({
       mode: "payment",
-      "payment_method_types[0]": "card",
-      "line_items[0][price_data][currency]": "eur",
-      "line_items[0][price_data][product_data][name]": depositLabel,
-      "line_items[0][price_data][product_data][description]": productDescription,
-      "line_items[0][price_data][unit_amount]": String(Math.round(depositAmount * 100)),
-      "line_items[0][quantity]": "1",
+      payment_method_types: ["card"],
+      line_items: [{
+        price_data: {
+          currency: "eur",
+          product_data: { name: depositLabel, description: productDescription },
+          unit_amount: Math.round(depositAmount * 100),
+        },
+        quantity: 1,
+      }],
       customer_email: data.email,
-      success_url: `${BASE_URL}/${locale}/events/${event.id}/book/success?session_id={CHECKOUT_SESSION_ID}&email=${data.email}`,
+      metadata,
+      success_url: `${BASE_URL}/${locale}/events/${event.id}/book/success?session_id={CHECKOUT_SESSION_ID}&email=${encodeURIComponent(data.email)}`,
       cancel_url: `${BASE_URL}/${locale}/events/${event.id}`,
       locale: locale === "de" ? "de" : "en",
-    };
-    // Flatten metadata
-    for (const [k, v] of Object.entries(metadata)) {
-      stripeParams[`metadata[${k}]`] = v;
-    }
-
-    const checkoutSession = await createStripeCheckoutSession(stripeParams);
+    });
 
     return NextResponse.json({ url: checkoutSession.url });
   } catch (error) {
