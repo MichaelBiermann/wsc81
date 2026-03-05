@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { AdminI18nProvider } from "@/components/admin/AdminI18nProvider";
 import AdminSidebar from "@/components/admin/AdminSidebar";
+import AdminChatPanel from "@/components/admin/AdminChatPanel";
 import type { AdminLocale } from "@/lib/admin-i18n";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -23,6 +24,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <AdminSidebar userName={user?.name} />
         <main className="flex-1 bg-gray-50 p-8 overflow-auto">{children}</main>
       </div>
+      <AdminChatPanel />
     </AdminI18nProvider>
   );
 }
