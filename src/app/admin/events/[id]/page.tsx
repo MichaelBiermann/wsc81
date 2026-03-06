@@ -136,6 +136,10 @@ export default function EditEventPage() {
             ].filter(Boolean).length, 0);
             const totalSingle = event.bookings.reduce((sum, b) => sum + b.roomsSingle, 0);
             const totalDouble = event.bookings.reduce((sum, b) => sum + b.roomsDouble, 0);
+            const totalDeposits = event.bookings.filter((b) => b.stripePaymentIntentId).length;
+            const totalBalanceDue = event.bookings.reduce((sum, b) => sum + (b.balanceDue ? Number(b.balanceDue) : 0), 0);
+            const depositAmount = Number(event.depositAmount);
+            const totalCollected = totalDeposits * depositAmount;
             return (
               <div className="flex flex-wrap gap-4 mb-4 rounded-lg bg-[#eef3f9] px-4 py-3 text-sm">
                 <span className="flex items-center gap-1.5 text-gray-700">
@@ -150,6 +154,19 @@ export default function EditEventPage() {
                   <span className="material-symbols-rounded text-[#4577ac]" style={{ fontSize: 18 }}>bed</span>
                   <span className="font-medium">{totalDouble}</span> Doppelzimmer
                 </span>
+                {depositAmount > 0 && (
+                  <span className="flex items-center gap-1.5 text-gray-700">
+                    <span className="material-symbols-rounded text-green-600" style={{ fontSize: 18 }}>payments</span>
+                    Anzahlungen: <span className="font-medium text-green-700">€{totalCollected.toFixed(2)}</span>
+                    <span className="text-gray-400">({totalDeposits}/{event.bookings.length})</span>
+                  </span>
+                )}
+                {totalBalanceDue > 0 && (
+                  <span className="flex items-center gap-1.5 text-gray-700">
+                    <span className="material-symbols-rounded text-yellow-600" style={{ fontSize: 18 }}>schedule</span>
+                    Restbeträge offen: <span className="font-medium text-yellow-700">€{totalBalanceDue.toFixed(2)}</span>
+                  </span>
+                )}
               </div>
             );
           })()}
