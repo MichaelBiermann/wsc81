@@ -19,6 +19,7 @@
     "register": "Register",
     "hello": "Hello, {name}",
     "myAccount": "My Account",
+    "myBookings": "My Bookings",
     "signOut": "Sign out"
   },
   "Hero": {

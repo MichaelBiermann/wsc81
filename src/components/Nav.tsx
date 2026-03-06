@@ -208,6 +208,13 @@ export default function Nav() {
                     >
                       {t("myAccount")}
                     </Link>
+                    <Link
+                      href={`/${locale}/account#bookings`}
+                      className="block px-4 py-2 text-sm hover:bg-gray-50"
+                      onClick={() => setUserMenuOpen(false)}
+                    >
+                      {t("myBookings")}
+                    </Link>
                     <button
                       onClick={() => { setUserMenuOpen(false); signOut({ callbackUrl: `/${locale}` }); }}
                       className="block w-full px-4 py-2 text-sm text-left hover:bg-gray-50 text-red-600"
@@ -298,6 +305,7 @@ export default function Nav() {
             {isLoggedIn ? (
               <>
                 <Link href={`/${locale}/account`} className="hover:text-blue-200" onClick={() => setMobileOpen(false)}>{t("myAccount")}</Link>
+                <Link href={`/${locale}/account#bookings`} className="hover:text-blue-200" onClick={() => setMobileOpen(false)}>{t("myBookings")}</Link>
                 <button onClick={() => { setMobileOpen(false); signOut({ callbackUrl: `/${locale}` }); }} className="text-left hover:text-blue-200 text-red-200">{t("signOut")}</button>
               </>
             ) : (

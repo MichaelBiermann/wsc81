@@ -246,7 +246,7 @@ export default async function AccountPage({
       </section>
 
       {/* ── Booked events ──────────────────────────────────────────────── */}
-      <section className="rounded-lg border border-gray-200 bg-white p-6">
+      <section id="bookings" className="rounded-lg border border-gray-200 bg-white p-6">
         <h2 className="font-semibold text-lg mb-4">{t("bookings")}</h2>
 
         {bookings.length === 0 ? (
