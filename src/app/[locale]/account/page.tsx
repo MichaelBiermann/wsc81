@@ -315,6 +315,33 @@ export default async function AccountPage({
                         <dd className="text-gray-600">{booking.remarks}</dd>
                       </>
                     )}
+
+                    <dt className="text-gray-500">{t("bookingPayment")}</dt>
+                    <dd>
+                      {booking.stripePaymentIntentId ? (
+                        <span className="flex flex-wrap items-center gap-2">
+                          <span className="inline-flex items-center gap-0.5 rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
+                            <span className="material-symbols-rounded" style={{ fontSize: 12 }}>check_circle</span>
+                            {t("bookingDeposit")}: €{Number(booking.event.depositAmount).toFixed(2)}
+                          </span>
+                          {booking.balanceDue && Number(booking.balanceDue) > 0 ? (
+                            <span className="inline-flex items-center gap-0.5 rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-700">
+                              <span className="material-symbols-rounded" style={{ fontSize: 12 }}>schedule</span>
+                              {t("bookingBalanceDue")}: €{Number(booking.balanceDue).toFixed(2)}
+                            </span>
+                          ) : booking.balanceDue !== null ? (
+                            <span className="inline-flex items-center gap-0.5 rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
+                              <span className="material-symbols-rounded" style={{ fontSize: 12 }}>check_circle</span>
+                              {t("bookingPaid")}
+                            </span>
+                          ) : null}
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-0.5 rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
+                          {t("bookingFree")}
+                        </span>
+                      )}
+                    </dd>
                   </dl>
                 </div>
               );

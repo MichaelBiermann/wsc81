@@ -354,6 +354,12 @@
     "bookedOn": "Booked on {date}",
     "bookingLocation": "Location",
     "bookingRemarks": "Remarks",
+    "bookingPayment": "Payment",
+    "bookingDeposit": "Deposit",
+    "bookingBalanceDue": "Balance due",
+    "bookingPaid": "Paid",
+    "bookingFree": "Free",
+    "bookingBalancePending": "Pending",
     "membership": {
       "category": "Category",
       "fee": "Annual fee",

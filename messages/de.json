@@ -354,6 +354,12 @@
     "bookedOn": "Gebucht am {date}",
     "bookingLocation": "Ort",
     "bookingRemarks": "Bemerkungen",
+    "bookingPayment": "Zahlung",
+    "bookingDeposit": "Anzahlung",
+    "bookingBalanceDue": "Restbetrag",
+    "bookingPaid": "Bezahlt",
+    "bookingFree": "Kostenlos",
+    "bookingBalancePending": "Ausstehend",
     "membership": {
       "category": "Kategorie",
       "fee": "Jahresbeitrag",
