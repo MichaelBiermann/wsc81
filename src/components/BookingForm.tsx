@@ -267,26 +267,11 @@ export default function BookingForm({
               <span className="text-xs text-green-600 ml-1">(automatisch — Mitglied)</span>
             )}
           </label>
-          {event.agePrices.length > 0 && (
-            <div className="mt-3">
-              <label className="text-sm text-gray-600 block mb-1">{t("fields.agePriceTier")}</label>
-              <select
-                value={person.agePriceIndex ?? ""}
-                onChange={(e) => updatePerson(i, "agePriceIndex", e.target.value === "" ? null : Number(e.target.value))}
-                className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#4577ac]"
-              >
-                <option value="">{t("fields.agePriceTierDefault")}</option>
-                {event.agePrices.map((ap, ai) => {
-                  const range = ap.minAge != null && ap.maxAge != null
-                    ? ` (${ap.minAge}–${ap.maxAge} J.)`
-                    : ap.minAge != null ? ` (ab ${ap.minAge} J.)`
-                    : ap.maxAge != null ? ` (bis ${ap.maxAge} J.)` : "";
-                  return (
-                    <option key={ai} value={ai}>{ap.label}{range} – €{ap.price.toFixed(2)}</option>
-                  );
-                })}
-              </select>
-            </div>
+          {event.agePrices.length > 0 && person.dob && person.agePriceIndex !== null && event.agePrices[person.agePriceIndex] && (
+            <p className="mt-2 text-xs text-[#4577ac]">
+              <span className="material-symbols-rounded align-middle mr-0.5" style={{ fontSize: 14 }}>sell</span>
+              {event.agePrices[person.agePriceIndex].label} – €{event.agePrices[person.agePriceIndex].price.toFixed(2)}
+            </p>
           )}
         </div>
       ))}
