@@ -180,7 +180,7 @@ export default async function EventDetailPage({
                     roomSingleSurcharge: Number(event.roomSingleSurcharge),
                     roomDoubleSurcharge: Number(event.roomDoubleSurcharge),
                     agePrices: Array.isArray(event.agePrices)
-                      ? (event.agePrices as { label: string; price: number }[])
+                      ? (event.agePrices as { label: string; price: number; minAge?: number | null; maxAge?: number | null }[])
                       : [],
                   }}
                   locale={locale}

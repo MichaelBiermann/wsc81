@@ -107,9 +107,11 @@ export default function EditEventPage() {
           busSurcharge: String(event.busSurcharge),
           roomSingleSurcharge: String(event.roomSingleSurcharge),
           roomDoubleSurcharge: String(event.roomDoubleSurcharge),
-          agePrices: (Array.isArray(event.agePrices) ? event.agePrices : []).map((ap: { label: string; price: number }) => ({
+          agePrices: (Array.isArray(event.agePrices) ? event.agePrices : []).map((ap: { label: string; price: number; minAge?: number | null; maxAge?: number | null }) => ({
             label: ap.label,
             price: String(ap.price),
+            minAge: ap.minAge != null ? String(ap.minAge) : "",
+            maxAge: ap.maxAge != null ? String(ap.maxAge) : "",
           })),
         }}
       />

@@ -39,7 +39,7 @@ interface EventProps {
   busSurcharge: number;
   roomSingleSurcharge: number;
   roomDoubleSurcharge: number;
-  agePrices: { label: string; price: number }[];
+  agePrices: { label: string; price: number; minAge?: number | null; maxAge?: number | null }[];
 }
 
 function calcAge(dob: string): number {
@@ -50,6 +50,17 @@ function calcAge(dob: string): number {
   const m = today.getMonth() - birth.getMonth();
   if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
   return age;
+}
+
+function matchAgeTier(dob: string, agePrices: EventProps["agePrices"]): number | null {
+  if (!dob || agePrices.length === 0) return null;
+  const age = calcAge(dob);
+  const idx = agePrices.findIndex((ap) => {
+    const aboveMin = ap.minAge == null || age >= ap.minAge;
+    const belowMax = ap.maxAge == null || age <= ap.maxAge;
+    return aboveMin && belowMax;
+  });
+  return idx >= 0 ? idx : null;
 }
 
 export default function BookingForm({
@@ -66,7 +77,7 @@ export default function BookingForm({
   const [status, setStatus] = useState<"idle" | "submitting" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const [form, setForm] = useState<FormState>({
-    persons: [{ name: prefill?.person1Name ?? "", dob: prefill?.person1Dob ?? "", isMember: prefill?.isMember ?? false, agePriceIndex: null }],
+    persons: [{ name: prefill?.person1Name ?? "", dob: prefill?.person1Dob ?? "", isMember: prefill?.isMember ?? false, agePriceIndex: matchAgeTier(prefill?.person1Dob ?? "", event.agePrices) }],
     street: prefill?.street ?? "",
     postalCode: prefill?.postalCode ?? "",
     city: prefill?.city ?? "",
@@ -81,6 +92,10 @@ export default function BookingForm({
     setForm((f) => {
       const persons = [...f.persons];
       persons[i] = { ...persons[i], [field]: value };
+      // Auto-match age tier when DOB changes
+      if (field === "dob" && typeof value === "string") {
+        persons[i].agePriceIndex = matchAgeTier(value, event.agePrices);
+      }
       return { ...f, persons };
     });
   };
@@ -261,9 +276,15 @@ export default function BookingForm({
                 className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#4577ac]"
               >
                 <option value="">{t("fields.agePriceTierDefault")}</option>
-                {event.agePrices.map((ap, ai) => (
-                  <option key={ai} value={ai}>{ap.label} – €{ap.price.toFixed(2)}</option>
-                ))}
+                {event.agePrices.map((ap, ai) => {
+                  const range = ap.minAge != null && ap.maxAge != null
+                    ? ` (${ap.minAge}–${ap.maxAge} J.)`
+                    : ap.minAge != null ? ` (ab ${ap.minAge} J.)`
+                    : ap.maxAge != null ? ` (bis ${ap.maxAge} J.)` : "";
+                  return (
+                    <option key={ai} value={ai}>{ap.label}{range} – €{ap.price.toFixed(2)}</option>
+                  );
+                })}
               </select>
             </div>
           )}

@@ -10,7 +10,7 @@ import RichTextEditor from "@/components/admin/RichTextEditor";
 import AdminImageUpload from "@/components/admin/AdminImageUpload";
 import { useAdminI18n } from "@/components/admin/AdminI18nProvider";
 
-interface AgePrice { label: string; price: string; }
+interface AgePrice { label: string; price: string; minAge: string; maxAge: string; }
 
 interface EventFormData {
   titleDe: string; titleEn: string;
@@ -77,7 +77,12 @@ export default function EventForm({
       roomDoubleSurcharge: Number(form.roomDoubleSurcharge),
       agePrices: form.agePrices
         .filter((ap) => ap.label.trim() !== "")
-        .map((ap) => ({ label: ap.label.trim(), price: Number(ap.price) })),
+        .map((ap) => ({
+          label: ap.label.trim(),
+          price: Number(ap.price),
+          minAge: ap.minAge !== "" ? Number(ap.minAge) : null,
+          maxAge: ap.maxAge !== "" ? Number(ap.maxAge) : null,
+        })),
     };
 
     const res = await fetch(eventId ? `/api/admin/events/${eventId}` : "/api/admin/events", {
@@ -126,9 +131,11 @@ export default function EventForm({
         ...(parsed.roomSingleSurcharge != null && { roomSingleSurcharge: String(parsed.roomSingleSurcharge) }),
         ...(parsed.roomDoubleSurcharge != null && { roomDoubleSurcharge: String(parsed.roomDoubleSurcharge) }),
         ...(Array.isArray(parsed.agePrices) && parsed.agePrices.length > 0 && {
-          agePrices: parsed.agePrices.slice(0, 10).map((ap: { label: string; price: number }) => ({
+          agePrices: parsed.agePrices.slice(0, 10).map((ap: { label: string; price: number; minAge?: number | null; maxAge?: number | null }) => ({
             label: String(ap.label),
             price: String(ap.price),
+            minAge: ap.minAge != null ? String(ap.minAge) : "",
+            maxAge: ap.maxAge != null ? String(ap.maxAge) : "",
           })),
         }),
       }));
@@ -242,7 +249,7 @@ export default function EventForm({
           <p className="text-sm font-medium text-gray-700 mb-2">{t.eventForm.agePricesSection}</p>
           <div className="flex flex-col gap-2">
             {form.agePrices.map((ap, i) => (
-              <div key={i} className="flex gap-2 items-center">
+              <div key={i} className="flex gap-2 items-center flex-wrap">
                 <Input
                   placeholder={t.eventForm.agePriceLabel}
                   value={ap.label}
@@ -251,7 +258,31 @@ export default function EventForm({
                     agePrices[i] = { ...agePrices[i], label: e.target.value };
                     return { ...f, agePrices };
                   })}
-                  className="flex-1"
+                  className="flex-1 min-w-32"
+                />
+                <Input
+                  type="number"
+                  min="0"
+                  placeholder={t.eventForm.agePriceMinAge}
+                  value={ap.minAge}
+                  onChange={(e) => setForm((f) => {
+                    const agePrices = [...f.agePrices];
+                    agePrices[i] = { ...agePrices[i], minAge: e.target.value };
+                    return { ...f, agePrices };
+                  })}
+                  className="w-20"
+                />
+                <Input
+                  type="number"
+                  min="0"
+                  placeholder={t.eventForm.agePriceMaxAge}
+                  value={ap.maxAge}
+                  onChange={(e) => setForm((f) => {
+                    const agePrices = [...f.agePrices];
+                    agePrices[i] = { ...agePrices[i], maxAge: e.target.value };
+                    return { ...f, agePrices };
+                  })}
+                  className="w-20"
                 />
                 <Input
                   type="number"
@@ -279,7 +310,7 @@ export default function EventForm({
           {form.agePrices.length < 10 && (
             <button
               type="button"
-              onClick={() => setForm((f) => ({ ...f, agePrices: [...f.agePrices, { label: "", price: "0" }] }))}
+              onClick={() => setForm((f) => ({ ...f, agePrices: [...f.agePrices, { label: "", price: "0", minAge: "", maxAge: "" }] }))}
               className="mt-2 text-xs text-[#4577ac] hover:underline"
             >
               + {t.eventForm.agePriceAdd}
