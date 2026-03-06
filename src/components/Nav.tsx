@@ -93,10 +93,10 @@ export default function Nav() {
             <Image
               src="/images/logo-walldorfer-ski-club-81.png"
               alt="Walldorfer Ski-Club 81"
-              width={120}
-              height={120}
-              className="object-contain relative z-10"
-              style={{ height: "120px", width: "120px", marginTop: "72px" }}
+              width={160}
+              height={157}
+              className="object-contain relative z-10 h-[100px] sm:h-[120px] w-auto"
+              style={{ marginTop: "72px" }}
               priority
             />
           </Link>
