@@ -96,7 +96,7 @@ export default function Nav() {
               width={120}
               height={120}
               className="w-auto object-contain relative z-10"
-              style={{ height: "120px", marginTop: "72px" }}
+              style={{ height: "120px", width: "auto", marginTop: "72px" }}
               priority
             />
           </Link>
