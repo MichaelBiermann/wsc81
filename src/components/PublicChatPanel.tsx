@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
+import { useSession } from "next-auth/react";
 import type { MessageParam } from "@anthropic-ai/sdk/resources/messages";
 
 /** Minimal Markdown renderer (bold, code, links, bullet lists, numbered lists, headings). */
@@ -89,6 +90,9 @@ export default function PublicChatPanel() {
   const router = useRouter();
   const locale = useLocale();
   const t = useTranslations("Chat");
+  const { data: session } = useSession();
+  const sessionUser = session?.user as { role?: string } | undefined;
+  const isLoggedIn = !!session && sessionUser?.role !== "admin";
 
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -121,7 +125,7 @@ export default function PublicChatPanel() {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: msg, history, locale }),
+        body: JSON.stringify({ message: msg, history, locale, isLoggedIn }),
       });
       const data = await res.json();
       setHistory(data.updatedHistory);

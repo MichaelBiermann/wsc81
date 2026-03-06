@@ -21,10 +21,11 @@ Rules:
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
-  const { message, history, locale } = body as {
+  const { message, history, locale, isLoggedIn } = body as {
     message: string;
     history: Anthropic.MessageParam[];
     locale?: string;
+    isLoggedIn?: boolean;
   };
 
   if (!message || typeof message !== "string" || message.length > 1000) {
@@ -35,6 +36,9 @@ export async function POST(request: NextRequest) {
   const langInstruction = chatLocale === "en"
     ? "The user's UI language is English. Respond in English unless the user writes in German."
     : "The user's UI language is German. Respond in German unless the user writes in English.";
+  const authInstruction = isLoggedIn
+    ? "The user is currently logged in. If they ask about their bookings, use navigate to direct them to /" + chatLocale + "/account#bookings."
+    : "The user is not logged in. If they ask about their bookings, direct them to /" + chatLocale + "/login first.";
 
   const messages: Anthropic.MessageParam[] = [
     ...(history ?? []),
@@ -50,7 +54,7 @@ export async function POST(request: NextRequest) {
     response = await client.messages.create({
       model: "claude-haiku-4-5-20251001",
       max_tokens: 1024,
-      system: SYSTEM_PROMPT + "\n" + langInstruction,
+      system: SYSTEM_PROMPT + "\n" + langInstruction + "\n" + authInstruction,
       tools: PUBLIC_CHAT_TOOLS,
       messages,
     });
