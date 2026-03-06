@@ -2,8 +2,6 @@
 
 Homepage for **Walldorfer Ski-Club 81 e.V.**, built with Next.js 16 (App Router), PostgreSQL/Prisma, Tailwind CSS, and next-intl (DE/EN).
 
-![WSC 81 Summary](public/screenshot-summary.png)
-
 ![WSC 81 Homepage](public/screenshot.png)
 
 ![WSC 81 Admin UI](public/screenshot-admin.png)
