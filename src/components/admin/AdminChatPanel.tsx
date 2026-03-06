@@ -13,13 +13,15 @@ function renderMarkdown(text: string, onNavigate?: (path: string) => void): Reac
   let i = 0;
 
   function inlineFormat(s: string, key: string | number): React.ReactNode {
-    // Split on **bold**, `code`, [text](url)
-    const parts = s.split(/(\*\*[^*]+\*\*|`[^`]+`|\[[^\]]+\]\([^)]+\))/g);
+    // Split on **bold**, `code`, [text](url), ICON_BOOKABLE, ICON_NOT_BOOKABLE
+    const parts = s.split(/(\*\*[^*]+\*\*|`[^`]+`|\[[^\]]+\]\([^)]+\)|ICON_BOOKABLE|ICON_NOT_BOOKABLE)/g);
     return (
       <span key={key}>
         {parts.map((p, j) => {
           if (p.startsWith("**") && p.endsWith("**")) return <strong key={j}>{p.slice(2, -2)}</strong>;
           if (p.startsWith("`") && p.endsWith("`")) return <code key={j} className="bg-gray-200 rounded px-1 text-xs font-mono">{p.slice(1, -1)}</code>;
+          if (p === "ICON_BOOKABLE") return <span key={j} className="material-symbols-rounded text-green-600" style={{ fontSize: 18 }} title="Buchbar">check_circle</span>;
+          if (p === "ICON_NOT_BOOKABLE") return <span key={j} className="material-symbols-rounded text-gray-400" style={{ fontSize: 18 }} title="Nicht buchbar">radio_button_unchecked</span>;
           const linkMatch = p.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
           if (linkMatch) return <a key={j} href={linkMatch[2]} onClick={(e) => { e.preventDefault(); onNavigate?.(linkMatch[2]); }} className="text-[#4577ac] underline hover:text-[#2d5a8a] cursor-pointer">{linkMatch[1]}</a>;
           return p;
