@@ -109,19 +109,17 @@ export default function FormsSection() {
         <h2 id="general-section-title" className="text-2xl font-bold text-[#4577ac] mb-6">{g("title")}</h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 
-          {/* FIS Regeln — external link */}
+          {/* FIS Regeln — internal page */}
           <div className={cardBase}>
             <span className="material-symbols-rounded text-[#4577ac] text-3xl" aria-hidden="true">rule</span>
             <p className="font-semibold text-gray-800">{g("fisRules")}</p>
-            <a
-              href="https://www.wsc81.de/seite/633564/fis-regeln.html"
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href={`/${locale}/seite/fis-regeln`}
               className="inline-flex items-center gap-1 text-sm text-[#4577ac] hover:underline"
             >
-              <span className="material-symbols-rounded text-base" aria-hidden="true">open_in_new</span>
+              <span className="material-symbols-rounded text-base" aria-hidden="true">arrow_forward</span>
               {isDE ? "Öffnen" : "Open"}
-            </a>
+            </Link>
           </div>
 
           {/* Cartoon — internal page */}
