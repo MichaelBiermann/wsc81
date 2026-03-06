@@ -11,7 +11,7 @@ export default async function BookingSuccessPage({
 
   return (
     <div className="mx-auto max-w-lg px-4 py-20 text-center">
-      <div className="text-5xl mb-4">✅</div>
+      <span className="material-symbols-rounded text-green-600 mb-4 block" style={{ fontSize: 56 }}>check_circle</span>
       <h1 className="text-2xl font-bold text-green-700 mb-3">
         {isDE ? "Anmeldung eingegangen!" : "Booking received!"}
       </h1>
