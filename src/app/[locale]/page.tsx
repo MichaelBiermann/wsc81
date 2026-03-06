@@ -51,7 +51,7 @@ export default async function HomePage({
         <EventCalendar events={events} locale={locale} isLoggedIn={isLoggedIn} />
       </section>
 
-      <section className="bg-[#eef3f9] py-12">
+      <section id="veranstaltungen" className="bg-[#eef3f9] py-12">
         <div className="mx-auto max-w-7xl px-4">
           <h2 className="text-2xl font-bold text-[#4577ac] mb-2">
             {locale === "de" ? "Weitere Veranstaltungen" : "Regular Activities"}
