@@ -13,9 +13,11 @@ vi.mock("@/auth", () => ({
   auth: vi.fn(),
 }));
 
+const mockExecuteTool = vi.hoisted(() => vi.fn());
+
 vi.mock("@/lib/chat-tools", () => ({
   CHAT_TOOLS: [],
-  executeTool: vi.fn(),
+  executeTool: mockExecuteTool,
 }));
 
 import { POST } from "@/app/api/admin/chat/route";
@@ -144,5 +146,101 @@ describe("POST /api/admin/chat — locale", () => {
     await POST(makeRequest({ message: "Hello", locale: "en" }));
     const callArgs = mockCreate.mock.calls[0][0];
     expect(callArgs.system).toContain("English");
+  });
+});
+
+// ─── Tool-use loop ────────────────────────────────────────────────────────────
+
+function toolUseResponse(toolName: string, toolInput: Record<string, unknown>, toolId = "tool-1") {
+  return {
+    id: "msg-2", type: "message", role: "assistant",
+    content: [{ type: "tool_use", id: toolId, name: toolName, input: toolInput }],
+    model: "claude-sonnet-4-6",
+    stop_reason: "tool_use", stop_sequence: null,
+    usage: { input_tokens: 10, output_tokens: 30 },
+  };
+}
+
+describe("POST /api/admin/chat — tool-use loop", () => {
+  it("executes tool and returns final reply after second call", async () => {
+    mockAuth.mockResolvedValue(adminSession);
+    mockCreate
+      .mockResolvedValueOnce(toolUseResponse("get_stats", {}))
+      .mockResolvedValueOnce(endTurnResponse("Es gibt 5 Events."));
+    mockExecuteTool.mockResolvedValue({ events: 5 });
+
+    const res = await POST(makeRequest({ message: "Stats?" }));
+    const data = await res.json();
+    expect(data.reply).toBe("Es gibt 5 Events.");
+    expect(mockExecuteTool).toHaveBeenCalledWith("get_stats", {});
+    expect(mockCreate).toHaveBeenCalledTimes(2);
+  });
+
+  it("captures navigateTo from navigate tool", async () => {
+    mockAuth.mockResolvedValue(adminSession);
+    mockCreate
+      .mockResolvedValueOnce(toolUseResponse("navigate", { path: "/admin/events" }))
+      .mockResolvedValueOnce(endTurnResponse("Navigiere jetzt."));
+    mockExecuteTool.mockResolvedValue({ navigateTo: "/admin/events" });
+
+    const res = await POST(makeRequest({ message: "Zeige Events" }));
+    const data = await res.json();
+    expect(data.navigateTo).toBe("/admin/events");
+  });
+
+  it("returns tool error as tool_result with is_error when tool throws", async () => {
+    mockAuth.mockResolvedValue(adminSession);
+    mockCreate
+      .mockResolvedValueOnce(toolUseResponse("get_event", { id: "missing" }))
+      .mockResolvedValueOnce(endTurnResponse("Event nicht gefunden."));
+    mockExecuteTool.mockRejectedValue(new Error("Event not found: missing"));
+
+    const res = await POST(makeRequest({ message: "Event laden" }));
+    const data = await res.json();
+    expect(data.reply).toBe("Event nicht gefunden.");
+    // Second call should receive the error tool result
+    const secondCallMessages = mockCreate.mock.calls[1][0].messages;
+    const lastUserMsg = secondCallMessages[secondCallMessages.length - 1];
+    expect(lastUserMsg.role).toBe("user");
+    expect(lastUserMsg.content[0].is_error).toBe(true);
+  });
+
+  it("handles multiple tools in a single response", async () => {
+    mockAuth.mockResolvedValue(adminSession);
+    const multiToolResponse = {
+      id: "msg-2", type: "message", role: "assistant",
+      content: [
+        { type: "tool_use", id: "tool-a", name: "get_stats", input: {} },
+        { type: "tool_use", id: "tool-b", name: "list_events", input: {} },
+      ],
+      model: "claude-sonnet-4-6",
+      stop_reason: "tool_use", stop_sequence: null,
+      usage: { input_tokens: 10, output_tokens: 30 },
+    };
+    mockCreate
+      .mockResolvedValueOnce(multiToolResponse)
+      .mockResolvedValueOnce(endTurnResponse("Ergebnis."));
+    mockExecuteTool.mockResolvedValue({ result: "ok" });
+
+    const res = await POST(makeRequest({ message: "Alles" }));
+    const data = await res.json();
+    expect(data.reply).toBe("Ergebnis.");
+    expect(mockExecuteTool).toHaveBeenCalledTimes(2);
+  });
+
+  it("breaks out of loop on unknown stop_reason", async () => {
+    mockAuth.mockResolvedValue(adminSession);
+    mockCreate.mockResolvedValueOnce({
+      id: "msg-1", type: "message", role: "assistant",
+      content: [{ type: "text", text: "Fertig." }],
+      model: "claude-sonnet-4-6",
+      stop_reason: "max_tokens", stop_sequence: null,
+      usage: { input_tokens: 10, output_tokens: 20 },
+    });
+
+    const res = await POST(makeRequest({ message: "Hallo" }));
+    const data = await res.json();
+    expect(data.reply).toBe("Fertig.");
+    expect(mockCreate).toHaveBeenCalledTimes(1);
   });
 });

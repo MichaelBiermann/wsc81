@@ -10,9 +10,11 @@ vi.mock("@anthropic-ai/sdk", () => {
   return { default: Anthropic };
 });
 
+const mockExecutePublicTool = vi.hoisted(() => vi.fn());
+
 vi.mock("@/lib/public-chat-tools", () => ({
   PUBLIC_CHAT_TOOLS: [],
-  executePublicTool: vi.fn(),
+  executePublicTool: mockExecutePublicTool,
 }));
 
 import { POST } from "@/app/api/chat/route";
@@ -137,5 +139,91 @@ describe("POST /api/chat — auth instruction", () => {
     await POST(makeRequest({ message: "Meine Buchungen", isLoggedIn: false }));
     const callArgs = mockCreate.mock.calls[0][0];
     expect(callArgs.system).toContain("not logged in");
+  });
+});
+
+// ─── Tool-use loop ────────────────────────────────────────────────────────────
+
+function toolUseResponse(toolName: string, toolInput: Record<string, unknown>, toolId = "tool-1") {
+  return {
+    id: "msg-2", type: "message", role: "assistant",
+    content: [{ type: "tool_use", id: toolId, name: toolName, input: toolInput }],
+    model: "claude-haiku-4-5-20251001",
+    stop_reason: "tool_use", stop_sequence: null,
+    usage: { input_tokens: 10, output_tokens: 30 },
+  };
+}
+
+describe("POST /api/chat — tool-use loop", () => {
+  it("executes tool and returns final reply after second call", async () => {
+    mockCreate
+      .mockResolvedValueOnce(toolUseResponse("list_upcoming_events", {}))
+      .mockResolvedValueOnce(endTurnResponse("Hier sind die Events."));
+    mockExecutePublicTool.mockResolvedValue([{ id: "evt-1", title: "Ski" }]);
+
+    const res = await POST(makeRequest({ message: "Events?" }));
+    const data = await res.json();
+    expect(data.reply).toBe("Hier sind die Events.");
+    expect(mockExecutePublicTool).toHaveBeenCalledWith("list_upcoming_events", {}, "de");
+    expect(mockCreate).toHaveBeenCalledTimes(2);
+  });
+
+  it("captures navigateTo and navigateLabel from navigate tool", async () => {
+    mockCreate
+      .mockResolvedValueOnce(toolUseResponse("navigate", { path: "/de/membership", label: "Mitglied werden" }))
+      .mockResolvedValueOnce(endTurnResponse("Hier ist der Link."));
+    mockExecutePublicTool.mockResolvedValue({ navigateTo: "/de/membership", label: "Mitglied werden" });
+
+    const res = await POST(makeRequest({ message: "Mitglied werden" }));
+    const data = await res.json();
+    expect(data.navigateTo).toBe("/de/membership");
+    expect(data.navigateLabel).toBe("Mitglied werden");
+  });
+
+  it("passes chatLocale to executePublicTool", async () => {
+    mockCreate
+      .mockResolvedValueOnce(toolUseResponse("list_upcoming_events", {}))
+      .mockResolvedValueOnce(endTurnResponse("Events found."));
+    mockExecutePublicTool.mockResolvedValue([]);
+
+    await POST(makeRequest({ message: "Events?", locale: "en" }));
+    expect(mockExecutePublicTool).toHaveBeenCalledWith("list_upcoming_events", {}, "en");
+  });
+
+  it("returns tool error as is_error when tool throws", async () => {
+    mockCreate
+      .mockResolvedValueOnce(toolUseResponse("get_event", { id: "missing" }))
+      .mockResolvedValueOnce(endTurnResponse("Nicht gefunden."));
+    mockExecutePublicTool.mockRejectedValue(new Error("Event not found: missing"));
+
+    const res = await POST(makeRequest({ message: "Event suchen" }));
+    const data = await res.json();
+    expect(data.reply).toBe("Nicht gefunden.");
+    const secondCallMessages = mockCreate.mock.calls[1][0].messages;
+    const lastUserMsg = secondCallMessages[secondCallMessages.length - 1];
+    expect(lastUserMsg.content[0].is_error).toBe(true);
+  });
+
+  it("breaks on unknown stop_reason", async () => {
+    mockCreate.mockResolvedValueOnce({
+      id: "msg-1", type: "message", role: "assistant",
+      content: [{ type: "text", text: "Fertig." }],
+      model: "claude-haiku-4-5-20251001",
+      stop_reason: "max_tokens", stop_sequence: null,
+      usage: { input_tokens: 10, output_tokens: 20 },
+    });
+
+    const res = await POST(makeRequest({ message: "Hallo" }));
+    const data = await res.json();
+    expect(data.reply).toBe("Fertig.");
+    expect(mockCreate).toHaveBeenCalledTimes(1);
+  });
+
+  it("returns navigateLabel in response", async () => {
+    mockCreate.mockResolvedValueOnce(endTurnResponse("Willkommen!"));
+    const res = await POST(makeRequest({ message: "Hallo" }));
+    const data = await res.json();
+    expect("navigateLabel" in data).toBe(true);
+    expect(data.navigateLabel).toBeNull();
   });
 });

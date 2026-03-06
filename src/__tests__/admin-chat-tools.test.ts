@@ -353,6 +353,363 @@ describe("get_stats", () => {
   });
 });
 
+// ─── update_member_fees ───────────────────────────────────────────────────────
+
+describe("update_member_fees", () => {
+  it("updates feesPaid to true", async () => {
+    db.member.update.mockResolvedValue({ id: "m1", feesPaid: true });
+    const result = await executeTool("update_member_fees", { id: "m1", feesPaid: true }) as { feesPaid: boolean };
+    expect(result.feesPaid).toBe(true);
+    expect(db.member.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: "m1" }, data: { feesPaid: true } })
+    );
+  });
+
+  it("updates feesPaid to false", async () => {
+    db.member.update.mockResolvedValue({ id: "m1", feesPaid: false });
+    const result = await executeTool("update_member_fees", { id: "m1", feesPaid: false }) as { feesPaid: boolean };
+    expect(result.feesPaid).toBe(false);
+  });
+});
+
+// ─── list_pending_memberships ─────────────────────────────────────────────────
+
+describe("list_pending_memberships", () => {
+  it("returns mapped pending memberships", async () => {
+    const raw = [{
+      id: "pm1", person1Name: "Anna", email: "anna@example.com", category: "adult",
+      createdAt: new Date("2026-01-01"), tokenExpiresAt: new Date("2026-01-08"),
+    }];
+    db.pendingMembership.findMany.mockResolvedValue(raw);
+    const result = await executeTool("list_pending_memberships", {}) as { createdAt: string; tokenExpiresAt: string }[];
+    expect(result[0].createdAt).toBe("2026-01-01T00:00:00.000Z");
+    expect(result[0].tokenExpiresAt).toBe("2026-01-08T00:00:00.000Z");
+  });
+
+  it("returns empty array when none pending", async () => {
+    db.pendingMembership.findMany.mockResolvedValue([]);
+    const result = await executeTool("list_pending_memberships", {});
+    expect(result).toEqual([]);
+  });
+});
+
+// ─── delete_pending_membership ────────────────────────────────────────────────
+
+describe("delete_pending_membership", () => {
+  it("returns deleted: true", async () => {
+    db.pendingMembership.delete.mockResolvedValue({});
+    const result = await executeTool("delete_pending_membership", { id: "pm1" });
+    expect(result).toEqual({ deleted: true });
+    expect(db.pendingMembership.delete).toHaveBeenCalledWith({ where: { id: "pm1" } });
+  });
+});
+
+// ─── list_users ───────────────────────────────────────────────────────────────
+
+describe("list_users", () => {
+  const rawUser = {
+    id: "u1", firstName: "Max", lastName: "Muster", email: "max@example.com",
+    emailVerified: new Date("2025-05-01"), memberId: null,
+    createdAt: new Date("2025-04-01"), _count: { bookings: 2 },
+  };
+
+  it("maps createdAt to ISO string", async () => {
+    db.user.findMany.mockResolvedValue([rawUser]);
+    const result = await executeTool("list_users", {}) as { createdAt: string }[];
+    expect(result[0].createdAt).toBe("2025-04-01T00:00:00.000Z");
+  });
+
+  it("uses default limit of 50", async () => {
+    db.user.findMany.mockResolvedValue([]);
+    await executeTool("list_users", {});
+    expect(db.user.findMany).toHaveBeenCalledWith(expect.objectContaining({ take: 50 }));
+  });
+
+  it("respects custom limit", async () => {
+    db.user.findMany.mockResolvedValue([]);
+    await executeTool("list_users", { limit: 5 });
+    expect(db.user.findMany).toHaveBeenCalledWith(expect.objectContaining({ take: 5 }));
+  });
+});
+
+// ─── delete_user ──────────────────────────────────────────────────────────────
+
+describe("delete_user", () => {
+  it("returns deleted: true", async () => {
+    db.user.delete.mockResolvedValue({});
+    const result = await executeTool("delete_user", { id: "u1" });
+    expect(result).toEqual({ deleted: true });
+    expect(db.user.delete).toHaveBeenCalledWith({ where: { id: "u1" } });
+  });
+});
+
+// ─── list_pages ───────────────────────────────────────────────────────────────
+
+describe("list_pages", () => {
+  const rawPage = { id: "p1", slug: "satzung", titleDe: "Satzung", status: "PUBLISHED" };
+
+  it("returns pages list", async () => {
+    db.page.findMany.mockResolvedValue([rawPage]);
+    const result = await executeTool("list_pages", {}) as typeof rawPage[];
+    expect(result[0].slug).toBe("satzung");
+  });
+
+  it("filters by status when provided", async () => {
+    db.page.findMany.mockResolvedValue([]);
+    await executeTool("list_pages", { status: "DRAFT" });
+    expect(db.page.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { status: "DRAFT" } })
+    );
+  });
+
+  it("no filter when status is 'all'", async () => {
+    db.page.findMany.mockResolvedValue([]);
+    await executeTool("list_pages", { status: "all" });
+    expect(db.page.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: {} })
+    );
+  });
+
+  it("no filter when status is absent", async () => {
+    db.page.findMany.mockResolvedValue([]);
+    await executeTool("list_pages", {});
+    expect(db.page.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: {} })
+    );
+  });
+});
+
+// ─── create_page ──────────────────────────────────────────────────────────────
+
+describe("create_page", () => {
+  it("returns id and slug", async () => {
+    db.page.create.mockResolvedValue({ id: "p1", slug: "neues-test" });
+    const result = await executeTool("create_page", {
+      slug: "neues-test", titleDe: "Test", titleEn: "Test",
+      bodyDe: "", bodyEn: "",
+    }) as { id: string; slug: string };
+    expect(result.slug).toBe("neues-test");
+  });
+
+  it("sets publishedAt when status is PUBLISHED", async () => {
+    db.page.create.mockResolvedValue({ id: "p1", slug: "test" });
+    await executeTool("create_page", {
+      slug: "test", titleDe: "T", titleEn: "T", bodyDe: "", bodyEn: "", status: "PUBLISHED",
+    });
+    const call = db.page.create.mock.calls[0][0];
+    expect(call.data.publishedAt).toBeInstanceOf(Date);
+  });
+
+  it("sets publishedAt to null when status is DRAFT", async () => {
+    db.page.create.mockResolvedValue({ id: "p1", slug: "test" });
+    await executeTool("create_page", {
+      slug: "test", titleDe: "T", titleEn: "T", bodyDe: "", bodyEn: "", status: "DRAFT",
+    });
+    const call = db.page.create.mock.calls[0][0];
+    expect(call.data.publishedAt).toBeNull();
+  });
+
+  it("defaults to DRAFT when no status provided", async () => {
+    db.page.create.mockResolvedValue({ id: "p1", slug: "test" });
+    await executeTool("create_page", {
+      slug: "test", titleDe: "T", titleEn: "T", bodyDe: "", bodyEn: "",
+    });
+    const call = db.page.create.mock.calls[0][0];
+    expect(call.data.status).toBe("DRAFT");
+  });
+});
+
+// ─── delete_page ──────────────────────────────────────────────────────────────
+
+describe("delete_page", () => {
+  it("returns deleted: true", async () => {
+    db.page.delete.mockResolvedValue({});
+    const result = await executeTool("delete_page", { id: "p1" });
+    expect(result).toEqual({ deleted: true });
+    expect(db.page.delete).toHaveBeenCalledWith({ where: { id: "p1" } });
+  });
+});
+
+// ─── list_recaps ──────────────────────────────────────────────────────────────
+
+describe("list_recaps", () => {
+  const rawRecap = {
+    id: "r1", slug: "auf-nach-lenggries", titleDe: "Auf nach Lenggries",
+    eventDate: new Date("2024-02-10"), status: "PUBLISHED",
+  };
+
+  it("maps eventDate to ISO string", async () => {
+    db.recap.findMany.mockResolvedValue([rawRecap]);
+    const result = await executeTool("list_recaps", {}) as { eventDate: string }[];
+    expect(result[0].eventDate).toBe("2024-02-10T00:00:00.000Z");
+  });
+
+  it("returns null eventDate when not set", async () => {
+    db.recap.findMany.mockResolvedValue([{ ...rawRecap, eventDate: null }]);
+    const result = await executeTool("list_recaps", {}) as { eventDate: string | null }[];
+    expect(result[0].eventDate).toBeNull();
+  });
+
+  it("filters by status PUBLISHED", async () => {
+    db.recap.findMany.mockResolvedValue([]);
+    await executeTool("list_recaps", { status: "PUBLISHED" });
+    expect(db.recap.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { status: "PUBLISHED" } })
+    );
+  });
+
+  it("no filter when status is 'all'", async () => {
+    db.recap.findMany.mockResolvedValue([]);
+    await executeTool("list_recaps", { status: "all" });
+    expect(db.recap.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: {} })
+    );
+  });
+});
+
+// ─── create_recap ─────────────────────────────────────────────────────────────
+
+describe("create_recap", () => {
+  it("returns id and slug", async () => {
+    db.recap.create.mockResolvedValue({ id: "r1", slug: "neue-tour" });
+    const result = await executeTool("create_recap", {
+      slug: "neue-tour", titleDe: "Neue Tour", titleEn: "New Tour",
+      bodyDe: "", bodyEn: "",
+    }) as { id: string; slug: string };
+    expect(result.slug).toBe("neue-tour");
+  });
+
+  it("converts eventDate string to Date when provided", async () => {
+    db.recap.create.mockResolvedValue({ id: "r1", slug: "test" });
+    await executeTool("create_recap", {
+      slug: "test", titleDe: "T", titleEn: "T", bodyDe: "", bodyEn: "",
+      eventDate: "2024-03-15",
+    });
+    const call = db.recap.create.mock.calls[0][0];
+    expect(call.data.eventDate).toBeInstanceOf(Date);
+  });
+
+  it("sets eventDate to null when not provided", async () => {
+    db.recap.create.mockResolvedValue({ id: "r1", slug: "test" });
+    await executeTool("create_recap", {
+      slug: "test", titleDe: "T", titleEn: "T", bodyDe: "", bodyEn: "",
+    });
+    const call = db.recap.create.mock.calls[0][0];
+    expect(call.data.eventDate).toBeNull();
+  });
+
+  it("sets publishedAt when status is PUBLISHED", async () => {
+    db.recap.create.mockResolvedValue({ id: "r1", slug: "test" });
+    await executeTool("create_recap", {
+      slug: "test", titleDe: "T", titleEn: "T", bodyDe: "", bodyEn: "", status: "PUBLISHED",
+    });
+    const call = db.recap.create.mock.calls[0][0];
+    expect(call.data.publishedAt).toBeInstanceOf(Date);
+  });
+});
+
+// ─── delete_recap ─────────────────────────────────────────────────────────────
+
+describe("delete_recap", () => {
+  it("returns deleted: true", async () => {
+    db.recap.delete.mockResolvedValue({});
+    const result = await executeTool("delete_recap", { id: "r1" });
+    expect(result).toEqual({ deleted: true });
+  });
+});
+
+// ─── list_sponsors ────────────────────────────────────────────────────────────
+
+describe("list_sponsors", () => {
+  it("returns sponsors", async () => {
+    const sponsors = [{ id: "s1", name: "Sponsor A", websiteUrl: "https://a.de", imageUrl: "/img.png", displayOrder: 0 }];
+    db.sponsor.findMany.mockResolvedValue(sponsors);
+    const result = await executeTool("list_sponsors", {});
+    expect(result).toEqual(sponsors);
+    expect(db.sponsor.findMany).toHaveBeenCalledWith({ orderBy: { displayOrder: "asc" } });
+  });
+});
+
+// ─── create_sponsor ───────────────────────────────────────────────────────────
+
+describe("create_sponsor", () => {
+  it("creates sponsor with all fields", async () => {
+    const created = { id: "s1", name: "Firma GmbH", websiteUrl: "https://firma.de", imageUrl: "/img.png", displayOrder: 3 };
+    db.sponsor.create.mockResolvedValue(created);
+    const result = await executeTool("create_sponsor", {
+      name: "Firma GmbH", websiteUrl: "https://firma.de", imageUrl: "/img.png", displayOrder: 3,
+    });
+    expect(result).toEqual(created);
+  });
+
+  it("defaults displayOrder to 0 when not provided", async () => {
+    db.sponsor.create.mockResolvedValue({ id: "s1", name: "X", websiteUrl: "", imageUrl: "", displayOrder: 0 });
+    await executeTool("create_sponsor", { name: "X", websiteUrl: "", imageUrl: "" });
+    const call = db.sponsor.create.mock.calls[0][0];
+    expect(call.data.displayOrder).toBe(0);
+  });
+});
+
+// ─── delete_sponsor ───────────────────────────────────────────────────────────
+
+describe("delete_sponsor", () => {
+  it("returns deleted: true", async () => {
+    db.sponsor.delete.mockResolvedValue({});
+    const result = await executeTool("delete_sponsor", { id: "s1" });
+    expect(result).toEqual({ deleted: true });
+    expect(db.sponsor.delete).toHaveBeenCalledWith({ where: { id: "s1" } });
+  });
+});
+
+// ─── list_newsletters ─────────────────────────────────────────────────────────
+
+describe("list_newsletters", () => {
+  it("maps dates to ISO strings", async () => {
+    const raw = [{
+      id: "nl1", subjectDe: "Rundbrief", status: "SENT",
+      sentAt: new Date("2026-01-15"), recipientCount: 42,
+      createdAt: new Date("2026-01-10"),
+    }];
+    db.newsletter.findMany.mockResolvedValue(raw);
+    const result = await executeTool("list_newsletters", {}) as { createdAt: string; sentAt: string | null }[];
+    expect(result[0].createdAt).toBe("2026-01-10T00:00:00.000Z");
+    expect(result[0].sentAt).toBe("2026-01-15T00:00:00.000Z");
+  });
+
+  it("returns null sentAt for unsent newsletters", async () => {
+    const raw = [{
+      id: "nl1", subjectDe: "Draft", status: "DRAFT",
+      sentAt: null, recipientCount: 0,
+      createdAt: new Date("2026-01-10"),
+    }];
+    db.newsletter.findMany.mockResolvedValue(raw);
+    const result = await executeTool("list_newsletters", {}) as { sentAt: string | null }[];
+    expect(result[0].sentAt).toBeNull();
+  });
+});
+
+// ─── delete_newsletter ────────────────────────────────────────────────────────
+
+describe("delete_newsletter", () => {
+  it("returns deleted: true", async () => {
+    db.newsletter.delete.mockResolvedValue({});
+    const result = await executeTool("delete_newsletter", { id: "nl1" });
+    expect(result).toEqual({ deleted: true });
+    expect(db.newsletter.delete).toHaveBeenCalledWith({ where: { id: "nl1" } });
+  });
+});
+
+// ─── delete_news_post ─────────────────────────────────────────────────────────
+
+describe("delete_news_post", () => {
+  it("returns deleted: true", async () => {
+    db.newsPost.delete.mockResolvedValue({});
+    const result = await executeTool("delete_news_post", { id: "n1" });
+    expect(result).toEqual({ deleted: true });
+    expect(db.newsPost.delete).toHaveBeenCalledWith({ where: { id: "n1" } });
+  });
+});
+
 // ─── unknown tool ─────────────────────────────────────────────────────────────
 
 describe("unknown tool", () => {

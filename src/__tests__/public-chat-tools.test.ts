@@ -158,11 +158,17 @@ describe("list_news", () => {
     expect(result[0].title).toBe("Welcome");
   });
 
-  it("filters by PUBLISHED status", async () => {
+  it("returns null publishedAt when not set", async () => {
+    mockPrisma.newsPost.findMany.mockResolvedValue([{ ...rawPost, publishedAt: null }]);
+    const result = await executePublicTool("list_news", {}, "de") as { publishedAt: string | null }[];
+    expect(result[0].publishedAt).toBeNull();
+  });
+
+  it("passes limit to prisma", async () => {
     mockPrisma.newsPost.findMany.mockResolvedValue([]);
-    await executePublicTool("list_news", {}, "de");
+    await executePublicTool("list_news", { limit: 3 }, "de");
     expect(mockPrisma.newsPost.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { status: "PUBLISHED" } })
+      expect.objectContaining({ take: 3 })
     );
   });
 });
@@ -243,6 +249,22 @@ describe("list_recaps", () => {
     const result = await executePublicTool("list_recaps", {}, "de") as { eventDate: string | null }[];
     expect(result[0].eventDate).toBeNull();
   });
+
+  it("filters by PUBLISHED status", async () => {
+    mockPrisma.recap.findMany.mockResolvedValue([]);
+    await executePublicTool("list_recaps", {}, "de");
+    expect(mockPrisma.recap.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { status: "PUBLISHED" } })
+    );
+  });
+
+  it("passes limit to prisma", async () => {
+    mockPrisma.recap.findMany.mockResolvedValue([]);
+    await executePublicTool("list_recaps", { limit: 2 }, "de");
+    expect(mockPrisma.recap.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ take: 2 })
+    );
+  });
 });
 
 // ─── get_recap ───────────────────────────────────────────────────────────────
@@ -263,6 +285,12 @@ describe("get_recap", () => {
     mockPrisma.recap.findFirst.mockResolvedValue(rawRecap);
     const result = await executePublicTool("get_recap", { slug: "auf-nach-lenggries" }, "de") as Record<string, unknown>;
     expect(result.body).toBe("<p>Schöne Tour</p>");
+  });
+
+  it("returns English body when locale is en", async () => {
+    mockPrisma.recap.findFirst.mockResolvedValue(rawRecap);
+    const result = await executePublicTool("get_recap", { slug: "auf-nach-lenggries" }, "en") as Record<string, unknown>;
+    expect(result.body).toBe("<p>Great tour</p>");
   });
 
   it("fetches by id when no slug given", async () => {
