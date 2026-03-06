@@ -11,7 +11,7 @@ export default function WelcomeBlock({ locale }: { locale: string }) {
         {isDE ? (
           <>
             Der Walldorfer Ski-Club 81 e.V. bietet das ganze Jahr über vielfältige Aktivitäten für alle Altersgruppen – von{" "}
-            <Link href={`/${locale}#veranstaltungen`} className="text-[#4577ac] hover:underline">Skifreizeiten im Winter</Link>
+            <Link href={`/${locale}#kommende-veranstaltungen`} className="text-[#4577ac] hover:underline">Skifreizeiten im Winter</Link>
             {" "}bis hin zu{" "}
             <Link href={`/${locale}#veranstaltungen`} className="text-[#4577ac] hover:underline">Nordic Walking</Link>
             {" "}und{" "}
@@ -21,7 +21,7 @@ export default function WelcomeBlock({ locale }: { locale: string }) {
         ) : (
           <>
             Walldorfer Ski-Club 81 e.V. offers a wide range of activities for all age groups throughout the year – from{" "}
-            <Link href={`/${locale}#veranstaltungen`} className="text-[#4577ac] hover:underline">ski trips in winter</Link>
+            <Link href={`/${locale}#kommende-veranstaltungen`} className="text-[#4577ac] hover:underline">ski trips in winter</Link>
             {" "}to{" "}
             <Link href={`/${locale}#veranstaltungen`} className="text-[#4577ac] hover:underline">Nordic Walking</Link>
             {" "}and{" "}

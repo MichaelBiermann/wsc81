@@ -46,7 +46,7 @@ export default async function HomePage({
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-12">
+      <section id="kommende-veranstaltungen" className="mx-auto max-w-7xl px-4 py-12">
         <h2 className="text-2xl font-bold text-[#4577ac] mb-6">{t("upcoming")}</h2>
         <EventCalendar events={events} locale={locale} isLoggedIn={isLoggedIn} />
       </section>
