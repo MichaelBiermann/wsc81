@@ -5,10 +5,10 @@ import { usePathname } from "next/navigation";
 export default function ScrollToTop() {
   const pathname = usePathname();
   useEffect(() => {
-    if ("scrollRestoration" in history) {
-      history.scrollRestoration = "manual";
-    }
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    // Beat any framework scroll restoration that fires after useEffect
+    const raf = requestAnimationFrame(() => window.scrollTo({ top: 0, left: 0, behavior: "instant" }));
+    return () => cancelAnimationFrame(raf);
   }, [pathname]);
   return null;
 }

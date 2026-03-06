@@ -12,7 +12,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         />
       </head>
       <body>
-        <script dangerouslySetInnerHTML={{ __html: "history.scrollRestoration='manual'" }} />
+        <script dangerouslySetInnerHTML={{ __html: "history.scrollRestoration='manual';window.scrollTo(0,0);window.addEventListener('load',function(){window.scrollTo(0,0)});" }} />
         {children}
       </body>
     </html>
