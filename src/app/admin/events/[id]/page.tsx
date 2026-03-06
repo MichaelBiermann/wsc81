@@ -28,6 +28,8 @@ interface Booking {
   createdAt: string;
   roomsSingle: number;
   roomsDouble: number;
+  stripePaymentIntentId: string | null;
+  balanceDue: string | null;
 }
 
 interface EventDetail {
@@ -237,6 +239,31 @@ export default function EditEventPage() {
                   {b.remarks && (
                     <p className="mt-2 text-xs text-gray-500 italic">„{b.remarks}"</p>
                   )}
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {b.stripePaymentIntentId ? (
+                      <>
+                        <span className="inline-flex items-center gap-0.5 rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
+                          <span className="material-symbols-rounded" style={{ fontSize: 12 }}>check_circle</span>
+                          Anzahlung: €{Number(event!.depositAmount).toFixed(2)}
+                        </span>
+                        {b.balanceDue !== null && Number(b.balanceDue) > 0 ? (
+                          <span className="inline-flex items-center gap-0.5 rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-700">
+                            <span className="material-symbols-rounded" style={{ fontSize: 12 }}>schedule</span>
+                            Restbetrag: €{Number(b.balanceDue).toFixed(2)}
+                          </span>
+                        ) : b.balanceDue !== null ? (
+                          <span className="inline-flex items-center gap-0.5 rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
+                            <span className="material-symbols-rounded" style={{ fontSize: 12 }}>check_circle</span>
+                            Vollständig bezahlt
+                          </span>
+                        ) : null}
+                      </>
+                    ) : (
+                      <span className="inline-flex items-center gap-0.5 rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-500">
+                        Kostenlos / keine Zahlung
+                      </span>
+                    )}
+                  </div>
                 </div>
               );
             })}
