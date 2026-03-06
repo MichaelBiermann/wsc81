@@ -7,7 +7,13 @@ export default defineConfig({
     environment: "node",
     coverage: {
       provider: "v8",
-      include: ["src/lib/public-chat-tools.ts", "src/app/api/chat/route.ts"],
+      include: [
+        "src/lib/public-chat-tools.ts",
+        "src/lib/chat-tools.ts",
+        "src/lib/pdf-utils.ts",
+        "src/app/api/chat/route.ts",
+        "src/app/api/admin/chat/route.ts",
+      ],
       reporter: ["text", "html"],
     },
   },
