@@ -95,8 +95,8 @@ export default function Nav() {
               alt="Walldorfer Ski-Club 81"
               width={120}
               height={120}
-              className="w-auto object-contain relative z-10"
-              style={{ height: "120px", width: "auto", marginTop: "72px" }}
+              className="object-contain relative z-10"
+              style={{ height: "120px", width: "120px", marginTop: "72px" }}
               priority
             />
           </Link>
