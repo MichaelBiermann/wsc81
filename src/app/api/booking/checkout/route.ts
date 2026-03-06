@@ -37,7 +37,7 @@ function calcTotalWithSurcharge(
     total += event.busSurcharge;
   }
   total += roomsSingle * event.roomSingleSurcharge;
-  total += roomsDouble * event.roomDoubleSurcharge;
+  total += roomsDouble * 2 * event.roomDoubleSurcharge;
   return total;
 }
 

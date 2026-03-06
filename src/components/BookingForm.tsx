@@ -135,7 +135,7 @@ export default function BookingForm({
     }
 
     if (form.roomsDouble > 0 && event.roomDoubleSurcharge > 0) {
-      const roomTotal = form.roomsDouble * event.roomDoubleSurcharge;
+      const roomTotal = form.roomsDouble * 2 * event.roomDoubleSurcharge;
       lines.push({ label: `${form.roomsDouble}× ${t("fields.roomsDouble")} (${t("roomDoubleSurcharge")})`, amount: roomTotal });
       total += roomTotal;
     }
