@@ -32,9 +32,9 @@ const SYSTEM_PROMPTS: Record<string, string> = {
   "agePrices": [{ "label": "<string>", "price": <number> }]
 }
 Field rules:
-- "depositAmount": the deposit or down-payment due at booking time (Anzahlung). If no explicit deposit is mentioned but a base price is stated as the cheapest option, use that as depositAmount.
-- "roomDoubleSurcharge": the full per-person price for a double room. If a double room price is explicitly stated, use it. If the double room price IS the base/deposit amount, set this to 0.
+- "depositAmount": ONLY set this if an explicit deposit or down-payment (Anzahlung) is mentioned in the text. If no deposit is mentioned, set to null. Do NOT use room prices or base prices as depositAmount.
 - "roomSingleSurcharge": the full per-person price for a single room. If only a delta above double is given, add it to the double room price to get the full single room price.
+- "roomDoubleSurcharge": the full per-person price for a double room. Always populate this if any double room price is mentioned.
 - "busSurcharge": bus cost per person (separate from accommodation).
 - "surchargeNonMemberAdult": extra charge for non-members aged 18+.
 - "surchargeNonMemberChild": extra charge for non-members under 18.

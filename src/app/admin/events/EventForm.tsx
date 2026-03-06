@@ -119,7 +119,7 @@ export default function EventForm({
       const parsed = JSON.parse(cleaned);
       setForm((f) => ({
         ...f,
-        ...(parsed.depositAmount != null && { depositAmount: String(parsed.depositAmount) }),
+        depositAmount: parsed.depositAmount != null ? String(parsed.depositAmount) : "0",
         ...(parsed.surchargeNonMemberAdult != null && { surchargeNonMemberAdult: String(parsed.surchargeNonMemberAdult) }),
         ...(parsed.surchargeNonMemberChild != null && { surchargeNonMemberChild: String(parsed.surchargeNonMemberChild) }),
         ...(parsed.busSurcharge != null && { busSurcharge: String(parsed.busSurcharge) }),
