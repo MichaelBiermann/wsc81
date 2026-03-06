@@ -82,7 +82,7 @@ export default function Nav() {
           alt=""
           width={1920}
           height={64}
-          className="w-full h-full object-contain object-bottom"
+          className="w-full h-full object-cover object-bottom"
           priority
         />
       </div>
@@ -95,7 +95,7 @@ export default function Nav() {
               alt="Walldorfer Ski-Club 81"
               width={160}
               height={157}
-              className="object-contain relative z-10 h-[100px] sm:h-[120px] w-auto"
+              className="object-contain relative z-10 h-[120px] w-auto"
               style={{ marginTop: "72px" }}
               priority
             />
