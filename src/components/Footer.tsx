@@ -35,7 +35,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-8 border-t border-white/20 pt-4 text-center text-xs text-blue-200">
-          © {new Date().getFullYear()} Walldorfer Ski-Club 81 e.V. — {t("rights")}
+          © 2025 Walldorfer Ski-Club 81 e.V. — {t("rights")}
         </div>
       </div>
     </footer>
