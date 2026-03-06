@@ -13,7 +13,7 @@ export default function WelcomeBlock({ locale }: { locale: string }) {
             Der Walldorfer Ski-Club 81 e.V. bietet das ganze Jahr über vielfältige Aktivitäten für alle Altersgruppen – von{" "}
             <Link href={`/${locale}#kommende-veranstaltungen`} className="text-[#4577ac] hover:underline">Skifreizeiten im Winter</Link>
             {" "}bis hin zu{" "}
-            <Link href={`/${locale}#veranstaltungen`} className="text-[#4577ac] hover:underline">Nordic Walking</Link>
+            <Link href={`/${locale}/events/regular-nordic-walking`} className="text-[#4577ac] hover:underline">Nordic Walking</Link>
             {" "}und{" "}
             <Link href={`/${locale}#veranstaltungen`} className="text-[#4577ac] hover:underline">Fitnessgymnastik</Link>
             {" "}das ganze Jahr. Werden Sie Teil unserer Gemeinschaft!
@@ -23,7 +23,7 @@ export default function WelcomeBlock({ locale }: { locale: string }) {
             Walldorfer Ski-Club 81 e.V. offers a wide range of activities for all age groups throughout the year – from{" "}
             <Link href={`/${locale}#kommende-veranstaltungen`} className="text-[#4577ac] hover:underline">ski trips in winter</Link>
             {" "}to{" "}
-            <Link href={`/${locale}#veranstaltungen`} className="text-[#4577ac] hover:underline">Nordic Walking</Link>
+            <Link href={`/${locale}/events/regular-nordic-walking`} className="text-[#4577ac] hover:underline">Nordic Walking</Link>
             {" "}and{" "}
             <Link href={`/${locale}#veranstaltungen`} className="text-[#4577ac] hover:underline">fitness gymnastics</Link>
             {" "}all year round. Become part of our community!
