@@ -19,6 +19,8 @@ async function requireAdmin() {
 
 function stripHtml(html: string): string {
   return html
+    // Remove material-symbols spans entirely (and trailing whitespace/&nbsp;)
+    .replace(/<span[^>]*class="[^"]*material-symbols[^"]*"[^>]*>.*?<\/span>(\s|&nbsp;)*/gi, "")
     .replace(/<\/p>/gi, "\n")
     .replace(/<br\s*\/?>/gi, "\n")
     .replace(/<\/?(li|tr|td|th|h[1-6]|div|blockquote)>/gi, "\n")
@@ -249,7 +251,7 @@ export async function GET(
             React.createElement(View, { style: { flexDirection: "row", alignItems: "center" } },
               React.createElement(Text, { style: s.cardMeta }, `#${idx + 1}  `),
               React.createElement(Text, { style: s.cardName }, b.person1Name),
-              b.isMember ? React.createElement(Text, { style: s.memberBadge }, "✦ Mitglied") : null,
+              b.isMember ? React.createElement(Text, { style: s.memberBadge }, "* Mitglied") : null,
             ),
             React.createElement(Text, { style: s.cardMeta }, `Gebucht: ${fmt(b.createdAt)}`),
           ),
