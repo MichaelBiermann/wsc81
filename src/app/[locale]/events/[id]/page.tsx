@@ -23,7 +23,7 @@ export default async function EventDetailPage({
   // Strip material-symbols icon spans (and any immediately following &nbsp; / whitespace) from description before rendering publicly
   const rawDescription = isDE ? event.descriptionDe : event.descriptionEn;
   const description = rawDescription
-    .replace(/<span[^>]*class="[^"]*material-symbols[^"]*"[^>]*>.*?<\/span>(\s|&nbsp;)*/gi, "");
+    .replace(/<span[^>]*class="[^"]*material-symbols[^"]*"[^>]*>[\s\S]*?<\/span>(\s|&nbsp;)*/gi, "");
 
   const fmt = (d: Date) =>
     d.toLocaleDateString(isDE ? "de-DE" : "en-GB", {
