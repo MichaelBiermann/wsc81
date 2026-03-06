@@ -17,21 +17,15 @@ async function requireAdmin() {
   return !!(session && user?.role === "admin");
 }
 
-/** Strip HTML tags and decode basic entities */
 function stripHtml(html: string): string {
   return html
     .replace(/<\/p>/gi, "\n")
     .replace(/<br\s*\/?>/gi, "\n")
     .replace(/<\/?(li|tr|td|th|h[1-6]|div|blockquote)>/gi, "\n")
     .replace(/<[^>]+>/g, "")
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&nbsp;/g, " ")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
+    .replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&nbsp;/g, " ")
+    .replace(/\n{3,}/g, "\n\n").trim();
 }
 
 function fmt(date: Date | string | null | undefined): string {
@@ -39,36 +33,95 @@ function fmt(date: Date | string | null | undefined): string {
   return new Date(date).toLocaleDateString("de-DE");
 }
 
-const styles = StyleSheet.create({
-  page: { fontSize: 10, fontFamily: "Helvetica", padding: 40, color: "#1a1a1a" },
-  header: { marginBottom: 20, borderBottomWidth: 1, borderBottomColor: "#4577ac", paddingBottom: 10 },
-  title: { fontSize: 18, fontFamily: "Helvetica-Bold", color: "#4577ac", marginBottom: 4 },
-  subtitle: { fontSize: 11, color: "#555" },
-  section: { marginBottom: 16 },
-  sectionTitle: { fontSize: 12, fontFamily: "Helvetica-Bold", color: "#4577ac", marginBottom: 6, borderBottomWidth: 0.5, borderBottomColor: "#c8d9ec", paddingBottom: 2 },
-  row: { flexDirection: "row", marginBottom: 3 },
-  label: { width: 130, color: "#666" },
-  value: { flex: 1 },
-  description: { lineHeight: 1.5, color: "#333" },
-  bookingCard: { marginBottom: 10, padding: 8, backgroundColor: "#f7f9fb", borderRadius: 3, borderWidth: 0.5, borderColor: "#d0dce8" },
-  bookingHeader: { flexDirection: "row", justifyContent: "space-between", marginBottom: 4 },
-  bookingTitle: { fontFamily: "Helvetica-Bold", fontSize: 10 },
-  bookingMeta: { fontSize: 9, color: "#666" },
-  participantRow: { flexDirection: "row", marginBottom: 2, fontSize: 9 },
-  participantNum: { width: 20, color: "#888" },
-  participantName: { width: 160 },
-  participantDob: { width: 80, color: "#555" },
-  contactRow: { flexDirection: "row", marginTop: 4, fontSize: 9, color: "#555" },
-  contactLabel: { width: 40 },
-  remarksText: { fontSize: 9, color: "#666", marginTop: 3, fontStyle: "italic" },
-  footer: { position: "absolute", bottom: 28, left: 40, right: 40, fontSize: 8, color: "#aaa", textAlign: "center" },
-  memberBadge: { color: "#2563eb" },
-  noBookings: { color: "#888", fontStyle: "italic" },
-  summary: { flexDirection: "row", gap: 20, marginBottom: 12 },
-  summaryItem: { flexDirection: "row", gap: 4 },
-  summaryLabel: { color: "#666" },
-  summaryValue: { fontFamily: "Helvetica-Bold" },
+function calcAge(dob: Date | null): string {
+  if (!dob) return "—";
+  const today = new Date();
+  let age = today.getFullYear() - dob.getFullYear();
+  const m = today.getMonth() - dob.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
+  return String(age);
+}
+
+const BRAND = "#4577ac";
+const BRAND_LIGHT = "#eef3f9";
+const GRAY = "#555";
+const LIGHT = "#888";
+
+const s = StyleSheet.create({
+  page:          { fontSize: 9, fontFamily: "Helvetica", paddingTop: 36, paddingBottom: 48, paddingHorizontal: 40, color: "#1a1a1a" },
+
+  // Header band
+  headerBand:    { backgroundColor: BRAND, borderRadius: 4, padding: 14, marginBottom: 16 },
+  headerTitle:   { fontSize: 17, fontFamily: "Helvetica-Bold", color: "#fff", marginBottom: 3 },
+  headerSub:     { fontSize: 9, color: "#c8d9ec" },
+  headerMeta:    { flexDirection: "row", gap: 16, marginTop: 8 },
+  headerMetaItem:{ fontSize: 8, color: "#d6e6f5" },
+
+  // Section
+  sectionTitle:  { fontSize: 10, fontFamily: "Helvetica-Bold", color: BRAND, borderBottomWidth: 0.5, borderBottomColor: "#c8d9ec", paddingBottom: 3, marginBottom: 6, marginTop: 14 },
+
+  // Key-value rows for event details
+  kvRow:         { flexDirection: "row", marginBottom: 2.5 },
+  kvLabel:       { width: 110, color: GRAY, fontSize: 8.5 },
+  kvValue:       { flex: 1, fontSize: 8.5 },
+
+  // Description
+  description:   { lineHeight: 1.55, color: "#333", fontSize: 8.5 },
+
+  // Summary chips
+  summaryRow:    { flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 12, marginTop: 4 },
+  chip:          { backgroundColor: BRAND_LIGHT, borderRadius: 3, paddingVertical: 3, paddingHorizontal: 7, flexDirection: "row", gap: 4 },
+  chipLabel:     { color: GRAY, fontSize: 8 },
+  chipValue:     { fontFamily: "Helvetica-Bold", fontSize: 8 },
+  chipValueGreen:{ fontFamily: "Helvetica-Bold", fontSize: 8, color: "#15803d" },
+  chipValueAmber:{ fontFamily: "Helvetica-Bold", fontSize: 8, color: "#b45309" },
+
+  // Booking card
+  card:          { borderWidth: 0.5, borderColor: "#d0dce8", borderRadius: 3, marginBottom: 8, overflow: "hidden" },
+  cardHeader:    { backgroundColor: "#f0f5fb", flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingVertical: 5, paddingHorizontal: 8 },
+  cardName:      { fontFamily: "Helvetica-Bold", fontSize: 9 },
+  cardMeta:      { fontSize: 8, color: LIGHT },
+  memberBadge:   { fontSize: 7.5, color: "#1d4ed8", fontFamily: "Helvetica-Bold", marginLeft: 6 },
+  cardBody:      { padding: 8 },
+
+  // Participant table
+  tableHead:     { flexDirection: "row", borderBottomWidth: 0.5, borderBottomColor: "#d0dce8", paddingBottom: 2, marginBottom: 3 },
+  tableHeadCell: { fontSize: 7.5, color: LIGHT, fontFamily: "Helvetica-Bold" },
+  tableRow:      { flexDirection: "row", paddingVertical: 1.5, borderBottomWidth: 0.3, borderBottomColor: "#eef3f9" },
+  colNum:        { width: 16 },
+  colName:       { flex: 1 },
+  colDob:        { width: 68 },
+  colAge:        { width: 28 },
+  cellText:      { fontSize: 8.5, color: "#222" },
+  cellMuted:     { fontSize: 8.5, color: GRAY },
+
+  // Contact section
+  contactGrid:   { flexDirection: "row", flexWrap: "wrap", marginTop: 6, gap: 4 },
+  contactItem:   { width: "48%", flexDirection: "row", gap: 3 },
+  contactLabel:  { fontSize: 8, color: LIGHT, width: 44 },
+  contactValue:  { fontSize: 8, color: "#333", flex: 1 },
+
+  // Payment row
+  paymentRow:    { flexDirection: "row", gap: 6, marginTop: 6, flexWrap: "wrap" },
+  payBadgeGreen: { backgroundColor: "#dcfce7", borderRadius: 2, paddingVertical: 2, paddingHorizontal: 5, fontSize: 7.5, color: "#15803d", fontFamily: "Helvetica-Bold" },
+  payBadgeAmber: { backgroundColor: "#fef9c3", borderRadius: 2, paddingVertical: 2, paddingHorizontal: 5, fontSize: 7.5, color: "#b45309", fontFamily: "Helvetica-Bold" },
+  payBadgeGray:  { backgroundColor: "#f3f4f6", borderRadius: 2, paddingVertical: 2, paddingHorizontal: 5, fontSize: 7.5, color: "#6b7280", fontFamily: "Helvetica-Bold" },
+
+  // Remarks
+  remarks:       { fontSize: 8, color: GRAY, fontStyle: "italic", marginTop: 4 },
+
+  // Footer
+  footer:        { position: "absolute", bottom: 20, left: 40, right: 40, flexDirection: "row", justifyContent: "space-between", borderTopWidth: 0.3, borderTopColor: "#d0dce8", paddingTop: 4 },
+  footerText:    { fontSize: 7.5, color: "#aaa" },
 });
+
+// Helper to create a key-value row
+function KV(label: string, value: string) {
+  return React.createElement(View, { style: s.kvRow },
+    React.createElement(Text, { style: s.kvLabel }, label),
+    React.createElement(Text, { style: s.kvValue }, value),
+  );
+}
 
 export async function GET(
   _req: NextRequest,
@@ -83,193 +136,200 @@ export async function GET(
   });
   if (!event) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  const totalParticipants = event.bookings.reduce((sum, b) => {
-    return sum + [
-      b.person1Name, b.person2Name, b.person3Name, b.person4Name, b.person5Name,
-      b.person6Name, b.person7Name, b.person8Name, b.person9Name, b.person10Name,
-    ].filter(Boolean).length;
+  const depositAmount = Number(event.depositAmount);
+  const totalParticipants = event.bookings.reduce((sum, b) => sum + [
+    b.person1Name, b.person2Name, b.person3Name, b.person4Name, b.person5Name,
+    b.person6Name, b.person7Name, b.person8Name, b.person9Name, b.person10Name,
+  ].filter(Boolean).length, 0);
+  const memberBookings = event.bookings.filter((b) => b.isMember).length;
+  const totalSingle = event.bookings.reduce((sum, b) => sum + b.roomsSingle, 0);
+  const totalDouble = event.bookings.reduce((sum, b) => sum + b.roomsDouble, 0);
+  const paidBookings = event.bookings.filter((b) => b.stripePaymentIntentId).length;
+  const totalCollected = paidBookings * depositAmount;
+  const totalBalanceDue = event.bookings.reduce((sum, b) => {
+    const bd = (b as typeof b & { balanceDue?: unknown }).balanceDue;
+    return sum + (bd ? Number(bd) : 0);
   }, 0);
 
-  const memberCount = event.bookings.filter((b) => b.isMember).length;
+  const descText = stripHtml(event.descriptionDe);
 
   const doc = React.createElement(
     Document,
     { title: event.titleDe },
-    React.createElement(
-      Page,
-      { size: "A4", style: styles.page },
+    React.createElement(Page, { size: "A4", style: s.page },
 
-      // Header
-      React.createElement(
-        View,
-        { style: styles.header },
-        React.createElement(Text, { style: styles.title }, event.titleDe),
-        React.createElement(Text, { style: styles.subtitle }, event.titleEn !== event.titleDe ? event.titleEn : "")
-      ),
-
-      // Event details
-      React.createElement(
-        View,
-        { style: styles.section },
-        React.createElement(Text, { style: styles.sectionTitle }, "Veranstaltungsdetails"),
-        React.createElement(
-          View, { style: styles.row },
-          React.createElement(Text, { style: styles.label }, "Ort:"),
-          React.createElement(Text, { style: styles.value }, event.location)
-        ),
-        React.createElement(
-          View, { style: styles.row },
-          React.createElement(Text, { style: styles.label }, "Zeitraum:"),
-          React.createElement(Text, { style: styles.value }, `${fmt(event.startDate)} – ${fmt(event.endDate)}`)
-        ),
-        React.createElement(
-          View, { style: styles.row },
-          React.createElement(Text, { style: styles.label }, "Anmeldeschluss:"),
-          React.createElement(Text, { style: styles.value }, fmt(event.registrationDeadline))
-        ),
-        React.createElement(
-          View, { style: styles.row },
-          React.createElement(Text, { style: styles.label }, "Anzahlung / Gesamt:"),
-          React.createElement(Text, { style: styles.value }, `€ ${Number(event.depositAmount).toFixed(2)} / € ${Number(event.totalAmount).toFixed(2)}`)
-        ),
-        event.maxParticipants
-          ? React.createElement(
-              View, { style: styles.row },
-              React.createElement(Text, { style: styles.label }, "Max. Teilnehmer:"),
-              React.createElement(Text, { style: styles.value }, String(event.maxParticipants))
-            )
+      // ── Header band ──────────────────────────────────────────────────
+      React.createElement(View, { style: s.headerBand },
+        React.createElement(Text, { style: s.headerTitle }, event.titleDe),
+        event.titleEn && event.titleEn !== event.titleDe
+          ? React.createElement(Text, { style: s.headerSub }, event.titleEn)
           : null,
+        React.createElement(View, { style: s.headerMeta },
+          React.createElement(Text, { style: s.headerMetaItem }, `Zeitraum: ${fmt(event.startDate)} – ${fmt(event.endDate)}`),
+          React.createElement(Text, { style: s.headerMetaItem }, `Ort: ${event.location}`),
+          event.registrationDeadline
+            ? React.createElement(Text, { style: s.headerMetaItem }, `Anmeldeschluss: ${fmt(event.registrationDeadline)}`)
+            : null,
+        ),
       ),
 
-      // Description
-      stripHtml(event.descriptionDe)
-        ? React.createElement(
-            View,
-            { style: styles.section },
-            React.createElement(Text, { style: styles.sectionTitle }, "Beschreibung"),
-            React.createElement(Text, { style: styles.description }, stripHtml(event.descriptionDe))
-          )
-        : null,
+      // ── Event details ─────────────────────────────────────────────────
+      React.createElement(Text, { style: s.sectionTitle }, "Veranstaltungsdetails"),
+      KV("Ort:", event.location),
+      KV("Zeitraum:", `${fmt(event.startDate)} – ${fmt(event.endDate)}`),
+      event.registrationDeadline ? KV("Anmeldeschluss:", fmt(event.registrationDeadline)) : null,
+      depositAmount > 0 ? KV("Anzahlung:", `€ ${depositAmount.toFixed(2)}`) : null,
+      Number(event.totalAmount) > 0 ? KV("Gesamtpreis:", `€ ${Number(event.totalAmount).toFixed(2)}`) : null,
+      event.maxParticipants ? KV("Max. Teilnehmer:", String(event.maxParticipants)) : null,
 
-      // Bookings summary
-      React.createElement(
-        View,
-        { style: styles.section },
-        React.createElement(Text, { style: styles.sectionTitle },
-          `Anmeldungen (${event.bookings.length})`
+      // ── Description ───────────────────────────────────────────────────
+      descText ? React.createElement(View, null,
+        React.createElement(Text, { style: s.sectionTitle }, "Beschreibung"),
+        React.createElement(Text, { style: s.description }, descText),
+      ) : null,
+
+      // ── Bookings summary ──────────────────────────────────────────────
+      React.createElement(Text, { style: s.sectionTitle }, `Anmeldungen (${event.bookings.length})`),
+      React.createElement(View, { style: s.summaryRow },
+        React.createElement(View, { style: s.chip },
+          React.createElement(Text, { style: s.chipLabel }, "Buchungen:"),
+          React.createElement(Text, { style: s.chipValue }, String(event.bookings.length)),
         ),
-        React.createElement(
-          View, { style: styles.summary },
-          React.createElement(
-            View, { style: styles.summaryItem },
-            React.createElement(Text, { style: styles.summaryLabel }, "Buchungen:"),
-            React.createElement(Text, { style: styles.summaryValue }, String(event.bookings.length))
-          ),
-          React.createElement(
-            View, { style: styles.summaryItem },
-            React.createElement(Text, { style: styles.summaryLabel }, "Teilnehmer gesamt:"),
-            React.createElement(Text, { style: styles.summaryValue }, String(totalParticipants))
-          ),
-          React.createElement(
-            View, { style: styles.summaryItem },
-            React.createElement(Text, { style: styles.summaryLabel }, "davon Mitglieder:"),
-            React.createElement(Text, { style: styles.summaryValue }, String(memberCount))
-          ),
+        React.createElement(View, { style: s.chip },
+          React.createElement(Text, { style: s.chipLabel }, "Teilnehmer:"),
+          React.createElement(Text, { style: s.chipValue }, String(totalParticipants)),
         ),
-
-        event.bookings.length === 0
-          ? React.createElement(Text, { style: styles.noBookings }, "Noch keine Anmeldungen.")
-          : event.bookings.map((b, idx) => {
-              const persons: { name: string; dob: Date | null }[] = [
-                { name: b.person1Name, dob: b.person1Dob },
-                { name: b.person2Name ?? "", dob: b.person2Dob ?? null },
-                { name: b.person3Name ?? "", dob: b.person3Dob ?? null },
-                { name: b.person4Name ?? "", dob: b.person4Dob ?? null },
-                { name: b.person5Name ?? "", dob: b.person5Dob ?? null },
-                { name: b.person6Name ?? "", dob: b.person6Dob ?? null },
-                { name: b.person7Name ?? "", dob: b.person7Dob ?? null },
-                { name: b.person8Name ?? "", dob: b.person8Dob ?? null },
-                { name: b.person9Name ?? "", dob: b.person9Dob ?? null },
-                { name: b.person10Name ?? "", dob: b.person10Dob ?? null },
-              ].filter((p) => p.name);
-
-              return React.createElement(
-                View,
-                { key: b.id, style: styles.bookingCard },
-
-                // Booking header row
-                React.createElement(
-                  View, { style: styles.bookingHeader },
-                  React.createElement(
-                    Text, { style: styles.bookingTitle },
-                    `#${idx + 1} – ${b.person1Name}${b.isMember ? "  ✦ Mitglied" : ""}`
-                  ),
-                  React.createElement(
-                    Text, { style: styles.bookingMeta },
-                    `Gebucht: ${fmt(b.createdAt)}`
-                  )
-                ),
-
-                // Participants
-                ...persons.map((p, pi) =>
-                  React.createElement(
-                    View, { key: pi, style: styles.participantRow },
-                    React.createElement(Text, { style: styles.participantNum }, `${pi + 1}.`),
-                    React.createElement(Text, { style: styles.participantName }, p.name),
-                    React.createElement(Text, { style: styles.participantDob }, p.dob ? fmt(p.dob) : "")
-                  )
-                ),
-
-                // Contact
-                React.createElement(
-                  View, { style: styles.contactRow },
-                  React.createElement(Text, { style: styles.contactLabel }, "E-Mail:"),
-                  React.createElement(Text, {}, b.email)
-                ),
-                React.createElement(
-                  View, { style: styles.contactRow },
-                  React.createElement(Text, { style: styles.contactLabel }, "Tel:"),
-                  React.createElement(Text, {}, b.phone || "—")
-                ),
-                React.createElement(
-                  View, { style: styles.contactRow },
-                  React.createElement(Text, { style: styles.contactLabel }, "Adresse:"),
-                  React.createElement(Text, {}, `${b.street}, ${b.postalCode} ${b.city}`)
-                ),
-
-                b.remarks
-                  ? React.createElement(Text, { style: styles.remarksText }, `Hinweis: ${b.remarks}`)
-                  : null,
-
-                (b.roomsSingle > 0 || b.roomsDouble > 0)
-                  ? React.createElement(
-                      View, { style: styles.contactRow },
-                      React.createElement(Text, { style: styles.contactLabel }, "Zimmer:"),
-                      React.createElement(Text, {}, [
-                        b.roomsSingle > 0 ? `EZ: ${b.roomsSingle}` : "",
-                        b.roomsDouble > 0 ? `DZ: ${b.roomsDouble}` : "",
-                      ].filter(Boolean).join("  ·  "))
-                    )
-                  : null
-              );
-            })
+        React.createElement(View, { style: s.chip },
+          React.createElement(Text, { style: s.chipLabel }, "Mitglieder:"),
+          React.createElement(Text, { style: s.chipValue }, String(memberBookings)),
+        ),
+        totalSingle > 0 ? React.createElement(View, { style: s.chip },
+          React.createElement(Text, { style: s.chipLabel }, "Einzelzimmer:"),
+          React.createElement(Text, { style: s.chipValue }, String(totalSingle)),
+        ) : null,
+        totalDouble > 0 ? React.createElement(View, { style: s.chip },
+          React.createElement(Text, { style: s.chipLabel }, "Doppelzimmer:"),
+          React.createElement(Text, { style: s.chipValue }, String(totalDouble)),
+        ) : null,
+        depositAmount > 0 ? React.createElement(View, { style: s.chip },
+          React.createElement(Text, { style: s.chipLabel }, "Anzahlungen:"),
+          React.createElement(Text, { style: s.chipValueGreen }, `€ ${totalCollected.toFixed(2)} (${paidBookings}/${event.bookings.length})`),
+        ) : null,
+        totalBalanceDue > 0 ? React.createElement(View, { style: s.chip },
+          React.createElement(Text, { style: s.chipLabel }, "Restbeträge offen:"),
+          React.createElement(Text, { style: s.chipValueAmber }, `€ ${totalBalanceDue.toFixed(2)}`),
+        ) : null,
       ),
 
-      // Footer
-      React.createElement(
-        Text,
-        { style: styles.footer, fixed: true },
-        `WSC 81 – ${event.titleDe} – Erstellt am ${fmt(new Date())}`
-      )
+      // ── Booking cards ─────────────────────────────────────────────────
+      ...event.bookings.map((b, idx) => {
+        const persons = [
+          { name: b.person1Name, dob: b.person1Dob },
+          { name: b.person2Name ?? "", dob: b.person2Dob ?? null },
+          { name: b.person3Name ?? "", dob: b.person3Dob ?? null },
+          { name: b.person4Name ?? "", dob: b.person4Dob ?? null },
+          { name: b.person5Name ?? "", dob: b.person5Dob ?? null },
+          { name: b.person6Name ?? "", dob: b.person6Dob ?? null },
+          { name: b.person7Name ?? "", dob: b.person7Dob ?? null },
+          { name: b.person8Name ?? "", dob: b.person8Dob ?? null },
+          { name: b.person9Name ?? "", dob: b.person9Dob ?? null },
+          { name: b.person10Name ?? "", dob: b.person10Dob ?? null },
+        ].filter((p) => p.name);
+
+        const balanceDue = (b as typeof b & { balanceDue?: unknown }).balanceDue;
+        const rooms = [
+          b.roomsSingle > 0 ? `EZ: ${b.roomsSingle}` : "",
+          b.roomsDouble > 0 ? `DZ: ${b.roomsDouble}` : "",
+        ].filter(Boolean).join("  ·  ");
+
+        return React.createElement(View, { key: b.id, style: s.card, wrap: false },
+
+          // Card header
+          React.createElement(View, { style: s.cardHeader },
+            React.createElement(View, { style: { flexDirection: "row", alignItems: "center" } },
+              React.createElement(Text, { style: s.cardMeta }, `#${idx + 1}  `),
+              React.createElement(Text, { style: s.cardName }, b.person1Name),
+              b.isMember ? React.createElement(Text, { style: s.memberBadge }, "✦ Mitglied") : null,
+            ),
+            React.createElement(Text, { style: s.cardMeta }, `Gebucht: ${fmt(b.createdAt)}`),
+          ),
+
+          React.createElement(View, { style: s.cardBody },
+
+            // Participant table header
+            React.createElement(View, { style: s.tableHead },
+              React.createElement(Text, { style: [s.tableHeadCell, s.colNum] }, "#"),
+              React.createElement(Text, { style: [s.tableHeadCell, s.colName] }, "Name"),
+              React.createElement(Text, { style: [s.tableHeadCell, s.colDob] }, "Geburtsdatum"),
+              React.createElement(Text, { style: [s.tableHeadCell, s.colAge] }, "Alter"),
+            ),
+
+            // Participant rows
+            ...persons.map((p, pi) =>
+              React.createElement(View, { key: pi, style: s.tableRow },
+                React.createElement(Text, { style: [s.cellMuted, s.colNum] }, `${pi + 1}.`),
+                React.createElement(Text, { style: [s.cellText, s.colName] }, p.name),
+                React.createElement(Text, { style: [s.cellMuted, s.colDob] }, p.dob ? fmt(p.dob) : "—"),
+                React.createElement(Text, { style: [s.cellMuted, s.colAge] }, calcAge(p.dob)),
+              )
+            ),
+
+            // Contact grid
+            React.createElement(View, { style: s.contactGrid },
+              React.createElement(View, { style: s.contactItem },
+                React.createElement(Text, { style: s.contactLabel }, "E-Mail:"),
+                React.createElement(Text, { style: s.contactValue }, b.email),
+              ),
+              React.createElement(View, { style: s.contactItem },
+                React.createElement(Text, { style: s.contactLabel }, "Telefon:"),
+                React.createElement(Text, { style: s.contactValue }, b.phone || "—"),
+              ),
+              React.createElement(View, { style: s.contactItem },
+                React.createElement(Text, { style: s.contactLabel }, "Adresse:"),
+                React.createElement(Text, { style: s.contactValue }, `${b.street}, ${b.postalCode} ${b.city}`),
+              ),
+              rooms ? React.createElement(View, { style: s.contactItem },
+                React.createElement(Text, { style: s.contactLabel }, "Zimmer:"),
+                React.createElement(Text, { style: s.contactValue }, rooms),
+              ) : null,
+            ),
+
+            // Remarks
+            b.remarks ? React.createElement(Text, { style: s.remarks }, `Hinweis: ${b.remarks}`) : null,
+
+            // Payment badges
+            React.createElement(View, { style: s.paymentRow },
+              b.stripePaymentIntentId
+                ? React.createElement(Text, { style: s.payBadgeGreen },
+                    `Anzahlung bezahlt: € ${depositAmount.toFixed(2)}`
+                  )
+                : React.createElement(Text, { style: s.payBadgeGray }, "Kostenlos / keine Zahlung"),
+              b.stripePaymentIntentId && balanceDue !== null && Number(balanceDue) > 0
+                ? React.createElement(Text, { style: s.payBadgeAmber },
+                    `Restbetrag offen: € ${Number(balanceDue).toFixed(2)}`
+                  )
+                : null,
+              b.stripePaymentIntentId && (balanceDue === null || Number(balanceDue) === 0)
+                ? React.createElement(Text, { style: s.payBadgeGreen }, "Vollständig bezahlt")
+                : null,
+            ),
+          ),
+        );
+      }),
+
+      // ── Footer ────────────────────────────────────────────────────────
+      React.createElement(View, { style: s.footer, fixed: true },
+        React.createElement(Text, { style: s.footerText }, "Walldorfer Ski-Club 81 e.V."),
+        React.createElement(Text, { style: s.footerText }, event.titleDe),
+        React.createElement(Text, { style: s.footerText }, `Erstellt am ${fmt(new Date())}`),
+      ),
     )
   );
 
   const buffer = await renderToBuffer(doc);
-  const uint8 = new Uint8Array(buffer);
-
   const safeName = event.titleDe.replace(/[^a-zA-Z0-9äöüÄÖÜß\s-]/g, "").replace(/\s+/g, "_").slice(0, 60);
 
-  return new NextResponse(uint8, {
+  return new NextResponse(new Uint8Array(buffer), {
     status: 200,
     headers: {
       "Content-Type": "application/pdf",
