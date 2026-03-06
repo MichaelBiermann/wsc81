@@ -7,6 +7,7 @@ import Footer from "@/components/Footer";
 import AuthProvider from "@/components/AuthProvider";
 import PublicChatPanel from "@/components/PublicChatPanel";
 import SponsorsStrip from "@/components/SponsorsStrip";
+import ScrollToTop from "@/components/ScrollToTop";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -35,6 +36,7 @@ export default async function LocaleLayout({
         >
           {locale === "en" ? "Skip to main content" : "Zum Hauptinhalt springen"}
         </a>
+        <ScrollToTop />
         <Nav />
         <main id="main-content" className="min-h-screen">{children}</main>
         <Footer />
