@@ -26,17 +26,13 @@ export default async function LocaleLayout({
   const messages = await getMessages();
 
   return (
-    <html lang={locale}>
-      <body>
-        <AuthProvider>
-          <NextIntlClientProvider messages={messages}>
-            <Nav />
-            <main className="min-h-screen">{children}</main>
-            <Footer />
-            <PublicChatPanel />
-          </NextIntlClientProvider>
-        </AuthProvider>
-      </body>
-    </html>
+    <AuthProvider>
+      <NextIntlClientProvider messages={messages}>
+        <Nav />
+        <main className="min-h-screen">{children}</main>
+        <Footer />
+        <PublicChatPanel />
+      </NextIntlClientProvider>
+    </AuthProvider>
   );
 }

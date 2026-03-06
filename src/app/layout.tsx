@@ -1,8 +1,10 @@
 import "./globals.css";
+import { getLocale } from "next-intl/server";
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const locale = await getLocale();
   return (
-    <html>
+    <html lang={locale}>
       <head>
         <link
           rel="stylesheet"
