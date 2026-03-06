@@ -89,14 +89,13 @@ export default function Nav() {
       <div className="mx-auto max-w-7xl px-4">
         <div className="flex h-16 items-center justify-between overflow-visible">
           {/* Logo / site title */}
-          <Link href={`/${locale}`} className="flex items-start">
+          <Link href={`/${locale}`} className="flex md:items-start items-center">
             <Image
               src="/images/logo-walldorfer-ski-club-81.png"
               alt="Walldorfer Ski-Club 81"
               width={160}
               height={157}
-              className="object-contain relative z-10 h-[120px] w-auto"
-              style={{ marginTop: "72px" }}
+              className="object-contain relative z-10 h-10 w-auto md:h-[120px] md:[margin-top:72px]"
               priority
             />
           </Link>
