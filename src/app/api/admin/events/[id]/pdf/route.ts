@@ -96,10 +96,10 @@ const s = StyleSheet.create({
   cellMuted:     { fontSize: 8.5, color: GRAY },
 
   // Contact section
-  contactGrid:   { flexDirection: "row", flexWrap: "wrap", marginTop: 6, gap: 4 },
-  contactItem:   { width: "48%", flexDirection: "row", gap: 3 },
-  contactLabel:  { fontSize: 8, color: LIGHT, width: 44 },
-  contactValue:  { fontSize: 8, color: "#333", flex: 1 },
+  contactGrid:   { marginTop: 6, gap: 2 },
+  contactItem:   { flexDirection: "row" },
+  contactLabel:  { fontSize: 8.5, color: LIGHT, width: 56 },
+  contactValue:  { fontSize: 8.5, color: "#333", flex: 1 },
 
   // Payment row
   paymentRow:    { flexDirection: "row", gap: 6, marginTop: 6, flexWrap: "wrap" },
