@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import type { MessageParam } from "@anthropic-ai/sdk/resources/messages";
 import { useAdminI18n } from "@/components/admin/AdminI18nProvider";
+import { useResizablePanel } from "@/lib/useResizablePanel";
 
 /** Minimal Markdown renderer for chat messages (tables, bold, code, lists, headings). */
 function renderMarkdown(text: string): React.ReactNode {
@@ -144,6 +145,7 @@ export default function AdminChatPanel() {
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const openButtonRef = useRef<HTMLButtonElement>(null);
+  const { width, onMouseDown } = useResizablePanel("admin-chat-width", 440);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -256,10 +258,17 @@ export default function AdminChatPanel() {
         aria-labelledby={panelTitleId}
         aria-hidden={!open}
         onKeyDown={handlePanelKeyDown}
-        className={`fixed right-0 top-0 h-full w-[440px] z-50 bg-white shadow-2xl flex flex-col transition-transform duration-300 ease-in-out ${
+        style={{ width }}
+        className={`fixed right-0 top-0 h-full z-50 bg-white shadow-2xl flex flex-col transition-transform duration-300 ease-in-out ${
           open ? "translate-x-0" : "translate-x-full pointer-events-none"
         }`}
       >
+        {/* Resize handle */}
+        <div
+          onMouseDown={onMouseDown}
+          className="absolute left-0 top-0 h-full w-1.5 cursor-ew-resize hover:bg-[#4577ac]/30 transition-colors z-10"
+          aria-hidden="true"
+        />
         {/* Header */}
         <div className="flex items-center justify-between bg-[#1a2a3a] px-4 py-3 flex-shrink-0">
           <div className="flex items-center gap-2 text-white">

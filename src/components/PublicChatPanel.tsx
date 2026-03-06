@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { useSession } from "next-auth/react";
 import type { MessageParam } from "@anthropic-ai/sdk/resources/messages";
+import { useResizablePanel } from "@/lib/useResizablePanel";
 
 /** Minimal Markdown renderer (bold, code, links, bullet lists, numbered lists, headings). */
 function renderMarkdown(text: string, onNavigate: (path: string) => void): React.ReactNode {
@@ -104,6 +105,7 @@ export default function PublicChatPanel() {
   const inputRef = useRef<HTMLInputElement>(null);
   const openButtonRef = useRef<HTMLButtonElement>(null);
   const panelTitleId = "chat-panel-title";
+  const { width, onMouseDown } = useResizablePanel("public-chat-width", 400);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -219,11 +221,18 @@ export default function PublicChatPanel() {
         aria-modal="true"
         aria-labelledby={panelTitleId}
         onKeyDown={handlePanelKeyDown}
-        className={`fixed right-0 top-0 h-full w-full sm:w-[400px] z-50 bg-white shadow-2xl flex flex-col transition-transform duration-300 ease-in-out ${
+        style={{ width: typeof window !== "undefined" ? width : 400 }}
+        className={`fixed right-0 top-0 h-full z-50 bg-white shadow-2xl flex flex-col transition-transform duration-300 ease-in-out ${
           open ? "translate-x-0" : "translate-x-full pointer-events-none"
         }`}
         aria-hidden={!open}
       >
+        {/* Resize handle */}
+        <div
+          onMouseDown={onMouseDown}
+          className="absolute left-0 top-0 h-full w-1.5 cursor-ew-resize hover:bg-[#4577ac]/30 transition-colors z-10"
+          aria-hidden="true"
+        />
         {/* Header */}
         <div className="flex items-center justify-between bg-[#4577ac] px-4 py-3 flex-shrink-0">
           <div className="flex items-center gap-2 text-white">
