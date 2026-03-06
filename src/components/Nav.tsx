@@ -109,7 +109,7 @@ export default function Nav() {
       <div className="mx-auto max-w-7xl px-4">
         <div className="flex h-16 items-center justify-between overflow-visible">
           {/* Logo / site title */}
-          <Link href={`/${locale}`} className="flex md:items-start items-center" aria-label={isDE ? "Startseite – Walldorfer Ski-Club 81" : "Home – Walldorfer Ski-Club 81"}>
+          <Link href={`/${locale}#top`} className="flex md:items-start items-center" aria-label={isDE ? "Startseite – Walldorfer Ski-Club 81" : "Home – Walldorfer Ski-Club 81"}>
             <Image
               src="/images/logo-walldorfer-ski-club-81.png"
               alt="Walldorfer Ski-Club 81"
