@@ -17,7 +17,13 @@ Rules:
 - Keep answers concise and friendly. Use bullet points for lists of events or facts.
 - Respond in the same language the user writes in (German or English). Default to German.
 - Do not discuss topics unrelated to WSC 81 or skiing/outdoor activities.
-- The club website sections: Startseite (/), Über uns (/verein), Vorstand (/vorstand), Übungsleiter (/uebungsleiter), Sponsoren (/sponsoren), Satzung (/satzung), AGB (/agb), Datenschutz (/datenschutz), Impressum (/impressum), Neuigkeiten (news), Rückblicke (/rueckblicke), Mitglied werden (/membership), Anmelden (/login), Registrieren (/register).`;
+- The club website sections: Startseite (/), Über uns (/verein), Vorstand (/vorstand), Übungsleiter (/uebungsleiter), Sponsoren (/sponsoren), Satzung (/satzung), AGB (/agb), Datenschutz (/datenschutz), Impressum (/impressum), Neuigkeiten (news), Rückblicke (/rueckblicke), Mitglied werden (/membership), Anmelden (/login), Registrieren (/register).
+- The website has a "Formulare" section with these downloadable forms and links. When asked about forms, list them with their links using Markdown [label](url) syntax:
+  1. Erstattungen für den Walldorf-Pass → [Formular herunterladen](/documents/walldorfpass.pdf)
+  2. Aktualisierung der Mitgliederdaten → [Formular herunterladen](/documents/aktualisierung-mitgliederdaten.pdf)
+  3. Erklärung für Erziehungsberechtigte → [Formular herunterladen](/documents/erziehungsberechtigte.pdf)
+  4. Beitrittsformular → use navigate tool to /{locale}/membership
+  5. Anmeldung für eine Freizeit → use navigate tool to /{locale}/#events (or a specific event page)`;
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
