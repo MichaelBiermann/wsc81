@@ -14,16 +14,20 @@ export default async function LoginPage({
   const t = await getTranslations("Login");
 
   const fromBooking = callbackUrl && (callbackUrl.includes("/book") || callbackUrl.includes("/events/"));
+  // Derive the event detail URL by stripping /book (and anything after) from the callbackUrl
+  const eventUrl = fromBooking
+    ? callbackUrl.replace(/\/book.*$/, "")
+    : null;
 
   return (
     <div className="mx-auto max-w-sm px-4 py-12 pt-20">
-      {fromBooking && (
+      {fromBooking && eventUrl && (
         <Link
-          href={callbackUrl}
-          className="inline-flex items-center gap-1 text-sm text-[#4577ac] hover:underline mb-6"
+          href={eventUrl}
+          className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 mb-6"
         >
-          <span className="material-symbols-rounded" style={{ fontSize: 18 }} aria-hidden="true">arrow_back</span>
-          {locale === "de" ? "Zurück zur Buchung" : "Back to booking"}
+          <span className="material-symbols-rounded" style={{ fontSize: 18 }} aria-hidden="true">close</span>
+          {locale === "de" ? "Abbrechen" : "Cancel"}
         </Link>
       )}
       <h1 className="text-2xl font-bold text-[#4577ac] mb-2">{t("pageTitle")}</h1>
