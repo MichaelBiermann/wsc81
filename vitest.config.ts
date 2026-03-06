@@ -13,6 +13,7 @@ export default defineConfig({
         "src/lib/pdf-utils.ts",
         "src/app/api/chat/route.ts",
         "src/app/api/admin/chat/route.ts",
+        "src/app/api/admin/images/route.ts",
       ],
       reporter: ["text", "html"],
     },
