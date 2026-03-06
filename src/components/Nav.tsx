@@ -82,7 +82,7 @@ export default function Nav() {
           alt=""
           width={1920}
           height={64}
-          className="w-full h-full object-cover object-bottom"
+          className="w-full h-full object-fill object-bottom"
           priority
         />
       </div>
