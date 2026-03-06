@@ -20,8 +20,8 @@ function renderMarkdown(text: string, onNavigate?: (path: string) => void): Reac
         {parts.map((p, j) => {
           if (p.startsWith("**") && p.endsWith("**")) return <strong key={j}>{p.slice(2, -2)}</strong>;
           if (p.startsWith("`") && p.endsWith("`")) return <code key={j} className="bg-gray-200 rounded px-1 text-xs font-mono">{p.slice(1, -1)}</code>;
-          if (p === "ICON_BOOKABLE") return <span key={j} className="material-symbols-rounded text-green-600" style={{ fontSize: 18 }} title="Buchbar">check_circle</span>;
-          if (p === "ICON_NOT_BOOKABLE") return <span key={j} className="material-symbols-rounded text-gray-400" style={{ fontSize: 18 }} title="Nicht buchbar">radio_button_unchecked</span>;
+          if (p === "ICON_BOOKABLE") return <span key={j} className="material-symbols-rounded text-green-600" style={{ fontSize: 18, fontVariationSettings: "'FILL' 1" }} title="Buchbar">check_circle</span>;
+          if (p === "ICON_NOT_BOOKABLE") return <span key={j} className="material-symbols-rounded text-gray-400" style={{ fontSize: 18, fontVariationSettings: "'FILL' 0" }} title="Nicht buchbar">cancel</span>;
           const linkMatch = p.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
           if (linkMatch) return <a key={j} href={linkMatch[2]} onClick={(e) => { e.preventDefault(); onNavigate?.(linkMatch[2]); }} className="text-[#4577ac] underline hover:text-[#2d5a8a] cursor-pointer">{linkMatch[1]}</a>;
           return p;
