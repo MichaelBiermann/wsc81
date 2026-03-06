@@ -8,9 +8,23 @@ import { useAdminI18n } from "@/components/admin/AdminI18nProvider";
 
 interface Booking {
   id: string;
-  person1Name: string;
+  person1Name: string; person1Dob: string;
+  person2Name: string | null; person2Dob: string | null;
+  person3Name: string | null; person3Dob: string | null;
+  person4Name: string | null; person4Dob: string | null;
+  person5Name: string | null; person5Dob: string | null;
+  person6Name: string | null; person6Dob: string | null;
+  person7Name: string | null; person7Dob: string | null;
+  person8Name: string | null; person8Dob: string | null;
+  person9Name: string | null; person9Dob: string | null;
+  person10Name: string | null; person10Dob: string | null;
   email: string;
+  phone: string;
+  street: string;
+  postalCode: string;
+  city: string;
   isMember: boolean;
+  remarks: string | null;
   createdAt: string;
   roomsSingle: number;
   roomsDouble: number;
@@ -111,43 +125,95 @@ export default function EditEventPage() {
               {t.events.downloadPdf}
             </a>
           </div>
-          <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-50 border-b border-gray-200">
-                <tr>
-                  <th className="px-4 py-3 text-left font-medium text-gray-600">{t.events.colName}</th>
-                  <th className="px-4 py-3 text-left font-medium text-gray-600">{t.events.colEmail}</th>
-                  <th className="px-4 py-3 text-left font-medium text-gray-600">{t.events.colMember}</th>
-                  <th className="px-4 py-3 text-left font-medium text-gray-600">Zimmer</th>
-                  <th className="px-4 py-3 text-left font-medium text-gray-600">{t.events.colDate2}</th>
-                  <th className="px-4 py-3" />
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {event.bookings.map((b) => (
-                  <tr key={b.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3">{b.person1Name}</td>
-                    <td className="px-4 py-3 text-gray-600">{b.email}</td>
-                    <td className="px-4 py-3">{b.isMember ? "✅" : "—"}</td>
-                    <td className="px-4 py-3 text-gray-600 text-xs">
-                      {b.roomsSingle > 0 && <span>EZ: {b.roomsSingle}</span>}
-                      {b.roomsSingle > 0 && b.roomsDouble > 0 && <span className="mx-1">·</span>}
-                      {b.roomsDouble > 0 && <span>DZ: {b.roomsDouble}</span>}
-                      {b.roomsSingle === 0 && b.roomsDouble === 0 && <span>—</span>}
-                    </td>
-                    <td className="px-4 py-3 text-gray-600">{new Date(b.createdAt).toLocaleDateString("de-DE")}</td>
-                    <td className="px-4 py-3 text-right">
+          <div className="flex flex-col gap-4">
+            {event.bookings.map((b, idx) => {
+              const persons = [
+                { name: b.person1Name, dob: b.person1Dob },
+                { name: b.person2Name, dob: b.person2Dob },
+                { name: b.person3Name, dob: b.person3Dob },
+                { name: b.person4Name, dob: b.person4Dob },
+                { name: b.person5Name, dob: b.person5Dob },
+                { name: b.person6Name, dob: b.person6Dob },
+                { name: b.person7Name, dob: b.person7Dob },
+                { name: b.person8Name, dob: b.person8Dob },
+                { name: b.person9Name, dob: b.person9Dob },
+                { name: b.person10Name, dob: b.person10Dob },
+              ].filter((p): p is { name: string; dob: string } => !!p.name);
+
+              function calcAge(dob: string | null): string {
+                if (!dob) return "—";
+                const ref = new Date(event!.startDate);
+                const d = new Date(dob);
+                let age = ref.getFullYear() - d.getFullYear();
+                const m = ref.getMonth() - d.getMonth();
+                if (m < 0 || (m === 0 && ref.getDate() < d.getDate())) age--;
+                return String(age);
+              }
+
+              return (
+                <div key={b.id} className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+                  <div className="flex items-start justify-between gap-4 mb-3">
+                    <div>
+                      <span className="text-xs text-gray-400 mr-1">#{idx + 1}</span>
+                      <span className="font-semibold text-gray-900">{b.person1Name}</span>
+                      {b.isMember && (
+                        <span className="ml-2 inline-flex items-center gap-0.5 rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700">
+                          <span className="material-symbols-rounded" style={{ fontSize: 12 }}>verified</span>
+                          Mitglied
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs text-gray-400 whitespace-nowrap">
+                        {new Date(b.createdAt).toLocaleDateString("de-DE")}
+                      </span>
                       <button
                         onClick={() => deleteBooking(b.id)}
                         className="text-xs text-red-500 hover:text-red-700 hover:underline"
                       >
                         {t.delete}
                       </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </div>
+                  </div>
+
+                  <table className="w-full text-sm mb-3">
+                    <thead>
+                      <tr className="text-left text-xs text-gray-400 border-b border-gray-100">
+                        <th className="pb-1 pr-3 font-medium w-6">#</th>
+                        <th className="pb-1 pr-3 font-medium">Name</th>
+                        <th className="pb-1 pr-3 font-medium">Geburtsdatum</th>
+                        <th className="pb-1 font-medium">Alter</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {persons.map((p, pi) => (
+                        <tr key={pi} className="border-b border-gray-50 last:border-0">
+                          <td className="py-1 pr-3 text-gray-400">{pi + 1}.</td>
+                          <td className="py-1 pr-3 text-gray-800">{p.name}</td>
+                          <td className="py-1 pr-3 text-gray-500">{p.dob ? new Date(p.dob).toLocaleDateString("de-DE") : "—"}</td>
+                          <td className="py-1 text-gray-500">{calcAge(p.dob)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+
+                  <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-gray-500">
+                    <span><span className="font-medium text-gray-600">E-Mail:</span> {b.email}</span>
+                    <span><span className="font-medium text-gray-600">Tel:</span> {b.phone || "—"}</span>
+                    <span><span className="font-medium text-gray-600">Adresse:</span> {b.street}, {b.postalCode} {b.city}</span>
+                    {(b.roomsSingle > 0 || b.roomsDouble > 0) && (
+                      <span>
+                        <span className="font-medium text-gray-600">Zimmer:</span>{" "}
+                        {[b.roomsSingle > 0 ? `EZ: ${b.roomsSingle}` : "", b.roomsDouble > 0 ? `DZ: ${b.roomsDouble}` : ""].filter(Boolean).join(" · ")}
+                      </span>
+                    )}
+                  </div>
+                  {b.remarks && (
+                    <p className="mt-2 text-xs text-gray-500 italic">„{b.remarks}"</p>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
