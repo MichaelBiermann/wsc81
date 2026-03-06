@@ -3,11 +3,11 @@ import Link from "next/link";
 export default function WelcomeBlock({ locale }: { locale: string }) {
   const isDE = locale === "de";
   return (
-    <section className="mx-auto max-w-7xl px-4 py-12 text-center">
-      <h2 className="text-2xl font-bold text-[#4577ac] mb-4">
+    <section className="mx-auto max-w-7xl px-4 py-4 text-center">
+      <h2 className="text-xl font-bold text-[#4577ac] mb-2">
         {isDE ? "Herzlich Willkommen!" : "Welcome!"}
       </h2>
-      <p className="text-gray-600 max-w-2xl mx-auto leading-relaxed">
+      <p className="text-sm text-gray-600 max-w-2xl mx-auto leading-relaxed">
         {isDE ? (
           <>
             Der Walldorfer Ski-Club 81 e.V. bietet das ganze Jahr über vielfältige Aktivitäten für alle Altersgruppen – von{" "}

@@ -40,14 +40,14 @@ export default async function HomePage({
       <HeroSlider locale={locale} />
       <WelcomeBlock locale={locale} />
 
-      <section>
+      <section className="py-4">
         <div className="mx-auto max-w-7xl px-4">
           <NewsBlock posts={newsPosts} locale={locale} />
         </div>
       </section>
 
-      <section id="kommende-veranstaltungen" className="mx-auto max-w-7xl px-4 py-12">
-        <h2 className="text-2xl font-bold text-[#4577ac] mb-6">{t("upcoming")}</h2>
+      <section id="kommende-veranstaltungen" className="mx-auto max-w-7xl px-4 py-6">
+        <h2 className="text-xl font-bold text-[#4577ac] mb-4">{t("upcoming")}</h2>
         <EventCalendar events={events} locale={locale} isLoggedIn={isLoggedIn} />
       </section>
 
