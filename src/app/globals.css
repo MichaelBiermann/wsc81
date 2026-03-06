@@ -11,3 +11,8 @@ body {
   color: #1a1a1a;
   background: #ffffff;
 }
+
+/* Ensure Material Symbols icon font is never overridden by prose or other resets */
+.material-symbols-rounded {
+  font-family: "Material Symbols Rounded" !important;
+}
