@@ -19,7 +19,6 @@ async function requireAdmin() {
 
 function stripHtml(html: string): string {
   return html
-    // Remove ANY span tags and their content entirely (catches icon spans regardless of class)
     .replace(/<span[^>]*>[\s\S]*?<\/span>/gi, "")
     .replace(/<\/p>/gi, "\n")
     .replace(/<br\s*\/?>/gi, "\n")
@@ -27,6 +26,8 @@ function stripHtml(html: string): string {
     .replace(/<[^>]+>/g, "")
     .replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">")
     .replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&nbsp;/g, " ")
+    // Strip emoji and other characters outside WinAnsi range (> U+00FF)
+    .replace(/[^\x00-\xFF]/g, "")
     .replace(/\n{3,}/g, "\n\n").trim();
 }
 
