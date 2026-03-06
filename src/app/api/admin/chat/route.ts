@@ -19,7 +19,7 @@ Rules:
 - When the user wants to create or edit something (event, news article, page, recap, newsletter, sponsor), use the navigate tool to open the correct admin form — do not create via chat unless the user explicitly asks you to fill in all the data.
 - When the user says "go to", "open", "zeig mir", "navigiere zu" or similar, use the navigate tool.
 - When navigating to edit a specific item, first look up its ID using the appropriate list tool, then navigate to the edit URL with that ID.
-- Format lists clearly with names, dates, and IDs where helpful.`;
+- When listing events, render the event title as a Markdown link to its edit page: [Title](/admin/events/ID). Do this for every event row in a table or list.`;
 
 export async function POST(request: NextRequest) {
   const session = await auth();

@@ -7,19 +7,21 @@ import { useAdminI18n } from "@/components/admin/AdminI18nProvider";
 import { useResizablePanel } from "@/lib/useResizablePanel";
 
 /** Minimal Markdown renderer for chat messages (tables, bold, code, lists, headings). */
-function renderMarkdown(text: string): React.ReactNode {
+function renderMarkdown(text: string, onNavigate?: (path: string) => void): React.ReactNode {
   const lines = text.split("\n");
   const nodes: React.ReactNode[] = [];
   let i = 0;
 
   function inlineFormat(s: string, key: string | number): React.ReactNode {
-    // Split on **bold**, `code`
-    const parts = s.split(/(\*\*[^*]+\*\*|`[^`]+`)/g);
+    // Split on **bold**, `code`, [text](url)
+    const parts = s.split(/(\*\*[^*]+\*\*|`[^`]+`|\[[^\]]+\]\([^)]+\))/g);
     return (
       <span key={key}>
         {parts.map((p, j) => {
           if (p.startsWith("**") && p.endsWith("**")) return <strong key={j}>{p.slice(2, -2)}</strong>;
           if (p.startsWith("`") && p.endsWith("`")) return <code key={j} className="bg-gray-200 rounded px-1 text-xs font-mono">{p.slice(1, -1)}</code>;
+          const linkMatch = p.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
+          if (linkMatch) return <a key={j} href={linkMatch[2]} onClick={(e) => { e.preventDefault(); onNavigate?.(linkMatch[2]); }} className="text-[#4577ac] underline hover:text-[#2d5a8a] cursor-pointer">{linkMatch[1]}</a>;
           return p;
         })}
       </span>
@@ -352,7 +354,7 @@ export default function AdminChatPanel() {
                       <span className="h-1.5 w-1.5 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: "300ms" }} aria-hidden="true" />
                     </span>
                   ) : m.role === "assistant" ? (
-                    renderMarkdown(m.text)
+                    renderMarkdown(m.text, (path) => { router.push(path); setOpen(false); })
                   ) : (
                     <span style={{ whiteSpace: "pre-wrap" }}>{m.text}</span>
                   )}
