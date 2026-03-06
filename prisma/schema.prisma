@@ -210,6 +210,8 @@ model EventBooking {
   createdAt   DateTime  @default(now())
   // Payment
   stripePaymentIntentId String?
+  balanceDue            Decimal?  @db.Decimal(8, 2)
+  paymentReminderSentAt DateTime?
   // Optional link to registered User account
   userId      String?
   user        User?     @relation(fields: [userId], references: [id])
