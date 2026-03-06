@@ -261,7 +261,7 @@ export default function Nav() {
 
         {/* Mobile menu */}
         {mobileOpen && (
-          <div className="md:hidden pb-4 flex flex-col gap-3 border-t border-white/20 pt-3">
+          <div className="md:hidden pb-4 flex flex-col gap-3 border-t border-white/20 pt-3 relative z-20 bg-[#4577ac]">
             <Link href={`/${locale}`} className="hover:text-blue-200" onClick={() => setMobileOpen(false)}>{t("home")}</Link>
 
             {/* Mobile WSC 81 section */}
