@@ -179,6 +179,9 @@ export default async function EventDetailPage({
                     busSurcharge: Number(event.busSurcharge),
                     roomSingleSurcharge: Number(event.roomSingleSurcharge),
                     roomDoubleSurcharge: Number(event.roomDoubleSurcharge),
+                    agePrices: Array.isArray(event.agePrices)
+                      ? (event.agePrices as { label: string; price: number }[])
+                      : [],
                   }}
                   locale={locale}
                   prefill={prefill}

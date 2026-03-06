@@ -9,12 +9,14 @@ const PersonSchema = z.object({
   name: z.string().min(1).max(200).trim(),
   dob: z.string().regex(dateRegex, "Invalid date format (YYYY-MM-DD)"),
   isMember: z.boolean().default(false),
+  agePriceIndex: z.number().int().min(0).nullable().optional(),
 });
 
 const OptionalPersonSchema = z.object({
   name: z.string().max(200).trim().optional(),
   dob: z.string().regex(dateRegex).optional(),
   isMember: z.boolean().default(false).optional(),
+  agePriceIndex: z.number().int().min(0).nullable().optional(),
 });
 
 export const MembershipSchema = z.object({

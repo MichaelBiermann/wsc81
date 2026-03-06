@@ -9,7 +9,7 @@ import Textarea from "@/components/ui/Textarea";
 import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
 
-interface PersonData { name: string; dob: string; isMember: boolean; }
+interface PersonData { name: string; dob: string; isMember: boolean; agePriceIndex: number | null; }
 interface FormState {
   persons: PersonData[];
   street: string; postalCode: string; city: string; phone: string; email: string;
@@ -39,6 +39,7 @@ interface EventProps {
   busSurcharge: number;
   roomSingleSurcharge: number;
   roomDoubleSurcharge: number;
+  agePrices: { label: string; price: number }[];
 }
 
 function calcAge(dob: string): number {
@@ -65,7 +66,7 @@ export default function BookingForm({
   const [status, setStatus] = useState<"idle" | "submitting" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const [form, setForm] = useState<FormState>({
-    persons: [{ name: prefill?.person1Name ?? "", dob: prefill?.person1Dob ?? "", isMember: prefill?.isMember ?? false }],
+    persons: [{ name: prefill?.person1Name ?? "", dob: prefill?.person1Dob ?? "", isMember: prefill?.isMember ?? false, agePriceIndex: null }],
     street: prefill?.street ?? "",
     postalCode: prefill?.postalCode ?? "",
     city: prefill?.city ?? "",
@@ -76,7 +77,7 @@ export default function BookingForm({
     roomsDouble: 0,
   });
 
-  const updatePerson = (i: number, field: keyof PersonData, value: string | boolean) => {
+  const updatePerson = (i: number, field: keyof PersonData, value: string | boolean | number | null) => {
     setForm((f) => {
       const persons = [...f.persons];
       persons[i] = { ...persons[i], [field]: value };
@@ -85,7 +86,7 @@ export default function BookingForm({
   };
 
   const addPerson = () => {
-    if (form.persons.length < 10) setForm((f) => ({ ...f, persons: [...f.persons, { name: "", dob: "", isMember: false }] }));
+    if (form.persons.length < 10) setForm((f) => ({ ...f, persons: [...f.persons, { name: "", dob: "", isMember: false, agePriceIndex: null }] }));
   };
   const removePerson = (i: number) => {
     if (i === 0) return;
@@ -97,7 +98,8 @@ export default function BookingForm({
     event.surchargeNonMemberChild === 0 &&
     event.busSurcharge === 0 &&
     event.roomSingleSurcharge === 0 &&
-    event.roomDoubleSurcharge === 0;
+    event.roomDoubleSurcharge === 0 &&
+    event.agePrices.length === 0;
 
   function calcPricing(): { lines: { label: string; amount: number }[]; total: number; deposit: number; remaining: number } {
     const lines: { label: string; amount: number }[] = [];
@@ -107,25 +109,29 @@ export default function BookingForm({
 
     for (const person of namedPersons) {
       const age = calcAge(person.dob);
-      let personTotal = 0;
 
-      if (!person.isMember) {
+      // Age-based price tier (mutually exclusive with non-member surcharge)
+      if (person.agePriceIndex !== null && event.agePrices[person.agePriceIndex]) {
+        const ap = event.agePrices[person.agePriceIndex];
+        if (ap.price > 0) {
+          lines.push({ label: `${person.name || "Person"} – ${ap.label}`, amount: ap.price });
+          total += ap.price;
+        }
+      } else if (!person.isMember) {
         const surcharge = age < 18
           ? event.surchargeNonMemberChild
           : event.surchargeNonMemberAdult;
         if (surcharge > 0) {
-          personTotal += surcharge;
           const surchargeLabel = age < 18 ? t("surchargeNonMemberChild") : t("surchargeNonMemberAdult");
           lines.push({ label: `${person.name || "Person"} – ${surchargeLabel}`, amount: surcharge });
+          total += surcharge;
         }
       }
 
       if (event.busSurcharge > 0) {
-        personTotal += event.busSurcharge;
         lines.push({ label: `${person.name || "Person"} – ${t("busSurcharge")}`, amount: event.busSurcharge });
+        total += event.busSurcharge;
       }
-
-      total += personTotal;
     }
 
     if (form.roomsSingle > 0 && event.roomSingleSurcharge > 0) {
@@ -153,16 +159,16 @@ export default function BookingForm({
     const [p1, p2, p3, p4, p5, p6, p7, p8, p9, p10] = form.persons;
     const body = {
       eventId: event.id,
-      person1: p1,
-      person2: p2?.name ? p2 : undefined,
-      person3: p3?.name ? p3 : undefined,
-      person4: p4?.name ? p4 : undefined,
-      person5: p5?.name ? p5 : undefined,
-      person6: p6?.name ? p6 : undefined,
-      person7: p7?.name ? p7 : undefined,
-      person8: p8?.name ? p8 : undefined,
-      person9: p9?.name ? p9 : undefined,
-      person10: p10?.name ? p10 : undefined,
+      person1: { name: p1.name, dob: p1.dob, isMember: p1.isMember, agePriceIndex: p1.agePriceIndex ?? null },
+      person2: p2?.name ? { name: p2.name, dob: p2.dob, isMember: p2.isMember, agePriceIndex: p2.agePriceIndex ?? null } : undefined,
+      person3: p3?.name ? { name: p3.name, dob: p3.dob, isMember: p3.isMember, agePriceIndex: p3.agePriceIndex ?? null } : undefined,
+      person4: p4?.name ? { name: p4.name, dob: p4.dob, isMember: p4.isMember, agePriceIndex: p4.agePriceIndex ?? null } : undefined,
+      person5: p5?.name ? { name: p5.name, dob: p5.dob, isMember: p5.isMember, agePriceIndex: p5.agePriceIndex ?? null } : undefined,
+      person6: p6?.name ? { name: p6.name, dob: p6.dob, isMember: p6.isMember, agePriceIndex: p6.agePriceIndex ?? null } : undefined,
+      person7: p7?.name ? { name: p7.name, dob: p7.dob, isMember: p7.isMember, agePriceIndex: p7.agePriceIndex ?? null } : undefined,
+      person8: p8?.name ? { name: p8.name, dob: p8.dob, isMember: p8.isMember, agePriceIndex: p8.agePriceIndex ?? null } : undefined,
+      person9: p9?.name ? { name: p9.name, dob: p9.dob, isMember: p9.isMember, agePriceIndex: p9.agePriceIndex ?? null } : undefined,
+      person10: p10?.name ? { name: p10.name, dob: p10.dob, isMember: p10.isMember, agePriceIndex: p10.agePriceIndex ?? null } : undefined,
       street: form.street, postalCode: form.postalCode, city: form.city,
       phone: form.phone, email: form.email,
       remarks: form.remarks || undefined,
@@ -246,6 +252,21 @@ export default function BookingForm({
               <span className="text-xs text-green-600 ml-1">(automatisch — Mitglied)</span>
             )}
           </label>
+          {event.agePrices.length > 0 && (
+            <div className="mt-3">
+              <label className="text-sm text-gray-600 block mb-1">{t("fields.agePriceTier")}</label>
+              <select
+                value={person.agePriceIndex ?? ""}
+                onChange={(e) => updatePerson(i, "agePriceIndex", e.target.value === "" ? null : Number(e.target.value))}
+                className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#4577ac]"
+              >
+                <option value="">{t("fields.agePriceTierDefault")}</option>
+                {event.agePrices.map((ap, ai) => (
+                  <option key={ai} value={ai}>{ap.label} – €{ap.price.toFixed(2)}</option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
       ))}
 

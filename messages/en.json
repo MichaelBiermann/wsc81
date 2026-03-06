@@ -69,7 +69,9 @@
       "rooms": "Room selection",
       "roomsSingle": "Single room",
       "roomsDouble": "Double room",
-      "remarks": "Remarks"
+      "remarks": "Remarks",
+      "agePriceTier": "Price category",
+      "agePriceTierDefault": "Standard (no age discount)"
     },
     "payment": {
       "title": "Payment",

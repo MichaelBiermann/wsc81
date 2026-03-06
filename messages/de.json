@@ -69,7 +69,9 @@
       "rooms": "Zimmerwahl",
       "roomsSingle": "Einzelzimmer",
       "roomsDouble": "Doppelzimmer",
-      "remarks": "Bemerkungen"
+      "remarks": "Bemerkungen",
+      "agePriceTier": "Preiskategorie",
+      "agePriceTierDefault": "Standard (kein Altersrabatt)"
     },
     "payment": {
       "title": "Zahlung",
