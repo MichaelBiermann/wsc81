@@ -31,12 +31,12 @@ function stripHtml(html: string): string {
 }
 
 function fmt(date: Date | string | null | undefined): string {
-  if (!date) return "—";
+  if (!date) return "-";
   return new Date(date).toLocaleDateString("de-DE");
 }
 
 function calcAge(dob: Date | null): string {
-  if (!dob) return "—";
+  if (!dob) return "-";
   const today = new Date();
   let age = today.getFullYear() - dob.getFullYear();
   const m = today.getMonth() - dob.getMonth();
@@ -100,7 +100,7 @@ const s = StyleSheet.create({
   // Contact section
   contactGrid:   { marginTop: 6, gap: 2 },
   contactItem:   { flexDirection: "row" },
-  contactLabel:  { fontSize: 8.5, color: LIGHT, width: 56 },
+  contactLabel:  { fontSize: 8.5, color: LIGHT, width: 70 },
   contactValue:  { fontSize: 8.5, color: "#333", flex: 1 },
 
   // Payment row
@@ -167,7 +167,7 @@ export async function GET(
           ? React.createElement(Text, { style: s.headerSub }, event.titleEn)
           : null,
         React.createElement(View, { style: s.headerMeta },
-          React.createElement(Text, { style: s.headerMetaItem }, `Zeitraum: ${fmt(event.startDate)} – ${fmt(event.endDate)}`),
+          React.createElement(Text, { style: s.headerMetaItem }, `Zeitraum: ${fmt(event.startDate)} - ${fmt(event.endDate)}`),
           React.createElement(Text, { style: s.headerMetaItem }, `Ort: ${event.location}`),
           event.registrationDeadline
             ? React.createElement(Text, { style: s.headerMetaItem }, `Anmeldeschluss: ${fmt(event.registrationDeadline)}`)
@@ -178,7 +178,7 @@ export async function GET(
       // ── Event details ─────────────────────────────────────────────────
       React.createElement(Text, { style: s.sectionTitle }, "Veranstaltungsdetails"),
       KV("Ort:", event.location),
-      KV("Zeitraum:", `${fmt(event.startDate)} – ${fmt(event.endDate)}`),
+      KV("Zeitraum:", `${fmt(event.startDate)} - ${fmt(event.endDate)}`),
       event.registrationDeadline ? KV("Anmeldeschluss:", fmt(event.registrationDeadline)) : null,
       depositAmount > 0 ? KV("Anzahlung:", `€ ${depositAmount.toFixed(2)}`) : null,
       Number(event.totalAmount) > 0 ? KV("Gesamtpreis:", `€ ${Number(event.totalAmount).toFixed(2)}`) : null,
@@ -271,7 +271,7 @@ export async function GET(
               React.createElement(View, { key: pi, style: s.tableRow },
                 React.createElement(Text, { style: [s.cellMuted, s.colNum] }, `${pi + 1}.`),
                 React.createElement(Text, { style: [s.cellText, s.colName] }, p.name),
-                React.createElement(Text, { style: [s.cellMuted, s.colDob] }, p.dob ? fmt(p.dob) : "—"),
+                React.createElement(Text, { style: [s.cellMuted, s.colDob] }, p.dob ? fmt(p.dob) : "-"),
                 React.createElement(Text, { style: [s.cellMuted, s.colAge] }, calcAge(p.dob)),
               )
             ),
@@ -279,12 +279,12 @@ export async function GET(
             // Contact grid
             React.createElement(View, { style: s.contactGrid },
               React.createElement(View, { style: s.contactItem },
-                React.createElement(Text, { style: s.contactLabel }, "E-Mail:"),
+                React.createElement(Text, { style: s.contactLabel }, "Email:"),
                 React.createElement(Text, { style: s.contactValue }, b.email),
               ),
               React.createElement(View, { style: s.contactItem },
-                React.createElement(Text, { style: s.contactLabel }, "Telefon:"),
-                React.createElement(Text, { style: s.contactValue }, b.phone || "—"),
+                React.createElement(Text, { style: s.contactLabel }, "Tel:"),
+                React.createElement(Text, { style: s.contactValue }, b.phone || "\u2014"),
               ),
               React.createElement(View, { style: s.contactItem },
                 React.createElement(Text, { style: s.contactLabel }, "Adresse:"),
