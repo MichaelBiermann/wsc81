@@ -20,7 +20,9 @@ export default async function EventDetailPage({
   if (!event) notFound();
 
   const title = isDE ? event.titleDe : event.titleEn;
-  const description = isDE ? event.descriptionDe : event.descriptionEn;
+  // Strip material-symbols icon spans from description before rendering publicly
+  const rawDescription = isDE ? event.descriptionDe : event.descriptionEn;
+  const description = rawDescription.replace(/<span[^>]*class="[^"]*material-symbols[^"]*"[^>]*>.*?<\/span>/gi, "");
 
   const fmt = (d: Date) =>
     d.toLocaleDateString(isDE ? "de-DE" : "en-GB", {
