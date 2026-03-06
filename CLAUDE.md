@@ -233,6 +233,58 @@ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY  # Stripe publishable key (client-side)
 STRIPE_WEBHOOK_SECRET          # Stripe webhook signing secret for /api/webhooks/stripe
 ```
 
+## Testing & Quality
+
+### Running tests
+```bash
+npm test                  # run all tests once
+npm run test:watch        # watch mode
+npm run test:coverage     # with coverage report
+```
+
+### Test suite
+**360 tests across 14 test files** — all in `src/__tests__/`.
+
+| File | What it covers |
+|------|---------------|
+| `accessibility.test.tsx` | Section 508 / WCAG 2.1 AA — FormField/Input/Button/Textarea ARIA, focus-trap logic, dialog/menu/live-region/skip-link patterns; uses `jest-axe` + `@testing-library/react` |
+| `admin-chat-route.test.ts` | `POST /api/admin/chat` — auth, tool-use loop, navigate capture, error handling |
+| `admin-chat-tools.test.ts` | All `executeTool` cases in `src/lib/chat-tools.ts` |
+| `admin-image-upload.test.ts` | `POST/DELETE /api/admin/images` — upload, crop, delete |
+| `chat-route.test.ts` | `POST /api/chat` — tool-use loop, navigate capture, locale handling |
+| `crypto.test.ts` | `encryptIBAN` / `decryptIBAN` round-trip, random IV, `ibanLast4` |
+| `forms-events-route.test.ts` | `GET /api/forms/events` — filters, ordering |
+| `mailer.test.ts` | All 11 `send*` functions in `src/lib/mailer.ts` — DE/EN subjects, HTML content |
+| `pdf-utils.test.ts` | PDF generation for event booking lists |
+| `public-chat-tools.test.ts` | All `executePublicTool` cases in `src/lib/public-chat-tools.ts` |
+| `search-lib.test.ts` | `src/lib/search.ts` — full-text query building |
+| `search-route.test.ts` | `GET /api/search` — query params, result shapes |
+| `tokens.test.ts` | `generateActivationToken`, `tokenExpiresAt`, `isTokenExpired` |
+| `validation.test.ts` | All 10 Zod schemas in `src/lib/validation.ts` |
+
+### Coverage (tracked files)
+| Metric | Coverage |
+|--------|----------|
+| Statements | 99.48% |
+| Branches | 97.19% |
+| Functions | 98.27% |
+| Lines | 100% |
+
+Coverage is scoped to the files listed in `vitest.config.ts` (`coverage.include`). The accessibility test file uses `// @vitest-environment jsdom`; all other tests run in the default node environment.
+
+### Accessibility (Section 508 / WCAG 2.1 AA)
+Key patterns enforced across all interactive components:
+
+- **Skip link** — `href="#main-content"` in `layout.tsx`; visually hidden, revealed on focus
+- **Dialog panels** (`PublicChatPanel`, `AdminChatPanel`, `FormsSection` modal) — `role="dialog"`, `aria-modal="true"`, `aria-labelledby`, focus trap (Tab/Shift+Tab), Escape key, focus return to trigger button on close
+- **Navigation dropdowns** — `aria-expanded`, `aria-haspopup="menu"`, `role="menu"`, `role="menuitem"`, Escape key closes
+- **Chat message log** — `role="log"`, `aria-live="polite"`
+- **Typing indicator / spinners** — `role="status"`, `aria-label`
+- **Icon-only buttons** — always have `aria-label`; decorative icons always have `aria-hidden="true"`
+- **Form fields** — `<label htmlFor>` associated with every input via `FormField`'s `htmlFor` prop; `<fieldset>`/`<legend>` for grouped person fields in BookingForm
+- **Room counters** — `aria-label` on `+`/`−` buttons; `aria-live="polite"` on value display
+- **Button loading state** — `aria-busy="true"` when `loading` prop is set
+
 ## Notes
 
 - Repository is on GitHub: `MichaelBiermann/wsc81`
