@@ -6,7 +6,6 @@ import RegularActivities from "@/components/RegularActivities";
 import NewsBlock from "@/components/NewsBlock";
 import HeroSlider from "@/components/HeroSlider";
 import WelcomeBlock from "@/components/WelcomeBlock";
-import Image from "next/image";
 import FormsSection from "@/components/FormsSection";
 
 export default async function HomePage({
@@ -19,7 +18,7 @@ export default async function HomePage({
   const session = await auth();
   const isLoggedIn = !!session?.user;
 
-  const [events, regularEvents, newsPosts, sponsors] = await Promise.all([
+  const [events, regularEvents, newsPosts] = await Promise.all([
     prisma.event.findMany({
       where: { startDate: { gte: new Date() }, bookable: true },
       orderBy: { startDate: "asc" },
@@ -34,7 +33,6 @@ export default async function HomePage({
       orderBy: { publishedAt: "desc" },
       take: 4,
     }).catch(() => []),
-    prisma.sponsor.findMany({ orderBy: { displayOrder: "asc" } }).catch(() => []),
   ]);
 
   return (
@@ -72,36 +70,6 @@ export default async function HomePage({
       </section>
 
       <FormsSection />
-
-      {sponsors.length > 0 && (
-        <section className="py-8 border-t border-gray-100">
-          <div className="mx-auto max-w-7xl px-4">
-            <a href={`/${locale}/sponsoren`} className="text-xs font-semibold uppercase tracking-widest text-gray-400 text-center mb-4 hover:text-[#4577ac] transition-colors">
-              {locale === "de" ? "Unsere Sponsoren" : "Our Sponsors"}
-            </a>
-            <div className="flex flex-wrap justify-center items-center gap-3">
-              {sponsors.map((s) => (
-                <a
-                  key={s.id}
-                  href={s.websiteUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  title={s.name}
-                  className="flex items-center justify-center rounded border border-gray-100 bg-white p-3 hover:border-gray-300 transition-colors w-64 h-52"
-                >
-                  <Image
-                    src={s.imageUrl}
-                    alt={s.name}
-                    width={640}
-                    height={320}
-                    className="object-contain w-full h-full"
-                  />
-                </a>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
     </>
   );
 }

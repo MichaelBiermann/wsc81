@@ -198,6 +198,7 @@ Protected by `role === "admin"`. All i18n via `src/lib/admin-i18n.ts` (DE + EN).
 | Content (admin) | `src/app/admin/content/` |
 | Forms section | `src/components/FormsSection.tsx` |
 | Forms API | `src/app/api/forms/events/route.ts` |
+| Sponsors strip | `src/components/SponsorsStrip.tsx` (server component, shown after footer on all locale pages) |
 | RegularActivities | `src/components/RegularActivities.tsx` (static fallback) |
 
 ## Conventions
@@ -213,7 +214,7 @@ Protected by `role === "admin"`. All i18n via `src/lib/admin-i18n.ts` (DE + EN).
 - `EventSchema.imageUrl` accepts empty string and transforms it to `null` (Zod `.or(z.literal("")).transform(...)`) — needed because the form sends `""` when no URL is entered
 - `roomSingleSurcharge` / `roomDoubleSurcharge` are full per-person room prices, not deltas — `roomDoubleSurcharge=0` means double room is included in base `depositAmount`
 - `AdminImageUpload` (`src/components/admin/AdminImageUpload.tsx`): used in Events, Recaps, Sponsors; supports file upload, URL load, crop (`react-easy-crop`), and rotation; preview thumbnail is 192×112px
-- Homepage section order: Neuigkeiten → Kommende Veranstaltungen → Weitere Veranstaltungen → Formulare → Unsere Sponsoren
+- Homepage section order: Neuigkeiten → Kommende Veranstaltungen → Weitere Veranstaltungen → Formulare → Footer → Unsere Sponsoren
 
 ## Environment Variables
 
