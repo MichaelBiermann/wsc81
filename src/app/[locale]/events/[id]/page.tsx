@@ -16,8 +16,15 @@ export default async function EventDetailPage({
   const t = await getTranslations("Booking");
   const session = await auth();
 
-  const event = await prisma.event.findUnique({ where: { id } });
+  const isAdmin = (session?.user as { role?: string } | undefined)?.role === "admin";
+
+  const event = await prisma.event.findUnique({
+    where: { id },
+    include: isAdmin ? { bookings: { orderBy: { createdAt: "asc" } } } : undefined,
+  });
   if (!event) notFound();
+
+  const bookings = isAdmin ? (event as typeof event & { bookings: import("@prisma/client").EventBooking[] }).bookings : null;
 
   const title = isDE ? event.titleDe : event.titleEn;
   const description = isDE ? event.descriptionDe : event.descriptionEn;
@@ -42,6 +49,17 @@ export default async function EventDetailPage({
   } | undefined;
 
   const sessionUser = session?.user as { id?: string; role?: string } | undefined;
+
+  // Age calculation helper (as of event start date)
+  function calcAge(dob: Date | null | undefined): string {
+    if (!dob) return "—";
+    const ref = event!.startDate;
+    let age = ref.getFullYear() - dob.getFullYear();
+    const m = ref.getMonth() - dob.getMonth();
+    if (m < 0 || (m === 0 && ref.getDate() < dob.getDate())) age--;
+    return String(age);
+  }
+
   if (sessionUser?.id && sessionUser.role !== "admin") {
     const user = await prisma.user.findUnique({ where: { id: sessionUser.id } });
     if (user) {
@@ -202,6 +220,106 @@ export default async function EventDetailPage({
           ) : null}
         </div>
       </div>
+
+      {/* Admin: bookings list */}
+      {isAdmin && bookings && (
+        <div className="mt-12">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-bold text-gray-900">
+              {isDE ? "Anmeldungen" : "Bookings"}
+              <span className="ml-2 text-base font-normal text-gray-500">({bookings.length})</span>
+            </h2>
+            <a
+              href={`/api/admin/events/${id}/pdf`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 rounded bg-[#4577ac] px-3 py-1.5 text-sm font-medium text-white hover:bg-[#3a6699] transition-colors"
+            >
+              <span className="material-symbols-rounded" style={{ fontSize: 18 }}>picture_as_pdf</span>
+              {isDE ? "PDF herunterladen" : "Download PDF"}
+            </a>
+          </div>
+
+          {bookings.length === 0 ? (
+            <p className="text-gray-400 text-sm italic">{isDE ? "Noch keine Anmeldungen." : "No bookings yet."}</p>
+          ) : (
+            <div className="flex flex-col gap-4">
+              {bookings.map((b, idx) => {
+                const persons: { name: string; dob: Date | null }[] = [
+                  { name: b.person1Name, dob: b.person1Dob },
+                  { name: b.person2Name ?? "", dob: b.person2Dob ?? null },
+                  { name: b.person3Name ?? "", dob: b.person3Dob ?? null },
+                  { name: b.person4Name ?? "", dob: b.person4Dob ?? null },
+                  { name: b.person5Name ?? "", dob: b.person5Dob ?? null },
+                  { name: b.person6Name ?? "", dob: b.person6Dob ?? null },
+                  { name: b.person7Name ?? "", dob: b.person7Dob ?? null },
+                  { name: b.person8Name ?? "", dob: b.person8Dob ?? null },
+                  { name: b.person9Name ?? "", dob: b.person9Dob ?? null },
+                  { name: b.person10Name ?? "", dob: b.person10Dob ?? null },
+                ].filter((p) => p.name);
+
+                return (
+                  <div key={b.id} className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+                    <div className="flex items-start justify-between gap-4 mb-3">
+                      <div>
+                        <span className="text-xs text-gray-400 mr-1">#{idx + 1}</span>
+                        <span className="font-semibold text-gray-900">{b.person1Name}</span>
+                        {b.isMember && (
+                          <span className="ml-2 inline-flex items-center gap-0.5 rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700">
+                            <span className="material-symbols-rounded" style={{ fontSize: 12 }}>verified</span>
+                            {isDE ? "Mitglied" : "Member"}
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-xs text-gray-400 whitespace-nowrap">
+                        {new Date(b.createdAt).toLocaleDateString("de-DE")}
+                      </span>
+                    </div>
+
+                    {/* Persons table */}
+                    <table className="w-full text-sm mb-3">
+                      <thead>
+                        <tr className="text-left text-xs text-gray-400 border-b border-gray-100">
+                          <th className="pb-1 pr-3 font-medium w-6">#</th>
+                          <th className="pb-1 pr-3 font-medium">{isDE ? "Name" : "Name"}</th>
+                          <th className="pb-1 pr-3 font-medium">{isDE ? "Geburtsdatum" : "Date of birth"}</th>
+                          <th className="pb-1 font-medium">{isDE ? "Alter" : "Age"}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {persons.map((p, pi) => (
+                          <tr key={pi} className="border-b border-gray-50 last:border-0">
+                            <td className="py-1 pr-3 text-gray-400">{pi + 1}.</td>
+                            <td className="py-1 pr-3 text-gray-800">{p.name}</td>
+                            <td className="py-1 pr-3 text-gray-500">{p.dob ? p.dob.toLocaleDateString("de-DE") : "—"}</td>
+                            <td className="py-1 text-gray-500">{calcAge(p.dob)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+
+                    {/* Contact + room info */}
+                    <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-gray-500">
+                      <span><span className="font-medium text-gray-600">{isDE ? "E-Mail:" : "Email:"}</span> {b.email}</span>
+                      <span><span className="font-medium text-gray-600">{isDE ? "Tel:" : "Phone:"}</span> {b.phone || "—"}</span>
+                      <span><span className="font-medium text-gray-600">{isDE ? "Adresse:" : "Address:"}</span> {b.street}, {b.postalCode} {b.city}</span>
+                      {(b.roomsSingle > 0 || b.roomsDouble > 0) && (
+                        <span>
+                          <span className="font-medium text-gray-600">{isDE ? "Zimmer:" : "Rooms:"}</span>{" "}
+                          {[b.roomsSingle > 0 ? `EZ: ${b.roomsSingle}` : "", b.roomsDouble > 0 ? `DZ: ${b.roomsDouble}` : ""].filter(Boolean).join(" · ")}
+                        </span>
+                      )}
+                    </div>
+                    {b.remarks && (
+                      <p className="mt-2 text-xs text-gray-500 italic">„{b.remarks}"</p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
