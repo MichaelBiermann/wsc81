@@ -114,7 +114,7 @@ export default function EditEventPage() {
 
       {event.bookings.length > 0 && (
         <div className="mt-10">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-3">
             <h2 className="text-lg font-bold text-gray-900">{t.events.bookings} ({event.bookings.length})</h2>
             <a
               href={`/api/admin/events/${id}/pdf`}
@@ -125,6 +125,32 @@ export default function EditEventPage() {
               {t.events.downloadPdf}
             </a>
           </div>
+
+          {/* Summary bar */}
+          {(() => {
+            const totalPersons = event.bookings.reduce((sum, b) => sum + [
+              b.person1Name, b.person2Name, b.person3Name, b.person4Name, b.person5Name,
+              b.person6Name, b.person7Name, b.person8Name, b.person9Name, b.person10Name,
+            ].filter(Boolean).length, 0);
+            const totalSingle = event.bookings.reduce((sum, b) => sum + b.roomsSingle, 0);
+            const totalDouble = event.bookings.reduce((sum, b) => sum + b.roomsDouble, 0);
+            return (
+              <div className="flex flex-wrap gap-4 mb-4 rounded-lg bg-[#eef3f9] px-4 py-3 text-sm">
+                <span className="flex items-center gap-1.5 text-gray-700">
+                  <span className="material-symbols-rounded text-[#4577ac]" style={{ fontSize: 18 }}>group</span>
+                  <span className="font-medium">{totalPersons}</span> Personen gesamt
+                </span>
+                <span className="flex items-center gap-1.5 text-gray-700">
+                  <span className="material-symbols-rounded text-[#4577ac]" style={{ fontSize: 18 }}>single_bed</span>
+                  <span className="font-medium">{totalSingle}</span> Einzelzimmer
+                </span>
+                <span className="flex items-center gap-1.5 text-gray-700">
+                  <span className="material-symbols-rounded text-[#4577ac]" style={{ fontSize: 18 }}>bed</span>
+                  <span className="font-medium">{totalDouble}</span> Doppelzimmer
+                </span>
+              </div>
+            );
+          })()}
           <div className="flex flex-col gap-4">
             {event.bookings.map((b, idx) => {
               const persons = [
