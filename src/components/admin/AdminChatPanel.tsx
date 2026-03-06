@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import type { MessageParam } from "@anthropic-ai/sdk/resources/messages";
 import { useAdminI18n } from "@/components/admin/AdminI18nProvider";
@@ -128,24 +128,58 @@ interface Message {
   loading?: boolean;
 }
 
+const panelTitleId = "admin-chat-panel-title";
+
 export default function AdminChatPanel() {
   const router = useRouter();
   const { t, locale } = useAdminI18n();
+  const isDE = locale === "de";
+
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [history, setHistory] = useState<MessageParam[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const openButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // Focus input when panel opens; return focus to button when it closes
   useEffect(() => {
-    if (open) setTimeout(() => inputRef.current?.focus(), 100);
+    if (open) {
+      setTimeout(() => inputRef.current?.focus(), 100);
+    } else {
+      openButtonRef.current?.focus();
+    }
   }, [open]);
+
+  // Close on Escape and trap focus inside the panel
+  const handlePanelKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === "Escape") {
+      e.preventDefault();
+      setOpen(false);
+    }
+    if (e.key === "Tab") {
+      const panel = e.currentTarget as HTMLElement;
+      const focusable = panel.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), input:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])'
+      );
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+  }, []);
 
   async function sendMessage(text?: string) {
     const msg = (text ?? input).trim();
@@ -196,11 +230,14 @@ export default function AdminChatPanel() {
     <>
       {/* Floating button */}
       <button
+        ref={openButtonRef}
         onClick={() => setOpen(true)}
-        title={t.chat.title}
+        aria-label={t.chat.title}
+        aria-expanded={open}
+        aria-haspopup="dialog"
         className="fixed bottom-6 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#4577ac] text-white shadow-xl hover:bg-[#2d5a8a] transition-colors"
       >
-        <span className="material-symbols-rounded" style={{ fontSize: 28 }}>smart_toy</span>
+        <span className="material-symbols-rounded" style={{ fontSize: 28 }} aria-hidden="true">smart_toy</span>
       </button>
 
       {/* Backdrop */}
@@ -208,37 +245,44 @@ export default function AdminChatPanel() {
         <div
           className="fixed inset-0 z-40 bg-black/20"
           onClick={() => setOpen(false)}
+          aria-hidden="true"
         />
       )}
 
-      {/* Slide-in panel */}
+      {/* Slide-in dialog panel */}
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={panelTitleId}
+        aria-hidden={!open}
+        onKeyDown={handlePanelKeyDown}
         className={`fixed right-0 top-0 h-full w-[440px] z-50 bg-white shadow-2xl flex flex-col transition-transform duration-300 ease-in-out ${
-          open ? "translate-x-0" : "translate-x-full"
+          open ? "translate-x-0" : "translate-x-full pointer-events-none"
         }`}
       >
         {/* Header */}
         <div className="flex items-center justify-between bg-[#1a2a3a] px-4 py-3 flex-shrink-0">
           <div className="flex items-center gap-2 text-white">
-            <span className="material-symbols-rounded" style={{ fontSize: 20 }}>smart_toy</span>
-            <span className="font-semibold text-sm">{t.chat.title}</span>
+            <span className="material-symbols-rounded" style={{ fontSize: 20 }} aria-hidden="true">smart_toy</span>
+            <span id={panelTitleId} className="font-semibold text-sm">{t.chat.title}</span>
             <span className="text-xs text-gray-400 ml-1">{t.chat.subtitle}</span>
           </div>
           <div className="flex items-center gap-2">
             {messages.length > 0 && (
               <button
                 onClick={clearHistory}
-                title={t.chat.clearTitle}
+                aria-label={t.chat.clearTitle}
                 className="text-gray-400 hover:text-white transition-colors"
               >
-                <span className="material-symbols-rounded" style={{ fontSize: 18 }}>delete_sweep</span>
+                <span className="material-symbols-rounded" style={{ fontSize: 18 }} aria-hidden="true">delete_sweep</span>
               </button>
             )}
             <button
               onClick={() => setOpen(false)}
+              aria-label={isDE ? "Chat schließen" : "Close chat"}
               className="text-gray-400 hover:text-white transition-colors"
             >
-              <span className="material-symbols-rounded" style={{ fontSize: 20 }}>close</span>
+              <span className="material-symbols-rounded" style={{ fontSize: 20 }} aria-hidden="true">close</span>
             </button>
           </div>
         </div>
@@ -246,32 +290,38 @@ export default function AdminChatPanel() {
         {/* Empty state / suggestions */}
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center flex-1 gap-4 p-8 text-center">
-            <span className="material-symbols-rounded text-[#4577ac]" style={{ fontSize: 52 }}>smart_toy</span>
+            <span className="material-symbols-rounded text-[#4577ac]" style={{ fontSize: 52 }} aria-hidden="true">smart_toy</span>
             <div>
               <p className="text-sm font-semibold text-gray-700">{t.chat.emptyHeading}</p>
               <p className="text-xs text-gray-400 mt-1">{t.chat.emptySubtext}</p>
             </div>
-            <div className="flex flex-col gap-2 w-full mt-2">
+            <ul className="flex flex-col gap-2 w-full mt-2" aria-label={isDE ? "Vorschläge" : "Suggestions"}>
               {t.chat.suggestions.map((s) => (
-                <button
-                  key={s}
-                  onClick={() => sendMessage(s)}
-                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-left text-xs text-gray-600 hover:bg-[#eef3f9] hover:border-[#4577ac] transition-colors"
-                >
-                  {s}
-                </button>
+                <li key={s}>
+                  <button
+                    onClick={() => sendMessage(s)}
+                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-left text-xs text-gray-600 hover:bg-[#eef3f9] hover:border-[#4577ac] transition-colors"
+                  >
+                    {s}
+                  </button>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
         )}
 
         {/* Message list */}
         {messages.length > 0 && (
-          <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
+          <div
+            role="log"
+            aria-live="polite"
+            aria-label={isDE ? "Chatverlauf" : "Chat history"}
+            className="flex-1 overflow-y-auto p-4 flex flex-col gap-3"
+          >
             {messages.map((m, i) => (
               <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
                 {m.role === "assistant" && (
-                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#4577ac] flex items-center justify-center mr-2 mt-1">
+                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#4577ac] flex items-center justify-center mr-2 mt-1" aria-hidden="true">
                     <span className="material-symbols-rounded text-white" style={{ fontSize: 14 }}>smart_toy</span>
                   </div>
                 )}
@@ -283,10 +333,14 @@ export default function AdminChatPanel() {
                   }`}
                 >
                   {m.loading ? (
-                    <span className="flex gap-1 items-center py-0.5">
-                      <span className="h-1.5 w-1.5 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: "0ms" }} />
-                      <span className="h-1.5 w-1.5 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: "150ms" }} />
-                      <span className="h-1.5 w-1.5 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: "300ms" }} />
+                    <span
+                      className="flex gap-1 items-center py-0.5"
+                      role="status"
+                      aria-label={isDE ? "Assistent tippt…" : "Assistant is typing…"}
+                    >
+                      <span className="h-1.5 w-1.5 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: "0ms" }} aria-hidden="true" />
+                      <span className="h-1.5 w-1.5 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: "150ms" }} aria-hidden="true" />
+                      <span className="h-1.5 w-1.5 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: "300ms" }} aria-hidden="true" />
                     </span>
                   ) : m.role === "assistant" ? (
                     renderMarkdown(m.text)
@@ -302,7 +356,9 @@ export default function AdminChatPanel() {
 
         {/* Input area */}
         <div className="border-t border-gray-200 p-3 flex gap-2 flex-shrink-0 bg-white">
+          <label htmlFor="admin-chat-input" className="sr-only">{t.chat.placeholder}</label>
           <input
+            id="admin-chat-input"
             ref={inputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -314,14 +370,17 @@ export default function AdminChatPanel() {
             }}
             placeholder={t.chat.placeholder}
             disabled={loading}
+            aria-disabled={loading}
             className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#4577ac] disabled:opacity-50"
           />
           <button
             onClick={() => sendMessage()}
             disabled={loading || !input.trim()}
+            aria-label={isDE ? "Nachricht senden" : "Send message"}
+            aria-disabled={loading || !input.trim()}
             className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#4577ac] text-white hover:bg-[#2d5a8a] disabled:opacity-40 transition-colors flex-shrink-0"
           >
-            <span className="material-symbols-rounded" style={{ fontSize: 18 }}>send</span>
+            <span className="material-symbols-rounded" style={{ fontSize: 18 }} aria-hidden="true">send</span>
           </button>
         </div>
       </div>

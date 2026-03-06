@@ -28,8 +28,14 @@ export default async function LocaleLayout({
   return (
     <AuthProvider>
       <NextIntlClientProvider messages={messages}>
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:rounded focus:bg-white focus:px-4 focus:py-2 focus:text-[#4577ac] focus:font-semibold focus:shadow-lg"
+        >
+          {locale === "en" ? "Skip to main content" : "Zum Hauptinhalt springen"}
+        </a>
         <Nav />
-        <main className="min-h-screen">{children}</main>
+        <main id="main-content" className="min-h-screen">{children}</main>
         <Footer />
         <PublicChatPanel />
       </NextIntlClientProvider>

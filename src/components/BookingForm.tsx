@@ -228,25 +228,32 @@ export default function BookingForm({
     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
       {/* Participants */}
       {form.persons.map((person, i) => (
-        <div key={i} className="rounded-lg border border-gray-200 bg-white p-4">
+        <fieldset key={i} className="rounded-lg border border-gray-200 bg-white p-4">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold text-gray-800">{personLabels[i]}</h3>
+            <legend className="font-semibold text-gray-800 float-left">{personLabels[i]}</legend>
             {i > 0 && (
-              <button type="button" onClick={() => removePerson(i)} className="text-xs text-red-500 hover:text-red-700">
+              <button
+                type="button"
+                onClick={() => removePerson(i)}
+                aria-label={`${personLabels[i]} ${t("removePerson")}`}
+                className="text-xs text-red-500 hover:text-red-700"
+              >
                 {t("removePerson")}
               </button>
             )}
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
-            <FormField label={t("fields.name")} required={i === 0}>
+            <FormField label={t("fields.name")} htmlFor={`person-${i}-name`} required={i === 0}>
               <Input
+                id={`person-${i}-name`}
                 value={person.name}
                 onChange={(e) => updatePerson(i, "name", e.target.value)}
                 required={i === 0}
               />
             </FormField>
-            <FormField label={t("fields.dob")} required={i === 0}>
+            <FormField label={t("fields.dob")} htmlFor={`person-${i}-dob`} required={i === 0}>
               <Input
+                id={`person-${i}-dob`}
                 type="date"
                 value={person.dob}
                 onChange={(e) => updatePerson(i, "dob", e.target.value)}
@@ -254,8 +261,9 @@ export default function BookingForm({
               />
             </FormField>
           </div>
-          <label className="flex items-center gap-2 cursor-pointer mt-3">
+          <label htmlFor={`person-${i}-member`} className="flex items-center gap-2 cursor-pointer mt-3">
             <input
+              id={`person-${i}-member`}
               type="checkbox"
               checked={person.isMember}
               onChange={(e) => updatePerson(i, "isMember", e.target.checked)}
@@ -269,11 +277,11 @@ export default function BookingForm({
           </label>
           {event.agePrices.length > 0 && person.dob && person.agePriceIndex !== null && event.agePrices[person.agePriceIndex] && (
             <p className="mt-2 text-xs text-[#4577ac]">
-              <span className="material-symbols-rounded align-middle mr-0.5" style={{ fontSize: 14 }}>sell</span>
+              <span className="material-symbols-rounded align-middle mr-0.5" style={{ fontSize: 14 }} aria-hidden="true">sell</span>
               {event.agePrices[person.agePriceIndex].label} – €{event.agePrices[person.agePriceIndex].price.toFixed(2)}
             </p>
           )}
-        </div>
+        </fieldset>
       ))}
 
       {form.persons.length < 10 && (
@@ -283,47 +291,47 @@ export default function BookingForm({
       )}
 
       {/* Contact */}
-      <div className="rounded-lg border border-gray-200 bg-white p-4">
-        <h3 className="font-semibold text-gray-800 mb-3">Kontakt</h3>
+      <fieldset className="rounded-lg border border-gray-200 bg-white p-4">
+        <legend className="font-semibold text-gray-800 mb-3">Kontakt</legend>
         <div className="grid gap-3 sm:grid-cols-2">
-          <FormField label={t("fields.street")} required>
-            <Input value={form.street} onChange={(e) => setForm((f) => ({ ...f, street: e.target.value }))} required />
+          <FormField label={t("fields.street")} htmlFor="contact-street" required>
+            <Input id="contact-street" value={form.street} onChange={(e) => setForm((f) => ({ ...f, street: e.target.value }))} required />
           </FormField>
-          <FormField label={t("fields.postalCode")} required>
-            <Input value={form.postalCode} onChange={(e) => setForm((f) => ({ ...f, postalCode: e.target.value }))} pattern="\d{5}" required />
+          <FormField label={t("fields.postalCode")} htmlFor="contact-postalCode" required>
+            <Input id="contact-postalCode" value={form.postalCode} onChange={(e) => setForm((f) => ({ ...f, postalCode: e.target.value }))} pattern="\d{5}" required />
           </FormField>
-          <FormField label={t("fields.city")} required>
-            <Input value={form.city} onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))} required />
+          <FormField label={t("fields.city")} htmlFor="contact-city" required>
+            <Input id="contact-city" value={form.city} onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))} required />
           </FormField>
-          <FormField label={t("fields.phone")} required>
-            <Input type="tel" value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} required />
+          <FormField label={t("fields.phone")} htmlFor="contact-phone" required>
+            <Input id="contact-phone" type="tel" value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} required />
           </FormField>
-          <FormField label={t("fields.email")} required>
-            <Input type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} required className="sm:col-span-2" />
+          <FormField label={t("fields.email")} htmlFor="contact-email" required>
+            <Input id="contact-email" type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} required className="sm:col-span-2" />
           </FormField>
         </div>
-      </div>
+      </fieldset>
 
       {/* Room selection + price summary */}
       <div className="rounded-lg border border-gray-200 bg-white p-4">
         {/* Room selection */}
         <div className="mb-4">
-          <p className="text-sm font-medium text-gray-700 mb-2">{t("fields.rooms")}</p>
-          <div className="grid grid-cols-2 gap-3">
+          <p className="text-sm font-medium text-gray-700 mb-2" id="rooms-label">{t("fields.rooms")}</p>
+          <div className="grid grid-cols-2 gap-3" role="group" aria-labelledby="rooms-label">
             <div className="flex items-center gap-2">
-              <label className="text-sm text-gray-600 w-28 shrink-0">{t("fields.roomsSingle")}</label>
-              <div className="flex items-center border border-gray-300 rounded overflow-hidden">
-                <button type="button" onClick={() => setForm((f) => ({ ...f, roomsSingle: Math.max(0, f.roomsSingle - 1) }))} className="px-2 py-1 text-gray-500 hover:bg-gray-100 text-base leading-none">−</button>
-                <span className="px-3 py-1 text-sm min-w-[2rem] text-center">{form.roomsSingle}</span>
-                <button type="button" onClick={() => setForm((f) => ({ ...f, roomsSingle: f.roomsSingle + 1 }))} className="px-2 py-1 text-gray-500 hover:bg-gray-100 text-base leading-none">+</button>
+              <span id="rooms-single-label" className="text-sm text-gray-600 w-28 shrink-0">{t("fields.roomsSingle")}</span>
+              <div className="flex items-center border border-gray-300 rounded overflow-hidden" role="group" aria-labelledby="rooms-single-label">
+                <button type="button" onClick={() => setForm((f) => ({ ...f, roomsSingle: Math.max(0, f.roomsSingle - 1) }))} aria-label={`${t("fields.roomsSingle")} verringern`} className="px-2 py-1 text-gray-500 hover:bg-gray-100 text-base leading-none">−</button>
+                <span className="px-3 py-1 text-sm min-w-[2rem] text-center" aria-live="polite" aria-atomic="true">{form.roomsSingle}</span>
+                <button type="button" onClick={() => setForm((f) => ({ ...f, roomsSingle: f.roomsSingle + 1 }))} aria-label={`${t("fields.roomsSingle")} erhöhen`} className="px-2 py-1 text-gray-500 hover:bg-gray-100 text-base leading-none">+</button>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <label className="text-sm text-gray-600 w-28 shrink-0">{t("fields.roomsDouble")}</label>
-              <div className="flex items-center border border-gray-300 rounded overflow-hidden">
-                <button type="button" onClick={() => setForm((f) => ({ ...f, roomsDouble: Math.max(0, f.roomsDouble - 1) }))} className="px-2 py-1 text-gray-500 hover:bg-gray-100 text-base leading-none">−</button>
-                <span className="px-3 py-1 text-sm min-w-[2rem] text-center">{form.roomsDouble}</span>
-                <button type="button" onClick={() => setForm((f) => ({ ...f, roomsDouble: f.roomsDouble + 1 }))} className="px-2 py-1 text-gray-500 hover:bg-gray-100 text-base leading-none">+</button>
+              <span id="rooms-double-label" className="text-sm text-gray-600 w-28 shrink-0">{t("fields.roomsDouble")}</span>
+              <div className="flex items-center border border-gray-300 rounded overflow-hidden" role="group" aria-labelledby="rooms-double-label">
+                <button type="button" onClick={() => setForm((f) => ({ ...f, roomsDouble: Math.max(0, f.roomsDouble - 1) }))} aria-label={`${t("fields.roomsDouble")} verringern`} className="px-2 py-1 text-gray-500 hover:bg-gray-100 text-base leading-none">−</button>
+                <span className="px-3 py-1 text-sm min-w-[2rem] text-center" aria-live="polite" aria-atomic="true">{form.roomsDouble}</span>
+                <button type="button" onClick={() => setForm((f) => ({ ...f, roomsDouble: f.roomsDouble + 1 }))} aria-label={`${t("fields.roomsDouble")} erhöhen`} className="px-2 py-1 text-gray-500 hover:bg-gray-100 text-base leading-none">+</button>
               </div>
             </div>
           </div>
@@ -360,8 +368,8 @@ export default function BookingForm({
       </div>
 
       {/* Remarks */}
-      <FormField label={t("fields.remarks")}>
-        <Textarea value={form.remarks} onChange={(e) => setForm((f) => ({ ...f, remarks: e.target.value }))} />
+      <FormField label={t("fields.remarks")} htmlFor="booking-remarks">
+        <Textarea id="booking-remarks" value={form.remarks} onChange={(e) => setForm((f) => ({ ...f, remarks: e.target.value }))} />
       </FormField>
 
       {/* Payment info */}

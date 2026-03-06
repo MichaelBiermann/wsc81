@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { useSession } from "next-auth/react";
@@ -93,6 +93,7 @@ export default function PublicChatPanel() {
   const { data: session } = useSession();
   const sessionUser = session?.user as { role?: string } | undefined;
   const isLoggedIn = !!session && sessionUser?.role !== "admin";
+  const isDE = locale !== "en";
 
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -101,14 +102,45 @@ export default function PublicChatPanel() {
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const openButtonRef = useRef<HTMLButtonElement>(null);
+  const panelTitleId = "chat-panel-title";
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // Focus input when panel opens; return focus to button when it closes
   useEffect(() => {
-    if (open) setTimeout(() => inputRef.current?.focus(), 100);
+    if (open) {
+      setTimeout(() => inputRef.current?.focus(), 100);
+    } else {
+      openButtonRef.current?.focus();
+    }
   }, [open]);
+
+  // Close on Escape and trap focus inside the panel
+  const handlePanelKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === "Escape") {
+      e.preventDefault();
+      setOpen(false);
+    }
+    // Focus trap
+    if (e.key === "Tab") {
+      const panel = e.currentTarget as HTMLElement;
+      const focusable = panel.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), input:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])'
+      );
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+  }, []);
 
   async function sendMessage(text?: string) {
     const msg = (text ?? input).trim();
@@ -160,13 +192,16 @@ export default function PublicChatPanel() {
 
   return (
     <>
-      {/* Floating button */}
+      {/* Floating open button */}
       <button
+        ref={openButtonRef}
         onClick={() => setOpen(true)}
-        title={t("title")}
+        aria-label={t("title")}
+        aria-expanded={open}
+        aria-haspopup="dialog"
         className="fixed bottom-6 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-white text-[#4577ac] shadow-xl hover:bg-blue-50 transition-colors border-2 border-[#4577ac]"
       >
-        <span className="material-symbols-rounded" style={{ fontSize: 28 }}>chat</span>
+        <span className="material-symbols-rounded" style={{ fontSize: 28 }} aria-hidden="true">chat</span>
       </button>
 
       {/* Backdrop */}
@@ -174,37 +209,44 @@ export default function PublicChatPanel() {
         <div
           className="fixed inset-0 z-40 bg-black/20"
           onClick={() => setOpen(false)}
+          aria-hidden="true"
         />
       )}
 
-      {/* Slide-in panel */}
+      {/* Slide-in dialog panel */}
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={panelTitleId}
+        onKeyDown={handlePanelKeyDown}
         className={`fixed right-0 top-0 h-full w-full sm:w-[400px] z-50 bg-white shadow-2xl flex flex-col transition-transform duration-300 ease-in-out ${
-          open ? "translate-x-0" : "translate-x-full"
+          open ? "translate-x-0" : "translate-x-full pointer-events-none"
         }`}
+        aria-hidden={!open}
       >
         {/* Header */}
         <div className="flex items-center justify-between bg-[#4577ac] px-4 py-3 flex-shrink-0">
           <div className="flex items-center gap-2 text-white">
-            <span className="material-symbols-rounded" style={{ fontSize: 20 }}>chat</span>
-            <span className="font-semibold text-sm">{t("title")}</span>
+            <span className="material-symbols-rounded" style={{ fontSize: 20 }} aria-hidden="true">chat</span>
+            <span id={panelTitleId} className="font-semibold text-sm">{t("title")}</span>
             <span className="text-xs text-blue-200 ml-1">{t("subtitle")}</span>
           </div>
           <div className="flex items-center gap-2">
             {messages.length > 0 && (
               <button
                 onClick={clearHistory}
-                title={t("clearTitle")}
+                aria-label={t("clearTitle")}
                 className="text-blue-200 hover:text-white transition-colors"
               >
-                <span className="material-symbols-rounded" style={{ fontSize: 18 }}>delete_sweep</span>
+                <span className="material-symbols-rounded" style={{ fontSize: 18 }} aria-hidden="true">delete_sweep</span>
               </button>
             )}
             <button
               onClick={() => setOpen(false)}
+              aria-label={isDE ? "Chat schließen" : "Close chat"}
               className="text-blue-200 hover:text-white transition-colors"
             >
-              <span className="material-symbols-rounded" style={{ fontSize: 20 }}>close</span>
+              <span className="material-symbols-rounded" style={{ fontSize: 20 }} aria-hidden="true">close</span>
             </button>
           </div>
         </div>
@@ -212,32 +254,38 @@ export default function PublicChatPanel() {
         {/* Empty state / suggestions */}
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center flex-1 gap-4 p-8 text-center">
-            <span className="material-symbols-rounded text-[#4577ac]" style={{ fontSize: 52 }}>chat</span>
+            <span className="material-symbols-rounded text-[#4577ac]" style={{ fontSize: 52 }} aria-hidden="true">chat</span>
             <div>
               <p className="text-sm font-semibold text-gray-700">{t("emptyHeading")}</p>
               <p className="text-xs text-gray-400 mt-1">{t("emptySubtext")}</p>
             </div>
-            <div className="flex flex-col gap-2 w-full mt-2">
+            <ul className="flex flex-col gap-2 w-full mt-2" aria-label={isDE ? "Vorschläge" : "Suggestions"}>
               {suggestions.map((s) => (
-                <button
-                  key={s}
-                  onClick={() => sendMessage(s)}
-                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-left text-xs text-gray-600 hover:bg-[#eef3f9] hover:border-[#4577ac] transition-colors"
-                >
-                  {s}
-                </button>
+                <li key={s}>
+                  <button
+                    onClick={() => sendMessage(s)}
+                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-left text-xs text-gray-600 hover:bg-[#eef3f9] hover:border-[#4577ac] transition-colors"
+                  >
+                    {s}
+                  </button>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
         )}
 
-        {/* Message list */}
+        {/* Message log */}
         {messages.length > 0 && (
-          <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
+          <div
+            role="log"
+            aria-live="polite"
+            aria-label={isDE ? "Chatverlauf" : "Chat history"}
+            className="flex-1 overflow-y-auto p-4 flex flex-col gap-3"
+          >
             {messages.map((m, i) => (
               <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
                 {m.role === "assistant" && (
-                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#4577ac] flex items-center justify-center mr-2 mt-1">
+                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#4577ac] flex items-center justify-center mr-2 mt-1" aria-hidden="true">
                     <span className="material-symbols-rounded text-white" style={{ fontSize: 14 }}>chat</span>
                   </div>
                 )}
@@ -249,10 +297,14 @@ export default function PublicChatPanel() {
                   }`}
                 >
                   {m.loading ? (
-                    <span className="flex gap-1 items-center py-0.5">
-                      <span className="h-1.5 w-1.5 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: "0ms" }} />
-                      <span className="h-1.5 w-1.5 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: "150ms" }} />
-                      <span className="h-1.5 w-1.5 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: "300ms" }} />
+                    <span
+                      className="flex gap-1 items-center py-0.5"
+                      role="status"
+                      aria-label={isDE ? "Assistent tippt…" : "Assistant is typing…"}
+                    >
+                      <span className="h-1.5 w-1.5 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: "0ms" }} aria-hidden="true" />
+                      <span className="h-1.5 w-1.5 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: "150ms" }} aria-hidden="true" />
+                      <span className="h-1.5 w-1.5 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: "300ms" }} aria-hidden="true" />
                     </span>
                   ) : m.role === "assistant" ? (
                     <div className="flex flex-col gap-2">
@@ -262,7 +314,7 @@ export default function PublicChatPanel() {
                           onClick={() => { router.push(m.navigateTo!); setOpen(false); }}
                           className="mt-1 inline-flex items-center gap-1 self-start rounded-lg bg-[#4577ac] text-white text-xs px-3 py-1.5 hover:bg-[#2d5a8a] transition-colors"
                         >
-                          <span className="material-symbols-rounded" style={{ fontSize: 14 }}>arrow_forward</span>
+                          <span className="material-symbols-rounded" style={{ fontSize: 14 }} aria-hidden="true">arrow_forward</span>
                           {m.navigateLabel}
                         </button>
                       )}
@@ -279,7 +331,9 @@ export default function PublicChatPanel() {
 
         {/* Input area */}
         <div className="border-t border-gray-200 p-3 flex gap-2 flex-shrink-0 bg-white">
+          <label htmlFor="chat-input" className="sr-only">{t("placeholder")}</label>
           <input
+            id="chat-input"
             ref={inputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -291,14 +345,17 @@ export default function PublicChatPanel() {
             }}
             placeholder={t("placeholder")}
             disabled={loading}
+            aria-disabled={loading}
             className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#4577ac] disabled:opacity-50"
           />
           <button
             onClick={() => sendMessage()}
             disabled={loading || !input.trim()}
+            aria-label={isDE ? "Nachricht senden" : "Send message"}
+            aria-disabled={loading || !input.trim()}
             className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#4577ac] text-white hover:bg-[#2d5a8a] disabled:opacity-40 transition-colors flex-shrink-0"
           >
-            <span className="material-symbols-rounded" style={{ fontSize: 18 }}>send</span>
+            <span className="material-symbols-rounded" style={{ fontSize: 18 }} aria-hidden="true">send</span>
           </button>
         </div>
       </div>

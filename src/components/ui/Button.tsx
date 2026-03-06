@@ -24,6 +24,7 @@ export default function Button({
   return (
     <button
       disabled={disabled || loading}
+      aria-busy={loading ? "true" : undefined}
       className={`${base} ${variants[variant]} ${className}`}
       {...props}
     >

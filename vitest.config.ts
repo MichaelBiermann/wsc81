@@ -5,6 +5,9 @@ export default defineConfig({
   plugins: [tsconfigPaths()],
   test: {
     environment: "node",
+    environmentMatchGlobs: [
+      ["src/__tests__/accessibility.test.tsx", "jsdom"],
+    ],
     coverage: {
       provider: "v8",
       include: [
