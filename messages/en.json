@@ -394,6 +394,11 @@
       "What is WSC 81?"
     ]
   },
+  "General": {
+    "title": "General",
+    "fisRules": "FIS Rules",
+    "cartoon": "Cartoon"
+  },
   "Forms": {
     "title": "Forms",
     "walldorfPass": "Reimbursements for the Walldorf-Pass",

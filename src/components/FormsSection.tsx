@@ -25,6 +25,7 @@ const modalTitleId = "forms-modal-title";
 
 export default function FormsSection() {
   const t = useTranslations("Forms");
+  const g = useTranslations("General");
   const locale = useLocale();
   const router = useRouter();
   const isDE = locale !== "en";
@@ -101,6 +102,46 @@ export default function FormsSection() {
     "bg-white rounded-lg border border-gray-200 p-5 flex flex-col gap-3";
 
   return (
+    <>
+    {/* Allgemeines section */}
+    <section className="py-12 bg-white" aria-labelledby="general-section-title">
+      <div className="mx-auto max-w-7xl px-4">
+        <h2 id="general-section-title" className="text-2xl font-bold text-[#4577ac] mb-6">{g("title")}</h2>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+
+          {/* FIS Regeln — external link */}
+          <div className={cardBase}>
+            <span className="material-symbols-rounded text-[#4577ac] text-3xl" aria-hidden="true">rule</span>
+            <p className="font-semibold text-gray-800">{g("fisRules")}</p>
+            <a
+              href="https://www.wsc81.de/seite/633564/fis-regeln.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-sm text-[#4577ac] hover:underline"
+            >
+              <span className="material-symbols-rounded text-base" aria-hidden="true">open_in_new</span>
+              {isDE ? "Öffnen" : "Open"}
+            </a>
+          </div>
+
+          {/* Cartoon — internal page */}
+          <div className={cardBase}>
+            <span className="material-symbols-rounded text-[#4577ac] text-3xl" aria-hidden="true">sentiment_very_satisfied</span>
+            <p className="font-semibold text-gray-800">{g("cartoon")}</p>
+            <Link
+              href={`/${locale}/seite/cartoon`}
+              className="inline-flex items-center gap-1 text-sm text-[#4577ac] hover:underline"
+            >
+              <span className="material-symbols-rounded text-base" aria-hidden="true">arrow_forward</span>
+              {isDE ? "Ansehen" : "View"}
+            </Link>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    {/* Formulare section */}
     <section className="py-12 bg-gray-50" aria-labelledby="forms-section-title">
       <div className="mx-auto max-w-7xl px-4">
         <h2 id="forms-section-title" className="text-2xl font-bold text-[#4577ac] mb-6">{t("title")}</h2>
@@ -254,5 +295,6 @@ export default function FormsSection() {
         </div>
       </div>
     </section>
+    </>
   );
 }

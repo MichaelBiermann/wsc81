@@ -394,6 +394,11 @@
       "Was ist der WSC 81?"
     ]
   },
+  "General": {
+    "title": "Allgemeines",
+    "fisRules": "FIS Regeln",
+    "cartoon": "Cartoon"
+  },
   "Forms": {
     "title": "Formulare",
     "walldorfPass": "Erstattungen für den Walldorf-Pass",
