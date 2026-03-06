@@ -164,7 +164,7 @@ export default function PublicChatPanel() {
       <button
         onClick={() => setOpen(true)}
         title={t("title")}
-        className="fixed bottom-6 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#4577ac] text-white shadow-xl hover:bg-[#2d5a8a] transition-colors"
+        className="fixed bottom-6 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-white text-[#4577ac] shadow-xl hover:bg-blue-50 transition-colors border-2 border-[#4577ac]"
       >
         <span className="material-symbols-rounded" style={{ fontSize: 28 }}>chat</span>
       </button>
