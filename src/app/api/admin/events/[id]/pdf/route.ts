@@ -98,10 +98,7 @@ const s = StyleSheet.create({
   cellMuted:     { fontSize: 8.5, color: GRAY },
 
   // Contact section
-  contactGrid:   { marginTop: 6, gap: 2 },
-  contactItem:   { flexDirection: "row" },
-  contactLabel:  { fontSize: 8.5, color: LIGHT, width: 70 },
-  contactValue:  { fontSize: 8.5, color: "#333", flex: 1 },
+  contactLine:   { fontSize: 8.5, color: "#333", marginBottom: 2 },
 
   // Payment row
   paymentRow:    { flexDirection: "row", gap: 6, marginTop: 6, flexWrap: "wrap" },
@@ -276,24 +273,12 @@ export async function GET(
               )
             ),
 
-            // Contact grid
-            React.createElement(View, { style: s.contactGrid },
-              React.createElement(View, { style: s.contactItem },
-                React.createElement(Text, { style: s.contactLabel }, "Email:"),
-                React.createElement(Text, { style: s.contactValue }, b.email),
-              ),
-              React.createElement(View, { style: s.contactItem },
-                React.createElement(Text, { style: s.contactLabel }, "Tel:"),
-                React.createElement(Text, { style: s.contactValue }, b.phone || "\u2014"),
-              ),
-              React.createElement(View, { style: s.contactItem },
-                React.createElement(Text, { style: s.contactLabel }, "Adresse:"),
-                React.createElement(Text, { style: s.contactValue }, `${b.street}, ${b.postalCode} ${b.city}`),
-              ),
-              rooms ? React.createElement(View, { style: s.contactItem },
-                React.createElement(Text, { style: s.contactLabel }, "Zimmer:"),
-                React.createElement(Text, { style: s.contactValue }, rooms),
-              ) : null,
+            // Contact info — simple stacked lines
+            React.createElement(View, { style: { marginTop: 6 } },
+              React.createElement(Text, { style: s.contactLine }, `Email: ${b.email}`),
+              React.createElement(Text, { style: s.contactLine }, `Tel: ${b.phone || "-"}`),
+              React.createElement(Text, { style: s.contactLine }, `Adresse: ${b.street}, ${b.postalCode} ${b.city}`),
+              rooms ? React.createElement(Text, { style: s.contactLine }, `Zimmer: ${rooms}`) : null,
             ),
 
             // Remarks
