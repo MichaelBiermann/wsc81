@@ -15,7 +15,7 @@ export default function WelcomeBlock({ locale }: { locale: string }) {
             {" "}bis hin zu{" "}
             <Link href={`/${locale}/events/regular-nordic-walking`} className="text-[#4577ac] hover:underline">Nordic Walking</Link>
             {" "}und{" "}
-            <Link href={`/${locale}#veranstaltungen`} className="text-[#4577ac] hover:underline">Fitnessgymnastik</Link>
+            <Link href={`/${locale}/events/regular-ski-gymnastics`} className="text-[#4577ac] hover:underline">Fitnessgymnastik</Link>
             {" "}das ganze Jahr. Werden Sie Teil unserer Gemeinschaft!
           </>
         ) : (
@@ -25,7 +25,7 @@ export default function WelcomeBlock({ locale }: { locale: string }) {
             {" "}to{" "}
             <Link href={`/${locale}/events/regular-nordic-walking`} className="text-[#4577ac] hover:underline">Nordic Walking</Link>
             {" "}and{" "}
-            <Link href={`/${locale}#veranstaltungen`} className="text-[#4577ac] hover:underline">fitness gymnastics</Link>
+            <Link href={`/${locale}/events/regular-ski-gymnastics`} className="text-[#4577ac] hover:underline">fitness gymnastics</Link>
             {" "}all year round. Become part of our community!
           </>
         )}
