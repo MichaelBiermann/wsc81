@@ -19,8 +19,8 @@ async function requireAdmin() {
 
 function stripHtml(html: string): string {
   return html
-    // Remove material-symbols spans entirely (and trailing whitespace/&nbsp;)
-    .replace(/<span[^>]*class="[^"]*material-symbols[^"]*"[^>]*>[\s\S]*?<\/span>(\s|&nbsp;)*/gi, "")
+    // Remove ANY span tags and their content entirely (catches icon spans regardless of class)
+    .replace(/<span[^>]*>[\s\S]*?<\/span>/gi, "")
     .replace(/<\/p>/gi, "\n")
     .replace(/<br\s*\/?>/gi, "\n")
     .replace(/<\/?(li|tr|td|th|h[1-6]|div|blockquote)>/gi, "\n")
