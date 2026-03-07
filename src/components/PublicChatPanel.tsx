@@ -20,7 +20,7 @@ function renderMarkdown(text: string, onNavigate: (path: string) => void): React
         {parts.map((p, j) => {
           if (p.startsWith("**") && p.endsWith("**")) return <strong key={j}>{p.slice(2, -2)}</strong>;
           if (p.startsWith("`") && p.endsWith("`")) return <code key={j} className="bg-gray-200 rounded px-1 text-xs font-mono">{p.slice(1, -1)}</code>;
-          const linkMatch = p.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
+          const linkMatch = p.match(/^\[([^\]]+)\]\(([^)]+)\)/);
           if (linkMatch) return <a key={j} href={linkMatch[2]} onClick={(e) => { e.preventDefault(); onNavigate(linkMatch[2]); }} className="text-[#4577ac] underline hover:text-[#2d5a8a]">{linkMatch[1]}</a>;
           return p;
         })}
