@@ -317,7 +317,7 @@ export default function PublicChatPanel() {
                     </span>
                   ) : m.role === "assistant" ? (
                     <div className="flex flex-col gap-2">
-                      {renderMarkdown(m.text, (path) => { router.push(path); setOpen(false); })}
+                      {renderMarkdown(m.text, (path) => { setOpen(false); setTimeout(() => router.push(path), 50); })}
                     </div>
                   ) : (
                     <span style={{ whiteSpace: "pre-wrap" }}>{m.text}</span>
