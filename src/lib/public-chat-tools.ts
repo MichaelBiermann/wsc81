@@ -124,6 +124,7 @@ export async function executePublicTool(name: string, input: Record<string, any>
       return events.map((e) => ({
         id: e.id,
         title: locale === "en" ? e.titleEn : e.titleDe,
+        url: `/${locale}/events/${e.id}`,
         startDate: e.startDate.toISOString(),
         endDate: e.endDate.toISOString(),
         location: e.location,

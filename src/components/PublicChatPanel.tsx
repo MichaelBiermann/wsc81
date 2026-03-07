@@ -318,15 +318,6 @@ export default function PublicChatPanel() {
                   ) : m.role === "assistant" ? (
                     <div className="flex flex-col gap-2">
                       {renderMarkdown(m.text, (path) => { router.push(path); setOpen(false); })}
-                      {m.navigateTo && m.navigateLabel && !m.text.includes("](") && (
-                        <button
-                          onClick={() => { router.push(m.navigateTo!); setOpen(false); }}
-                          className="mt-1 inline-flex items-center gap-1 self-start rounded-lg bg-[#4577ac] text-white text-xs px-3 py-1.5 hover:bg-[#2d5a8a] transition-colors"
-                        >
-                          <span className="material-symbols-rounded" style={{ fontSize: 14 }} aria-hidden="true">arrow_forward</span>
-                          {m.navigateLabel}
-                        </button>
-                      )}
                     </div>
                   ) : (
                     <span style={{ whiteSpace: "pre-wrap" }}>{m.text}</span>
