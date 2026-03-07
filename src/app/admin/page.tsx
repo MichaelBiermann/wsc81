@@ -36,22 +36,22 @@ export default function AdminDashboard() {
     <div>
       <h1 className="text-2xl font-bold text-gray-900 mb-8">{t.dashboard.title}</h1>
       {data ? (
-        <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
           {cards.map((card) => (
-            <Link key={card.label} href={card.href} className="rounded-lg bg-white border border-gray-200 p-5 shadow-sm hover:shadow-md transition-shadow">
-              <span className={`material-symbols-rounded ${card.color} mb-3 block`} style={{ fontSize: 40 }}>{card.icon}</span>
-              <p className="text-2xl font-bold text-gray-900">{card.value}</p>
-              <p className="text-sm text-gray-500 mt-1">{card.label}</p>
+            <Link key={card.label} href={card.href} className="rounded-xl bg-white border border-gray-200 p-8 shadow-sm hover:shadow-md transition-shadow">
+              <span className={`material-symbols-rounded ${card.color} mb-4 block`} style={{ fontSize: 56 }}>{card.icon}</span>
+              <p className="text-4xl font-bold text-gray-900">{card.value}</p>
+              <p className="text-base text-gray-500 mt-2">{card.label}</p>
             </Link>
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="rounded-lg bg-white border border-gray-200 p-5 shadow-sm animate-pulse">
-              <div className="w-10 h-10 bg-gray-200 rounded mb-3" />
-              <div className="h-8 bg-gray-200 rounded w-12 mb-2" />
-              <div className="h-4 bg-gray-100 rounded w-24" />
+            <div key={i} className="rounded-xl bg-white border border-gray-200 p-8 shadow-sm animate-pulse">
+              <div className="w-14 h-14 bg-gray-200 rounded mb-4" />
+              <div className="h-10 bg-gray-200 rounded w-16 mb-3" />
+              <div className="h-5 bg-gray-100 rounded w-28" />
             </div>
           ))}
         </div>
