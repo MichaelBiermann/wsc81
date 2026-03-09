@@ -367,7 +367,13 @@ export default function DeveloperPage() {
         </div>
         <button
           data-no-print
-          onClick={() => window.print()}
+          onClick={() => {
+            const date = new Date().toISOString().split("T")[0];
+            const prev = document.title;
+            document.title = `developer_wsc81_${date}`;
+            window.print();
+            document.title = prev;
+          }}
           className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm text-gray-700 shadow-sm hover:bg-gray-50 transition-colors flex-shrink-0"
           aria-label={isDE ? "Als PDF exportieren" : "Export as PDF"}
         >
