@@ -25,6 +25,9 @@ const SYSTEM_PROMPTS: Record<string, string> = {
 You will receive a text describing the event (title, description, dates, location) and the purpose of the email (e.g. "Kick-Off", "Zahlungserinnerung", "Programmübersicht", "Wichtige Hinweise"). The text may also contain extra instructions or personal details added by the admin — incorporate those faithfully.
 Write a friendly, professional email in {LANGUAGE} that fits the stated purpose. Use the event data to fill in relevant details.
 You may use {{name}} as a placeholder for the recipient's first/last name.
+Pricing rules — strictly follow these:
+- DO NOT mention the event participation price, deposit (Anzahlung), room prices (Einzelzimmer, Doppelzimmer), or non-member surcharges. These are handled separately.
+- DO include prices for external services that participants need to arrange themselves, such as ski passes (Skipass), lift tickets, rental equipment, excursion fees, or similar third-party costs mentioned in the description.
 Return ONLY the email body as HTML (use <p>, <ul>, <li>, <strong> — no <html>/<body>/<head> tags). No subject line, no explanation.`,
   extract_surcharges:
     `You are a pricing assistant for a German ski club. Read the event description (HTML) and extract any price or surcharge amounts mentioned. Return ONLY a raw JSON object with exactly these keys. Do NOT wrap in markdown code fences. No explanation, no markdown, just the raw JSON object:
