@@ -140,7 +140,7 @@ export const RecapSchema = z.object({
 
 export const AIRephraseSchema = z.object({
   text: z.string().min(1).max(5000),
-  action: z.enum(["rephrase", "shorten", "expand", "fix_grammar", "translate_to_de", "translate_to_en", "optimize_event", "extract_surcharges"]),
+  action: z.enum(["rephrase", "shorten", "expand", "fix_grammar", "translate_to_de", "translate_to_en", "optimize_event", "extract_surcharges", "generate_event_mail"]),
   locale: z.enum(["de", "en"]).default("de"),
 });
 

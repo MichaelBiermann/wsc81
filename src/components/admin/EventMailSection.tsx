@@ -49,7 +49,7 @@ export default function EventMailSection({
   }
 
   const [purpose, setPurpose] = useState("Kick Off");
-  const [subject, setSubject] = useState(`${eventTitleDe} vom ${formatDateRange()}`);
+  const [subject, setSubject] = useState(`${eventTitleDe} ${em.dateRangeVom} ${formatDateRange()}`);
   const [body, setBody] = useState("");
   const [targetBookingId, setTargetBookingId] = useState<string>("all");
   const [sending, setSending] = useState(false);
@@ -95,8 +95,8 @@ export default function EventMailSection({
       if (!res.ok) return;
       const { suggestion } = await res.json();
       setBody(suggestion);
-      if (subject === `${eventTitleDe} vom ${formatDateRange()}` || !subject.trim()) {
-        setSubject(`${purpose.trim()}: ${eventTitleDe} vom ${formatDateRange()}`);
+      if (subject === `${eventTitleDe} ${em.dateRangeVom} ${formatDateRange()}` || !subject.trim()) {
+        setSubject(`${purpose.trim()}: ${eventTitleDe} ${em.dateRangeVom} ${formatDateRange()}`);
       }
       setPromptDraft(null);
     } finally {
@@ -188,9 +188,7 @@ export default function EventMailSection({
             <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 p-3">
               <div className="flex items-start gap-2 mb-2">
                 <span className="material-symbols-rounded text-amber-500 text-base mt-0.5">edit_note</span>
-                <p className="text-xs text-amber-800 leading-snug">
-                  <strong>Prompt prüfen:</strong> Ergänze persönliche Details, spezifische Hinweise oder einen besonderen Ton, um dem Text eine persönliche Note zu geben.
-                </p>
+                <p className="text-xs text-amber-800 leading-snug">{em.promptReviewHint}</p>
               </div>
               <textarea
                 value={promptDraft}
@@ -206,14 +204,14 @@ export default function EventMailSection({
                   className="inline-flex items-center gap-1.5 rounded bg-[#4577ac] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#3a6699] disabled:opacity-50 transition-colors"
                 >
                   <span className="material-symbols-rounded text-sm">{generating ? "progress_activity" : "auto_awesome"}</span>
-                  {generating ? "Generiere…" : "Generieren"}
+                  {generating ? em.generating : em.generate}
                 </button>
                 <button
                   type="button"
                   onClick={() => setPromptDraft(null)}
                   className="text-xs text-gray-400 hover:text-gray-600"
                 >
-                  Abbrechen
+                  {em.cancelGenerate}
                 </button>
               </div>
             </div>
@@ -225,15 +223,13 @@ export default function EventMailSection({
             rows={8}
             className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#4577ac] resize-y"
           />
-          <p className="mt-1 text-xs text-gray-400">
-            Tipp: <code className="bg-gray-100 px-1 rounded">{"{{name}}"}</code> wird durch den Namen des Empfängers ersetzt.
-          </p>
+          <p className="mt-1 text-xs text-gray-400">{em.namePlaceholderHint}</p>
         </div>
 
         {/* Recipient selector */}
         {bookings.length > 1 && (
           <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">Empfänger</label>
+            <label className="block text-xs font-medium text-gray-500 mb-1">{em.recipientsLabel}</label>
             <select
               value={targetBookingId}
               onChange={(e) => setTargetBookingId(e.target.value)}
