@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import FormField from "@/components/ui/FormField";
 import Input from "@/components/ui/Input";
@@ -31,6 +31,7 @@ export default function SupportForm() {
   const [screenshotError, setScreenshotError] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
+
   const types: { value: TicketType; label: string; desc: string }[] = [
     { value: "BUG", label: t("typeBug"), desc: t("typeBugDesc") },
     { value: "FEATURE", label: t("typeFeature"), desc: t("typeFeatureDesc") },
@@ -38,44 +39,44 @@ export default function SupportForm() {
     { value: "OTHER", label: t("typeOther"), desc: t("typeOtherDesc") },
   ];
 
-  // Capture screenshot of the current page BEFORE transitioning to step 2,
-  // so the wizard form is not visible in the screenshot.
-  async function captureAndProceed(selectedType: TicketType) {
-    setType(selectedType);
-    setScreenshotError(false);
-    setScreenshotUploading(true);
-
-    try {
-      const { toPng } = await import("html-to-image");
-      const dataUrl = await toPng(document.body, {
-        pixelRatio: 0.5,
-        filter: (node) => {
-          if ((node as HTMLElement).id === "support-wizard-overlay") return false;
-          return true;
-        },
-      });
-      setScreenshotDataUrl(dataUrl);
-
-      // Upload — non-fatal
-      try {
-        const fetchRes = await fetch(dataUrl);
-        const blob = await fetchRes.blob();
+  // On mount: read screenshot captured by the referring page before navigation
+  useEffect(() => {
+    const stored = sessionStorage.getItem("support_screenshot");
+    if (stored) {
+      setScreenshotDataUrl(stored);
+      sessionStorage.removeItem("support_screenshot");
+      // Upload it
+      setScreenshotUploading(true);
+      fetch(stored)
+        .then((r) => r.blob())
+        .then((blob) => {
+          const formData = new FormData();
+          formData.append("file", blob, "screenshot.png");
+          return fetch("/api/support/screenshot", { method: "POST", body: formData });
+        })
+        .then((res) => res.ok ? res.json() : null)
+        .then((data) => { if (data?.url) setScreenshotUrl(data.url); })
+        .catch(() => { /* non-fatal */ })
+        .finally(() => setScreenshotUploading(false));
+    } else {
+      // No stored screenshot — capture the current page as fallback
+      setScreenshotUploading(true);
+      import("html-to-image").then(({ toPng }) =>
+        toPng(document.body, { pixelRatio: 0.5 })
+      ).then((dataUrl) => {
+        setScreenshotDataUrl(dataUrl);
         const formData = new FormData();
-        formData.append("file", blob, "screenshot.png");
-        const res = await fetch("/api/support/screenshot", { method: "POST", body: formData });
-        if (res.ok) {
-          const data = await res.json();
-          setScreenshotUrl(data.url);
-        }
-      } catch { /* upload failed silently */ }
-    } catch (err) {
-      console.error("[ss] capture failed:", err);
-      setScreenshotError(true);
-    } finally {
-      setScreenshotUploading(false);
-      setStep(2);
+        return fetch(dataUrl).then((r) => r.blob()).then((blob) => {
+          formData.append("file", blob, "screenshot.png");
+          return fetch("/api/support/screenshot", { method: "POST", body: formData });
+        }).then((res) => res.ok ? res.json() : null)
+          .then((data) => { if (data?.url) setScreenshotUrl(data.url); });
+      }).catch((err) => {
+        console.error("[ss] capture failed:", err);
+        setScreenshotError(true);
+      }).finally(() => setScreenshotUploading(false));
     }
-  }
+  }, []);
 
   const handleBack = () => {
     setStep(1);
@@ -143,18 +144,12 @@ export default function SupportForm() {
       {step === 1 && (
         <div>
           <p className="text-sm text-gray-600 mb-4">{t("step1Prompt")}</p>
-          {screenshotUploading ? (
-            <div className="flex items-center justify-center gap-2 py-8 text-sm text-gray-500">
-              <span className="material-symbols-rounded animate-spin text-[#4577ac]" style={{ fontSize: 20 }} aria-hidden="true">progress_activity</span>
-              {t("screenshotCapturing")}
-            </div>
-          ) : (
           <div className="grid grid-cols-2 gap-3">
             {types.map(({ value, label, desc }) => (
               <button
                 key={value}
                 type="button"
-                onClick={() => captureAndProceed(value)}
+                onClick={() => { setType(value); setStep(2); }}
                 className="flex flex-col items-start gap-2 rounded-xl border-2 border-gray-200 bg-white p-4 text-left transition-all hover:border-[#4577ac] hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-[#4577ac]"
               >
                 <span className="material-symbols-rounded text-[#4577ac] text-2xl" aria-hidden="true">{TYPE_ICONS[value]}</span>
@@ -163,7 +158,6 @@ export default function SupportForm() {
               </button>
             ))}
           </div>
-          )}
         </div>
       )}
 

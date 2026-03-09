@@ -5,6 +5,16 @@ import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
+async function capturePageToSessionStorage() {
+  try {
+    const { toPng } = await import("html-to-image");
+    const dataUrl = await toPng(document.body, { pixelRatio: 0.5 });
+    sessionStorage.setItem("support_screenshot", dataUrl);
+  } catch {
+    sessionStorage.removeItem("support_screenshot");
+  }
+}
+
 interface EventItem {
   id: number;
   titleDe: string;
@@ -225,13 +235,16 @@ export default function FormsSection() {
             <span className="material-symbols-rounded text-[#4577ac] text-3xl" aria-hidden="true">support_agent</span>
             <p className="font-semibold text-gray-800">{t("supportTitle")}</p>
             <p className="text-xs text-gray-500">{t("supportDesc")}</p>
-            <Link
-              href={`/${locale}/support`}
-              className="inline-flex items-center gap-1 text-sm text-[#4577ac] hover:underline"
+            <button
+              onClick={async () => {
+                await capturePageToSessionStorage();
+                router.push(`/${locale}/support`);
+              }}
+              className="inline-flex items-center gap-1 text-sm text-[#4577ac] hover:underline text-left"
             >
               <span className="material-symbols-rounded text-base" aria-hidden="true">arrow_forward</span>
               {t("supportLink")}
-            </Link>
+            </button>
           </div>
 
         </div>

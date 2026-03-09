@@ -329,7 +329,17 @@ export default function PublicChatPanel() {
                       {renderMarkdown(m.text, (path) => { setOpen(false); setTimeout(() => router.push(path), 50); })}
                       {m.navigateTo && m.navigateLabel && (
                         <button
-                          onClick={() => { setOpen(false); setTimeout(() => router.push(m.navigateTo!), 50); }}
+                          onClick={async () => {
+                            if (m.navigateTo!.includes("/support")) {
+                              try {
+                                const { toPng } = await import("html-to-image");
+                                const dataUrl = await toPng(document.body, { pixelRatio: 0.5 });
+                                sessionStorage.setItem("support_screenshot", dataUrl);
+                              } catch { sessionStorage.removeItem("support_screenshot"); }
+                            }
+                            setOpen(false);
+                            setTimeout(() => router.push(m.navigateTo!), 50);
+                          }}
                           className="self-start inline-flex items-center gap-1.5 rounded-full bg-[#4577ac] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#2d5a8a] transition-colors"
                         >
                           <span className="material-symbols-rounded" style={{ fontSize: 14 }} aria-hidden="true">arrow_forward</span>
