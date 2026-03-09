@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
 import Link from "next/link";
 
 interface EventItem {
@@ -29,8 +28,6 @@ export default function FormsSection() {
   const g = useTranslations("General");
   const locale = useLocale();
   const router = useRouter();
-  const { data: session } = useSession();
-  const isAdmin = (session?.user as { role?: string } | undefined)?.role === "admin";
   const isDE = locale !== "en";
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -223,8 +220,7 @@ export default function FormsSection() {
             </button>
           </div>
 
-          {/* 6 — Support (hidden for admins) */}
-          {!isAdmin && (
+          {/* 6 — Support */}
           <div className={cardBase}>
             <span className="material-symbols-rounded text-[#4577ac] text-3xl" aria-hidden="true">support_agent</span>
             <p className="font-semibold text-gray-800">{t("supportTitle")}</p>
@@ -237,7 +233,6 @@ export default function FormsSection() {
               {t("supportLink")}
             </Link>
           </div>
-          )}
 
         </div>
       </div>
