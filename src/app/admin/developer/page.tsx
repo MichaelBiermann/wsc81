@@ -7,52 +7,67 @@ import { useAdminI18n } from "@/components/admin/AdminI18nProvider";
 const MermaidDiagram = dynamic(() => import("@/components/admin/MermaidDiagram"), { ssr: false });
 
 const COMPONENT_DIAGRAM = `graph TD
-  subgraph Public["Public Site (src/app/[locale]/)"]
-    PL[layout.tsx<br/>Nav + ScrollToTop + PublicChatPanel]
-    HP[page.tsx<br/>Homepage]
-    EV[events/[id]/page.tsx]
-    ACC[account/page.tsx]
-    MEM[membership/page.tsx]
-    SR[search/page.tsx]
+  subgraph Public["Public Site"]
+    PL["layout.tsx - Nav + PublicChatPanel"]
+    HP["page.tsx - Homepage"]
+    EV["events/id/page.tsx"]
+    ACC["account/page.tsx"]
+    MEM["membership/page.tsx"]
+    SR["search/page.tsx"]
   end
 
-  subgraph Admin["Admin Area (src/app/admin/)"]
-    AL[layout.tsx<br/>AdminSidebar + AdminChatPanel]
-    AD[page.tsx<br/>Dashboard]
-    AEV[events/]
-    AMEM[members/]
-    ADEV[developer/<br/>DevChatPanel + Diagrams]
+  subgraph Admin["Admin Area"]
+    AL["layout.tsx - AdminSidebar + AdminChatPanel"]
+    AD["page.tsx - Dashboard"]
+    AEV["events/"]
+    AMEM["members/"]
+    ADEV["developer/ - DevChatPanel + Diagrams"]
   end
 
-  subgraph API["API Routes (src/app/api/)"]
-    AB[booking/route.ts]
-    ACO[booking/checkout/route.ts]
-    AST[webhooks/stripe/route.ts]
-    ACH[admin/chat/route.ts]
-    ADC[admin/developer-chat/route.ts]
-    PCH[chat/route.ts]
-    SRCH[search/route.ts]
-    FE[forms/events/route.ts]
+  subgraph API["API Routes"]
+    AB["booking/route.ts"]
+    ACO["booking/checkout/route.ts"]
+    AST["webhooks/stripe/route.ts"]
+    ACH["admin/chat/route.ts"]
+    ADC["admin/developer-chat/route.ts"]
+    PCH["chat/route.ts"]
+    SRCH["search/route.ts"]
+    FE["forms/events/route.ts"]
   end
 
-  subgraph Lib["Shared Libraries (src/lib/)"]
-    PR[prisma.ts]
-    ML[mailer.ts]
-    CT[chat-tools.ts]
-    PCT[public-chat-tools.ts]
-    VAL[validation.ts]
-    SCH[search.ts]
+  subgraph Lib["Shared Libraries"]
+    PR["prisma.ts"]
+    ML["mailer.ts"]
+    CT["chat-tools.ts"]
+    PCT["public-chat-tools.ts"]
+    SCH["search.ts"]
+    ANT["Anthropic API"]
   end
 
-  PL --> HP & EV & ACC & MEM & SR
-  AL --> AD & AEV & AMEM & ADEV
-  AB & ACO & ACH & ADC & PCH & SRCH & FE --> PR
-  AB & AST --> ML
+  PL --> HP
+  PL --> EV
+  PL --> ACC
+  PL --> MEM
+  PL --> SR
+  AL --> AD
+  AL --> AEV
+  AL --> AMEM
+  AL --> ADEV
+  AB --> PR
+  ACO --> PR
+  ACH --> PR
+  ADC --> ANT
+  PCH --> PR
+  SRCH --> PR
+  FE --> PR
+  AB --> ML
+  AST --> ML
+  AST --> PR
   ACH --> CT
-  ADC -.->|no tools| Anthropic
   PCH --> PCT
   SRCH --> SCH
-  CT & PCT --> PR`;
+  CT --> PR
+  PCT --> PR`;
 
 const AUTH_SEQUENCE = `sequenceDiagram
   participant U as User Browser
