@@ -353,7 +353,7 @@ export default function DeveloperPage() {
           aside, [data-no-print] { display: none !important; }
           main { padding: 0 !important; background: white !important; }
           .max-w-5xl { max-width: none !important; }
-          @page { margin: 15mm 12mm; size: A4; }
+          @page { margin: 12mm 10mm; size: A4 landscape; }
 
           /* Never break immediately after a heading or section title */
           h1, h2, h3, h4, p.section-title { break-after: avoid; }
