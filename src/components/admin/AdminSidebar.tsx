@@ -22,6 +22,11 @@ export default function AdminSidebar({ userName }: { userName?: string | null })
         <Link href="/admin/content" className="rounded px-3 py-2 hover:bg-white/10 transition-colors">{t.nav.content}</Link>
         <Link href="/admin/recaps" className="rounded px-3 py-2 hover:bg-white/10 transition-colors">{t.nav.recaps}</Link>
         <Link href="/admin/settings" className="rounded px-3 py-2 hover:bg-white/10 transition-colors">{t.nav.settings}</Link>
+        <div className="border-t border-white/10 my-1" />
+        <Link href="/admin/developer" className="rounded px-3 py-2 hover:bg-white/10 transition-colors flex items-center gap-1.5">
+          <span className="material-symbols-rounded" style={{ fontSize: 16 }} aria-hidden="true">code</span>
+          {t.nav.developer}
+        </Link>
       </nav>
       <div className="p-4 border-t border-white/10 flex flex-col gap-2">
         {/* Language toggle */}

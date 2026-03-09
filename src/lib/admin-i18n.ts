@@ -14,6 +14,7 @@ export const ADMIN_TRANSLATIONS = {
       recaps: "Rückblicke",
       settings: "Einstellungen",
       userAccounts: "Benutzer",
+      developer: "Entwickler",
     },
     signOut: "Abmelden",
     // Users
@@ -315,6 +316,22 @@ export const ADMIN_TRANSLATIONS = {
         "Wie viele ausstehende Mitgliedschaftsanträge gibt es?",
       ],
     },
+    // Developer chat panel
+    devChat: {
+      title: "Entwickler-Assistent",
+      subtitle: "WSC 81 Dev",
+      emptyHeading: "Wie kann ich helfen?",
+      emptySubtext: "Architektur, Code und Abläufe erkunden.",
+      placeholder: "Frage stellen…",
+      clearTitle: "Verlauf löschen",
+      errorGeneric: "Fehler – bitte erneut versuchen.",
+      errorConnection: "Verbindungsfehler. Bitte erneut versuchen.",
+      suggestions: [
+        "Erkläre die Buchungsarchitektur",
+        "Wie funktioniert die Authentifizierung?",
+        "Zeige die wichtigsten API-Routen",
+      ],
+    },
     // Rich text editor
     richText: {
       aiLabel: "KI:",
@@ -364,6 +381,7 @@ export const ADMIN_TRANSLATIONS = {
       recaps: "Recaps",
       settings: "Settings",
       userAccounts: "Users",
+      developer: "Developer",
     },
     signOut: "Sign out",
     // Users
@@ -655,6 +673,22 @@ export const ADMIN_TRANSLATIONS = {
         "Show all upcoming events",
         "Create a new event",
         "How many pending membership applications are there?",
+      ],
+    },
+    // Developer chat panel
+    devChat: {
+      title: "Developer Assistant",
+      subtitle: "WSC 81 Dev",
+      emptyHeading: "How can I help?",
+      emptySubtext: "Explore architecture, code and flows.",
+      placeholder: "Ask a question…",
+      clearTitle: "Clear history",
+      errorGeneric: "Error – please try again.",
+      errorConnection: "Connection error. Please try again.",
+      suggestions: [
+        "Explain the booking architecture",
+        "How does authentication work?",
+        "Show the main API routes",
       ],
     },
     // Rich text editor

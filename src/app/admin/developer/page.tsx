@@ -1,0 +1,277 @@
+"use client";
+
+import dynamic from "next/dynamic";
+import DevChatPanel from "@/components/admin/DevChatPanel";
+import { useAdminI18n } from "@/components/admin/AdminI18nProvider";
+
+const MermaidDiagram = dynamic(() => import("@/components/admin/MermaidDiagram"), { ssr: false });
+
+const COMPONENT_DIAGRAM = `graph TD
+  subgraph Public["Public Site (src/app/[locale]/)"]
+    PL[layout.tsx<br/>Nav + ScrollToTop + PublicChatPanel]
+    HP[page.tsx<br/>Homepage]
+    EV[events/[id]/page.tsx]
+    ACC[account/page.tsx]
+    MEM[membership/page.tsx]
+    SR[search/page.tsx]
+  end
+
+  subgraph Admin["Admin Area (src/app/admin/)"]
+    AL[layout.tsx<br/>AdminSidebar + AdminChatPanel]
+    AD[page.tsx<br/>Dashboard]
+    AEV[events/]
+    AMEM[members/]
+    ADEV[developer/<br/>DevChatPanel + Diagrams]
+  end
+
+  subgraph API["API Routes (src/app/api/)"]
+    AB[booking/route.ts]
+    ACO[booking/checkout/route.ts]
+    AST[webhooks/stripe/route.ts]
+    ACH[admin/chat/route.ts]
+    ADC[admin/developer-chat/route.ts]
+    PCH[chat/route.ts]
+    SRCH[search/route.ts]
+    FE[forms/events/route.ts]
+  end
+
+  subgraph Lib["Shared Libraries (src/lib/)"]
+    PR[prisma.ts]
+    ML[mailer.ts]
+    CT[chat-tools.ts]
+    PCT[public-chat-tools.ts]
+    VAL[validation.ts]
+    SCH[search.ts]
+  end
+
+  PL --> HP & EV & ACC & MEM & SR
+  AL --> AD & AEV & AMEM & ADEV
+  AB & ACO & ACH & ADC & PCH & SRCH & FE --> PR
+  AB & AST --> ML
+  ACH --> CT
+  ADC -.->|no tools| Anthropic
+  PCH --> PCT
+  SRCH --> SCH
+  CT & PCT --> PR`;
+
+const AUTH_SEQUENCE = `sequenceDiagram
+  participant U as User Browser
+  participant NA as NextAuth
+  participant DB as Database
+
+  U->>NA: POST /api/auth/signin (email+password)
+  NA->>DB: User.findUnique(email)
+  DB-->>NA: User row
+  NA->>NA: bcrypt.compare(password, hash)
+  alt Email not verified
+    NA-->>U: Error: EMAIL_NOT_VERIFIED
+  else Valid credentials
+    NA->>NA: Create JWT (id, role, firstName)
+    NA-->>U: Set session cookie
+    U->>NA: GET /api/auth/session
+    NA-->>U: { user: { id, role, firstName, avatarUrl } }
+  end`;
+
+const BOOKING_SEQUENCE = `sequenceDiagram
+  participant U as User
+  participant BF as BookingForm
+  participant API as /api/booking/checkout
+  participant STR as Stripe
+  participant WH as /api/webhooks/stripe
+  participant DB as Database
+  participant ML as Mailer
+
+  U->>BF: Fill participants + room selection
+  BF->>BF: Calculate total (deposit + surcharges)
+  BF->>API: POST { eventId, persons[], roomType, ... }
+  API->>STR: Create Checkout Session
+  STR-->>API: { url, sessionId }
+  API-->>BF: { checkoutUrl }
+  BF->>STR: Redirect to Stripe Checkout
+  U->>STR: Enter card + pay deposit
+  STR->>WH: checkout.session.completed
+  WH->>DB: Create EventBooking
+  WH->>ML: sendBookingConfirmation(user)
+  WH->>ML: sendAdminBookingNotification()
+  STR-->>U: Redirect to success page`;
+
+const MEMBERSHIP_SEQUENCE = `sequenceDiagram
+  participant U as User
+  participant MF as MembershipForm
+  participant API as /api/membership
+  participant DB as Database
+  participant ML as Mailer
+  participant ADM as Admin
+
+  U->>MF: Fill persons + IBAN + SEPA consent
+  MF->>API: POST membership data
+  API->>API: Encrypt IBAN (AES-256-GCM)
+  API->>DB: Create PendingMembership (7-day token)
+  API->>ML: sendMembershipConfirmation(token)
+  ML-->>U: Email with activation link
+
+  alt User clicks token link
+    U->>API: GET /api/membership/activate?token=...
+    API->>DB: Verify token + create Member
+    API->>DB: Link User.memberId
+    API->>ML: sendWelcomeEmail()
+  else Admin activates
+    ADM->>API: POST /api/admin/members/pending/[id]/activate
+    API->>DB: Create Member + link User.memberId
+    API->>ML: sendWelcomeEmail()
+  end`;
+
+export default function DeveloperPage() {
+  const { t, locale } = useAdminI18n();
+  const isDE = locale === "de";
+
+  return (
+    <div className="max-w-5xl">
+      <div className="flex items-center gap-3 mb-8">
+        <span className="material-symbols-rounded text-emerald-700" style={{ fontSize: 32 }} aria-hidden="true">code</span>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">{isDE ? "Entwickler-Portal" : "Developer Portal"}</h1>
+          <p className="text-sm text-gray-500 mt-0.5">{isDE ? "WSC 81 — Technische Dokumentation" : "WSC 81 — Technical Documentation"}</p>
+        </div>
+      </div>
+
+      {/* Repository Overview */}
+      <section className="mb-10">
+        <h2 className="text-lg font-semibold text-gray-800 mb-4">{isDE ? "Repository-Übersicht" : "Repository Overview"}</h2>
+        <div className="grid gap-4 sm:grid-cols-3">
+          <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="material-symbols-rounded text-[#4577ac]" style={{ fontSize: 22 }} aria-hidden="true">public</span>
+              <h3 className="font-semibold text-gray-800 text-sm">{isDE ? "Öffentliche Website" : "Public Website"}</h3>
+            </div>
+            <ul className="text-xs text-gray-600 space-y-1">
+              <li>• {isDE ? "Homepage mit Veranstaltungen, News, Formulare" : "Homepage with events, news, forms"}</li>
+              <li>• {isDE ? "Benutzerkonten & Buchungen" : "User accounts & bookings"}</li>
+              <li>• {isDE ? "Mitgliedschaft beantragen" : "Membership application"}</li>
+              <li>• {isDE ? "Öffentlicher KI-Assistent" : "Public AI assistant"}</li>
+              <li>• {isDE ? "DE/EN Lokalisierung (next-intl)" : "DE/EN localisation (next-intl)"}</li>
+              <li>• {isDE ? "Stripe Checkout (Anzahlung)" : "Stripe Checkout (deposit)"}</li>
+            </ul>
+          </div>
+          <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="material-symbols-rounded text-[#4577ac]" style={{ fontSize: 22 }} aria-hidden="true">admin_panel_settings</span>
+              <h3 className="font-semibold text-gray-800 text-sm">{isDE ? "Admin-Bereich" : "Admin Area"}</h3>
+            </div>
+            <ul className="text-xs text-gray-600 space-y-1">
+              <li>• {isDE ? "Veranstaltungen & Buchungsverwaltung" : "Event & booking management"}</li>
+              <li>• {isDE ? "Mitgliedschaften & Benutzer" : "Memberships & users"}</li>
+              <li>• {isDE ? "Newsletter-Editor (TipTap + KI)" : "Newsletter editor (TipTap + AI)"}</li>
+              <li>• {isDE ? "Inhalte: News & statische Seiten" : "Content: news & static pages"}</li>
+              <li>• {isDE ? "Rückblicke, Sponsoren, Einstellungen" : "Recaps, sponsors, settings"}</li>
+              <li>• {isDE ? "KI-Assistent für DB-Operationen" : "AI assistant for DB operations"}</li>
+            </ul>
+          </div>
+          <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="material-symbols-rounded text-emerald-700" style={{ fontSize: 22 }} aria-hidden="true">terminal</span>
+              <h3 className="font-semibold text-gray-800 text-sm">{isDE ? "Entwickler-Portal" : "Developer Portal"}</h3>
+            </div>
+            <ul className="text-xs text-gray-600 space-y-1">
+              <li>• {isDE ? "Technische Dokumentation" : "Technical documentation"}</li>
+              <li>• {isDE ? "Architektur-Diagramme (Mermaid)" : "Architecture diagrams (Mermaid)"}</li>
+              <li>• {isDE ? "Sequenzdiagramme der Kernabläufe" : "Sequence diagrams of core flows"}</li>
+              <li>• {isDE ? "KI-Assistent für Code-Fragen" : "AI assistant for code questions"}</li>
+              <li>• {isDE ? "Nur für Admins zugänglich" : "Accessible to admins only"}</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      {/* Tech Stack */}
+      <section className="mb-10">
+        <h2 className="text-lg font-semibold text-gray-800 mb-4">{isDE ? "Tech Stack" : "Tech Stack"}</h2>
+        <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+          <div className="grid gap-3 sm:grid-cols-2 text-sm">
+            {[
+              ["Framework", "Next.js 16 (App Router, TypeScript)"],
+              ["Database", "PostgreSQL (Neon) + Prisma ORM v7"],
+              ["Auth", "NextAuth.js v5 beta (Credentials providers)"],
+              ["Styling", "Tailwind CSS + Material Symbols Rounded"],
+              ["i18n", "next-intl (DE/EN) + admin-i18n.ts"],
+              ["Rich Text", "TipTap"],
+              ["AI", "Anthropic Claude API (Sonnet 4.6 / Haiku 4.5)"],
+              ["Email", "SendGrid"],
+              ["Payments", "Stripe Checkout"],
+              ["File Storage", "Vercel Blob (avatars)"],
+              ["Deployment", "Vercel"],
+              ["Validation", "Zod"],
+            ].map(([label, value]) => (
+              <div key={label} className="flex gap-2">
+                <span className="font-medium text-gray-600 w-28 flex-shrink-0">{label}</span>
+                <span className="text-gray-800">{value}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Architecture Diagram */}
+      <section className="mb-10">
+        <h2 className="text-lg font-semibold text-gray-800 mb-4">{isDE ? "Komponentenarchitektur" : "Component Architecture"}</h2>
+        <MermaidDiagram
+          chart={COMPONENT_DIAGRAM}
+          title={isDE ? "Haupt-Komponenten & Abhängigkeiten" : "Main components & dependencies"}
+        />
+      </section>
+
+      {/* Sequence Diagrams */}
+      <section className="mb-10">
+        <h2 className="text-lg font-semibold text-gray-800 mb-4">{isDE ? "Sequenzdiagramme" : "Sequence Diagrams"}</h2>
+        <div className="flex flex-col gap-6">
+          <MermaidDiagram chart={AUTH_SEQUENCE} title={isDE ? "Authentifizierungsablauf" : "Authentication flow"} />
+          <MermaidDiagram chart={BOOKING_SEQUENCE} title={isDE ? "Buchungsablauf (Stripe)" : "Booking flow (Stripe)"} />
+          <MermaidDiagram chart={MEMBERSHIP_SEQUENCE} title={isDE ? "Mitgliedschaftsablauf" : "Membership flow"} />
+        </div>
+      </section>
+
+      {/* Key File Locations */}
+      <section className="mb-10">
+        <h2 className="text-lg font-semibold text-gray-800 mb-4">{isDE ? "Wichtige Dateipfade" : "Key File Locations"}</h2>
+        <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm overflow-x-auto">
+          <table className="w-full text-xs border-collapse">
+            <thead>
+              <tr className="bg-gray-50">
+                <th className="text-left px-3 py-2 font-semibold text-gray-600 border-b border-gray-200">{isDE ? "Bereich" : "Area"}</th>
+                <th className="text-left px-3 py-2 font-semibold text-gray-600 border-b border-gray-200">{isDE ? "Pfad" : "Path"}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                [isDE ? "Auth-Konfiguration" : "Auth config", "src/auth/config.ts, src/auth/index.ts"],
+                [isDE ? "Prisma Schema" : "Prisma schema", "prisma/schema.prisma"],
+                [isDE ? "E-Mail" : "Email", "src/lib/mailer.ts"],
+                [isDE ? "Admin i18n" : "Admin i18n", "src/lib/admin-i18n.ts"],
+                [isDE ? "Öffentliche i18n" : "Public i18n", "messages/de.json, messages/en.json"],
+                [isDE ? "Admin-KI-Tools" : "Admin AI tools", "src/lib/chat-tools.ts"],
+                [isDE ? "Öffentliche KI-Tools" : "Public AI tools", "src/lib/public-chat-tools.ts"],
+                [isDE ? "Validierung" : "Validation", "src/lib/validation.ts"],
+                [isDE ? "Suche" : "Search", "src/lib/search.ts"],
+                [isDE ? "Buchungs-API" : "Booking API", "src/app/api/booking/route.ts"],
+                [isDE ? "Stripe Webhook" : "Stripe webhook", "src/app/api/webhooks/stripe/route.ts"],
+                [isDE ? "Cron (Cleanup)" : "Cron (cleanup)", "src/app/api/cron/cleanup/route.ts"],
+                [isDE ? "Admin Chat UI" : "Admin chat UI", "src/components/admin/AdminChatPanel.tsx"],
+                [isDE ? "Entwickler Chat UI" : "Dev chat UI", "src/components/admin/DevChatPanel.tsx"],
+                [isDE ? "Öffentlicher Chat UI" : "Public chat UI", "src/components/PublicChatPanel.tsx"],
+                [isDE ? "Buchungsformular" : "Booking form", "src/components/BookingForm.tsx"],
+                [isDE ? "Formulare-Abschnitt" : "Forms section", "src/components/FormsSection.tsx"],
+              ].map(([area, path]) => (
+                <tr key={area} className="border-b border-gray-100 hover:bg-gray-50">
+                  <td className="px-3 py-1.5 text-gray-700">{area}</td>
+                  <td className="px-3 py-1.5 font-mono text-gray-500">{path}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <DevChatPanel />
+    </div>
+  );
+}

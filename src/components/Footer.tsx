@@ -28,6 +28,7 @@ export default function Footer() {
               <ul className="space-y-1 text-blue-100">
                 <li><Link href={`/${locale}/impressum`} className="hover:text-white">{t("imprint")}</Link></li>
                 <li><Link href={`/${locale}/datenschutz`} className="hover:text-white">{t("privacy")}</Link></li>
+                <li><Link href={`/${locale}/barrierefreiheit`} className="hover:text-white">{t("accessibility")}</Link></li>
                 <li><Link href={`/${locale}/membership`} className="hover:text-white">Mitglied werden</Link></li>
               </ul>
             </div>
