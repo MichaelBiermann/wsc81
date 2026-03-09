@@ -355,15 +355,39 @@ export default function DeveloperPage() {
           .max-w-5xl { max-width: none !important; }
           @page { margin: 12mm 10mm; size: A4 landscape; }
 
-          /* Never break immediately after a heading or section title */
-          h1, h2, h3, h4, p.section-title { break-after: avoid; }
+          /* Force white backgrounds everywhere — no grey panels */
+          * { background: white !important; box-shadow: none !important; }
 
-          /* Keep each card/tile intact */
-          section { break-inside: avoid-page; }
-          tr { break-inside: avoid; }
+          /* Never break immediately after a heading */
+          h1, h2, h3, h4 { break-after: avoid; }
 
-          /* Keep diagram label + diagram together */
+          /* Keep section heading glued to the content that follows */
+          section > h2 { break-after: avoid; }
+          section > h2 + * { break-before: avoid; }
+
+          /* Keep diagram title + SVG together */
           .mermaid-wrap { break-inside: avoid; }
+          .mermaid-wrap p { break-after: avoid; }
+          .mermaid-wrap p + * { break-before: avoid; }
+
+          /* Scale tall diagrams to fit the page height — never overflow */
+          .mermaid-wrap svg {
+            max-height: 160mm;
+            width: 100% !important;
+            height: auto !important;
+          }
+
+          /* Reduce Mermaid label font size in print */
+          .mermaid-wrap svg text,
+          .mermaid-wrap svg .label,
+          .mermaid-wrap svg .messageText,
+          .mermaid-wrap svg .labelText,
+          .mermaid-wrap svg .loopText {
+            font-size: 11px !important;
+          }
+
+          /* Keep table rows intact */
+          tr { break-inside: avoid; }
         }
       `}</style>
 
