@@ -78,11 +78,13 @@ export default function EventMailSection({
     } catch { /* ignore */ }
   }
 
-  function loadDraft() {
+  function loadDraft(lang?: "de" | "en") {
+    const l = lang ?? mailLang;
     try {
-      const raw = localStorage.getItem(draftKey(mailLang));
+      const raw = localStorage.getItem(draftKey(l));
       if (!raw) return;
       const { subject: s, body: b, purpose: p } = JSON.parse(raw);
+      if (lang) setMailLang(lang);
       if (p) setPurpose(p);
       if (s) setSubject(s);
       if (b) { setBody(b); setEditorKey((k) => k + 1); }
@@ -315,16 +317,17 @@ export default function EventMailSection({
             )}
           </button>
           <div className="flex items-center gap-2 ml-auto">
-            {savedDraft[mailLang] && (
+            {(["de", "en"] as const).filter((lang) => savedDraft[lang]).map((lang) => (
               <button
+                key={lang}
                 type="button"
-                onClick={loadDraft}
+                onClick={() => loadDraft(lang)}
                 className="inline-flex items-center gap-1 text-xs text-[#4577ac] hover:underline"
               >
                 <span className="material-symbols-rounded text-sm">upload</span>
-                {em.loadDraft} ({mailLang.toUpperCase()})
+                {em.loadDraft} ({lang.toUpperCase()})
               </button>
-            )}
+            ))}
             <button
               type="button"
               onClick={saveDraft}
