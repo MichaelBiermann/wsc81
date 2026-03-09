@@ -49,60 +49,41 @@ export default function SupportForm() {
       try {
         setScreenshotUploading(true);
         setScreenshotError(false);
-        // Dynamically import to avoid SSR issues
-        const html2canvas = (await import("html2canvas")).default;
-        const canvas = await html2canvas(document.body, {
-          scale: 0.5,
-          useCORS: false,
-          allowTaint: false,
-          logging: false,
-          imageTimeout: 0,
-          ignoreElements: (el) => {
-            if (el.id === "support-wizard-overlay") return true;
-            // Skip ALL img elements — next/image proxies can still taint the canvas
-            if (el.tagName === "IMG") return true;
-            // Skip cross-origin stylesheets (Google Fonts etc.)
-            if (el.tagName === "LINK" && (el as HTMLLinkElement).rel === "stylesheet") {
-              try {
-                return new URL((el as HTMLLinkElement).href).origin !== window.location.origin;
-              } catch { return false; }
-            }
-            return false;
-          },
-          onclone: (_doc, el) => {
-            // Clear any cross-origin CSS background-images in the clone
-            el.querySelectorAll<HTMLElement>("*").forEach((node) => {
-              const bg = node.style?.backgroundImage;
-              if (bg && bg.includes("url(")) {
-                try {
-                  const match = bg.match(/url\(["']?([^"')]+)["']?\)/);
-                  if (match && new URL(match[1]).origin !== window.location.origin) {
-                    node.style.backgroundImage = "none";
-                  }
-                } catch { /* relative — safe */ }
-              }
-            });
+
+        console.log("[ss] 1 importing html-to-image");
+        const { toPng } = await import("html-to-image");
+        console.log("[ss] 2 starting capture");
+
+        const dataUrl = await toPng(document.body, {
+          pixelRatio: 0.5,
+          filter: (node) => {
+            // Exclude the wizard overlay
+            if ((node as HTMLElement).id === "support-wizard-overlay") return false;
+            return true;
           },
         });
-        const dataUrl = canvas.toDataURL("image/png");
+
+        console.log("[ss] 3 dataUrl length:", dataUrl.length);
         setScreenshotDataUrl(dataUrl);
 
-        // Upload to server — failure is non-fatal, preview still shown
+        console.log("[ss] 4 uploading");
         try {
           const fetchRes = await fetch(dataUrl);
           const blob = await fetchRes.blob();
           const formData = new FormData();
           formData.append("file", blob, "screenshot.png");
           const res = await fetch("/api/support/screenshot", { method: "POST", body: formData });
+          console.log("[ss] 5 upload status:", res.status);
           if (res.ok) {
             const data = await res.json();
             setScreenshotUrl(data.url);
           }
-        } catch {
-          // upload failed silently — ticket submitted without stored URL
+        } catch (uploadErr) {
+          console.warn("[ss] upload failed (non-fatal):", uploadErr);
         }
+        console.log("[ss] done");
       } catch (err) {
-        console.error("[screenshot] capture failed:", err);
+        console.error("[ss] FAILED:", err);
         setScreenshotError(true);
       } finally {
         setScreenshotUploading(false);
