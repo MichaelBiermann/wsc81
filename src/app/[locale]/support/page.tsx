@@ -1,5 +1,4 @@
 import { auth } from "@/auth";
-import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import SupportForm from "@/components/SupportForm";
@@ -7,14 +6,8 @@ import SupportForm from "@/components/SupportForm";
 export default async function SupportPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const session = await auth();
-  const sessionUser = session?.user as { role?: string } | undefined;
 
   const t = await getTranslations("Support");
-
-  // Admin should not use the public support form
-  if (session && sessionUser?.role === "admin") {
-    redirect(`/admin`);
-  }
 
   if (!session?.user) {
     return (
