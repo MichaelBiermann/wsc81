@@ -56,25 +56,32 @@ export default function SupportForm() {
           useCORS: false,
           allowTaint: false,
           logging: false,
+          imageTimeout: 0,
           ignoreElements: (el) => {
-            // Exclude the wizard overlay itself
             if (el.id === "support-wizard-overlay") return true;
+            // Skip ALL img elements — next/image proxies can still taint the canvas
+            if (el.tagName === "IMG") return true;
             // Skip cross-origin stylesheets (Google Fonts etc.)
             if (el.tagName === "LINK" && (el as HTMLLinkElement).rel === "stylesheet") {
               try {
-                const href = (el as HTMLLinkElement).href;
-                return !!href && new URL(href).origin !== window.location.origin;
-              } catch { return false; }
-            }
-            // Skip cross-origin images (Vercel Blob avatars, external event images)
-            // — drawing them taints the canvas and throws a security error
-            if (el.tagName === "IMG") {
-              try {
-                const src = (el as HTMLImageElement).src;
-                return !!src && new URL(src).origin !== window.location.origin;
+                return new URL((el as HTMLLinkElement).href).origin !== window.location.origin;
               } catch { return false; }
             }
             return false;
+          },
+          onclone: (_doc, el) => {
+            // Clear any cross-origin CSS background-images in the clone
+            el.querySelectorAll<HTMLElement>("*").forEach((node) => {
+              const bg = node.style?.backgroundImage;
+              if (bg && bg.includes("url(")) {
+                try {
+                  const match = bg.match(/url\(["']?([^"')]+)["']?\)/);
+                  if (match && new URL(match[1]).origin !== window.location.origin) {
+                    node.style.backgroundImage = "none";
+                  }
+                } catch { /* relative — safe */ }
+              }
+            });
           },
         });
         const dataUrl = canvas.toDataURL("image/png");
