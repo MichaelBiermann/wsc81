@@ -121,12 +121,13 @@ Registered users (email + password) get a persistent account at `/[locale]/accou
 
 ### 9. Formulare (Forms Section)
 - Public homepage section between "Weitere Veranstaltungen" and sponsors strip
-- 5 cards in a responsive grid (`src/components/FormsSection.tsx`, `"use client"`)
+- 6 cards in a responsive grid (`src/components/FormsSection.tsx`, `"use client"`)
 - Card 1: Walldorf-Pass → download `/documents/walldorfpass.pdf`
 - Card 2: Aktualisierung Mitgliederdaten → download `/documents/aktualisierung-mitgliederdaten.pdf`
 - Card 3: Erklärung für Erziehungsberechtigte → download `/documents/erziehungsberechtigte.pdf`
 - Card 4: Beitrittsformular → navigates to `/{locale}/membership`
 - Card 5: Anmeldung für eine Freizeit → opens event-picker modal (fetches `GET /api/forms/events` on first open — public, no auth)
+- Card 6: Hilfe & Support → links to `/{locale}/support` (visible to all; login prompt shown there for unauthenticated users)
 - PDFs stored in `public/documents/`
 - i18n via `Forms` namespace in `messages/de.json` + `messages/en.json`
 
@@ -157,6 +158,7 @@ Logged-in users report bugs / request features / ask questions at `/[locale]/sup
 - Status flow: `OPEN → IN_PROGRESS` (first admin reply) → `CLOSED` (manual); admin can reopen
 - **Email thread design**: both notification emails set `replyTo` so the entire follow-up exchange can happen outside the app in normal email clients
 - Nav: "Support" link in the logged-in user account dropdown (desktop + mobile)
+- Discovery for unauthenticated users: footer "Support" link (every page) + card 6 in the Formulare section (homepage)
 
 ## Database Models
 
