@@ -220,6 +220,20 @@ export default function FormsSection() {
             </button>
           </div>
 
+          {/* 6 — Support */}
+          <div className={cardBase}>
+            <span className="material-symbols-rounded text-[#4577ac] text-3xl" aria-hidden="true">support_agent</span>
+            <p className="font-semibold text-gray-800">{t("supportTitle")}</p>
+            <p className="text-xs text-gray-500">{t("supportDesc")}</p>
+            <Link
+              href={`/${locale}/support`}
+              className="inline-flex items-center gap-1 text-sm text-[#4577ac] hover:underline"
+            >
+              <span className="material-symbols-rounded text-base" aria-hidden="true">arrow_forward</span>
+              {t("supportLink")}
+            </Link>
+          </div>
+
         </div>
       </div>
 

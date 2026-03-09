@@ -30,6 +30,7 @@ export default function Footer() {
                 <li><Link href={`/${locale}/datenschutz`} className="hover:text-white">{t("privacy")}</Link></li>
                 <li><Link href={`/${locale}/barrierefreiheit`} className="hover:text-white">{t("accessibility")}</Link></li>
                 <li><Link href={`/${locale}/membership`} className="hover:text-white">Mitglied werden</Link></li>
+                <li><Link href={`/${locale}/support`} className="hover:text-white">{t("support")}</Link></li>
               </ul>
             </div>
           </div>

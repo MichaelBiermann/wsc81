@@ -209,6 +209,7 @@
     "privacy": "Privacy",
     "accessibility": "Accessibility",
     "contact": "Contact",
+    "support": "Support",
     "rights": "All rights reserved"
   },
   "Common": {
@@ -408,6 +409,9 @@
     "guardianDeclaration": "Declaration for Legal Guardians",
     "membershipForm": "Membership Application",
     "eventRegistration": "Register for a Trip",
+    "supportTitle": "Help & Support",
+    "supportDesc": "Report a bug or suggest a feature",
+    "supportLink": "Submit a request",
     "comingSoon": "Coming soon",
     "pickEventTitle": "Select a Trip",
     "noEvents": "No bookable events available."

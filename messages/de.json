@@ -209,6 +209,7 @@
     "privacy": "Datenschutz",
     "accessibility": "Barrierefreiheit",
     "contact": "Kontakt",
+    "support": "Support",
     "rights": "Alle Rechte vorbehalten"
   },
   "Common": {
@@ -408,6 +409,9 @@
     "guardianDeclaration": "Erklärung für Erziehungsberechtigte",
     "membershipForm": "Beitrittsformular",
     "eventRegistration": "Anmeldung für eine Freizeit",
+    "supportTitle": "Hilfe & Support",
+    "supportDesc": "Fehler melden oder Feature vorschlagen",
+    "supportLink": "Anfrage stellen",
     "comingSoon": "Demnächst verfügbar",
     "pickEventTitle": "Freizeit auswählen",
     "noEvents": "Keine buchbaren Veranstaltungen verfügbar."
