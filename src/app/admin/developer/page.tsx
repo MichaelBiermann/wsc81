@@ -69,6 +69,211 @@ const COMPONENT_DIAGRAM = `graph TD
   CT --> PR
   PCT --> PR`;
 
+const DB_DIAGRAM = `erDiagram
+  AdminUser {
+    string id PK
+    string email UK
+    string passwordHash
+    string name
+    datetime createdAt
+  }
+
+  User {
+    string id PK
+    string email UK
+    string passwordHash
+    string firstName
+    string lastName
+    date dob
+    string street
+    string postalCode
+    string city
+    string phone
+    boolean emailVerified
+    string verificationToken UK
+    datetime tokenExpiresAt
+    string memberId UK "FK -> Member"
+    string pendingEmail
+    string pendingEmailToken UK
+    datetime pendingEmailExpiresAt
+    string passwordResetToken UK
+    datetime passwordResetExpiresAt
+    string avatarUrl
+    boolean mustChangePassword
+    datetime createdAt
+  }
+
+  Member {
+    string id PK
+    int memberNumber UK
+    string category "FAMILIE|ERWACHSENE|JUGENDLICHE|SENIOREN|GDB"
+    string person1Name
+    date person1Dob
+    string personNName "person2..10 optional"
+    string street
+    string postalCode
+    string city
+    string phone
+    string email UK
+    string bankName
+    string ibanEncrypted
+    string ibanLast4
+    string bic
+    boolean feesPaid
+    datetime activatedAt
+    datetime createdAt
+  }
+
+  PendingMembership {
+    string id PK
+    string category "FAMILIE|ERWACHSENE|..."
+    string person1Name
+    date person1Dob
+    string personNName "person2..10 optional"
+    string street
+    string postalCode
+    string city
+    string phone
+    string email UK
+    string bankName
+    string ibanEncrypted
+    string ibanLast4
+    string bic
+    boolean consentData
+    boolean consentCancellation
+    boolean consentBylaws
+    string activationToken UK
+    datetime tokenExpiresAt
+    datetime createdAt
+  }
+
+  Event {
+    string id PK
+    string titleDe
+    string titleEn
+    string descriptionDe
+    string descriptionEn
+    string location
+    datetime startDate
+    datetime endDate
+    decimal depositAmount
+    decimal totalAmount
+    string imageUrl
+    int maxParticipants
+    datetime registrationDeadline
+    boolean bookable
+    decimal surchargeNonMemberAdult
+    decimal surchargeNonMemberChild
+    decimal busSurcharge
+    decimal roomSingleSurcharge
+    decimal roomDoubleSurcharge
+    json agePrices
+    datetime createdAt
+    datetime updatedAt
+  }
+
+  EventBooking {
+    string id PK
+    string eventId FK
+    string person1Name
+    date person1Dob
+    string personNName "person2..10 optional"
+    string street
+    string postalCode
+    string city
+    string phone
+    string email
+    boolean isMember
+    string remarks
+    int roomsSingle
+    int roomsDouble
+    string stripePaymentIntentId
+    decimal balanceDue
+    datetime paymentReminderSentAt
+    string userId FK
+    datetime createdAt
+  }
+
+  NewsPost {
+    string id PK
+    string slug UK
+    string titleDe
+    string titleEn
+    string bodyDe
+    string bodyEn
+    string status "DRAFT|PUBLISHED"
+    datetime publishedAt
+    datetime createdAt
+    datetime updatedAt
+  }
+
+  Page {
+    string id PK
+    string slug UK
+    string titleDe
+    string titleEn
+    string bodyDe
+    string bodyEn
+    string status "DRAFT|PUBLISHED"
+    datetime publishedAt
+    datetime createdAt
+    datetime updatedAt
+  }
+
+  Recap {
+    string id PK
+    string slug UK
+    string titleDe
+    string titleEn
+    string bodyDe
+    string bodyEn
+    date eventDate
+    string imageUrl
+    string status "DRAFT|PUBLISHED"
+    datetime publishedAt
+    datetime createdAt
+    datetime updatedAt
+  }
+
+  Newsletter {
+    string id PK
+    string subjectDe
+    string subjectEn
+    string bodyDe
+    string bodyEn
+    string status "DRAFT|SENT"
+    datetime sentAt
+    int recipientCount
+    datetime createdAt
+    datetime updatedAt
+  }
+
+  Sponsor {
+    string id PK
+    string name
+    string websiteUrl
+    string imageUrl
+    int displayOrder
+    datetime createdAt
+    datetime updatedAt
+  }
+
+  ClubSettings {
+    string id PK
+    string bankName
+    string ibanEncrypted
+    string ibanLast4
+    string bic
+    int feeCollectionDay
+    int feeCollectionMonth
+    datetime updatedAt
+  }
+
+  User ||--o| Member : "memberId (optional link)"
+  User ||--o{ EventBooking : "userId (optional)"
+  Event ||--o{ EventBooking : "eventId (cascade delete)"
+`;
+
 const AUTH_SEQUENCE = `sequenceDiagram
   participant U as User Browser
   participant NA as NextAuth
@@ -233,6 +438,12 @@ export default function DeveloperPage() {
           chart={COMPONENT_DIAGRAM}
           title={isDE ? "Haupt-Komponenten & Abhängigkeiten" : "Main components & dependencies"}
         />
+      </section>
+
+      {/* Sequence Diagrams */}
+      <section className="mb-10">
+        <h2 className="text-lg font-semibold text-gray-800 mb-4">{isDE ? "Datenbankschema" : "Database Schema"}</h2>
+        <MermaidDiagram chart={DB_DIAGRAM} title={isDE ? "Tabellen, Attribute & Fremdschlüssel" : "Tables, attributes & foreign keys"} />
       </section>
 
       {/* Sequence Diagrams */}
