@@ -151,14 +151,16 @@ Protected by `role === "admin"`. All i18n via `src/lib/admin-i18n.ts` (DE + EN).
 ### 11. Support Tickets
 Logged-in users report bugs / request features / ask questions at `/[locale]/support`.
 
-- Submit at `/[locale]/support` — type selector (Bug/Feature/Question/Other), subject, body; login required; admins redirected away
-- `POST /api/support` — Zod validation, creates `SupportTicket`; sends email to `ADMIN_EMAIL` with `replyTo: userEmail` (admin can reply directly from inbox)
-- Admin views and replies at `/admin/support` — ticket table with filter tabs, inline expandable detail panel, message thread (user left / admin right bubbles)
+- **2-step wizard** — Step 1: type card picker (Bug/Feature/Question/Other with icon + description). Step 2: subject, description, auto screenshot
+- **Auto screenshot** — `html2canvas` captures the current page on step 2 mount, uploads to Vercel Blob via `POST /api/support/screenshot`; preview shown with remove button; failure is non-fatal (ticket submits without it)
+- `POST /api/support` — Zod validation, creates `SupportTicket` (with optional `screenshotUrl`); sends email to `ADMIN_EMAIL` with `replyTo: userEmail`
+- Admin views and replies at `/admin/support` — ticket table with filter tabs, inline expandable detail panel with screenshot, message thread (user left / admin right bubbles)
 - `POST /api/admin/support/[id]/reply` — creates `SupportMessage`, advances `OPEN → IN_PROGRESS`, emails user with `replyTo: ADMIN_EMAIL`
+- Screenshot embedded in admin notification email and shown inline in the admin ticket panel
 - Status flow: `OPEN → IN_PROGRESS` (first admin reply) → `CLOSED` (manual); admin can reopen
-- **Email thread design**: both notification emails set `replyTo` so the entire follow-up exchange can happen outside the app in normal email clients
-- Nav: "Support" link in the logged-in user account dropdown (desktop + mobile)
-- Discovery for unauthenticated users: footer "Support" link (every page) + card 6 in the Formulare section (homepage)
+- **Email thread design**: both notification emails set `replyTo` so follow-up can happen in normal email clients
+- Discovery: footer "Support" link (every page) + Formulare section card 6 (homepage) + logged-in nav dropdown; Support card hidden from admins
+- Public chat bot: "Ich möchte ein Problem melden" suggestion chip; proactively navigates to `/support` when user expresses a problem
 
 ## Database Models
 
@@ -174,7 +176,7 @@ Logged-in users report bugs / request features / ask questions at `/[locale]/sup
 | `NewsPost` + `Page` | CMS content; search uses runtime `to_tsvector()` (no stored tsvector column) |
 | `Recap` | Event recap reports (slug, title/body DE+EN, eventDate, imageUrl, status); also included in search |
 | `ClubSettings` | Single-row global settings (bank account, fee day/month, `paymentReminderWeeks`) |
-| `SupportTicket` | User-submitted support tickets (type BUG/FEATURE/QUESTION/OTHER, status OPEN/IN_PROGRESS/CLOSED, `userId` FK) |
+| `SupportTicket` | User-submitted support tickets (type BUG/FEATURE/QUESTION/OTHER, status OPEN/IN_PROGRESS/CLOSED, `userId` FK, optional `screenshotUrl`) |
 | `SupportMessage` | Admin replies on a ticket (`fromAdmin` flag, `ticketId` FK, cascade delete) |
 
 ## Auth Details
@@ -215,7 +217,7 @@ Logged-in users report bugs / request features / ask questions at `/[locale]/sup
 | Forms section | `src/components/FormsSection.tsx` |
 | Forms API | `src/app/api/forms/events/route.ts` |
 | Support (public) | `src/app/[locale]/support/page.tsx`, `src/components/SupportForm.tsx` |
-| Support API (user) | `src/app/api/support/route.ts` |
+| Support API (user) | `src/app/api/support/route.ts`, `src/app/api/support/screenshot/route.ts` |
 | Support API (admin) | `src/app/api/admin/support/[id]/route.ts`, `.../reply/route.ts` |
 | Support (admin UI) | `src/app/admin/support/page.tsx` |
 | Sponsors strip | `src/components/SponsorsStrip.tsx` (server component, shown after footer on all locale pages) |

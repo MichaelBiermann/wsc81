@@ -15,7 +15,7 @@ Homepage for **Walldorfer Ski-Club 81 e.V.**, built with Next.js 16 (App Router)
 - **Full-text search** — PostgreSQL tsvector across events, news, recaps and pages
 - **Rückblicke** — event recap reports with photo galleries
 - **Admin area** — manage events, memberships, bookings (PDF export), newsletter, content, sponsors, settings
-- **Support tickets** — logged-in users submit bug reports / feature requests at `/support`; discoverable via footer link (all pages) and Formulare section card (homepage); admin reads and replies at `/admin/support`; email thread uses `replyTo` so replies stay in normal inboxes
+- **Support tickets** — 2-step wizard (type picker → details + auto screenshot via `html2canvas`); screenshot uploaded to Vercel Blob and shown in admin panel and notification email; discoverable via footer link, Formulare section card, and nav dropdown; admin replies at `/admin/support`; email thread uses `replyTo` for inbox-native follow-up
 - **AI assistants** — public chat panel + admin chat panel (Claude API with tool use)
 - **Accessibility** — Section 508 / WCAG 2.1 AA: skip link, focus traps, ARIA roles, keyboard navigation
 
