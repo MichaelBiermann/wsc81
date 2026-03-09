@@ -354,6 +354,16 @@ export default function DeveloperPage() {
           main { padding: 0 !important; background: white !important; }
           .max-w-5xl { max-width: none !important; }
           @page { margin: 15mm 12mm; size: A4; }
+
+          /* Never break immediately after a heading or section title */
+          h1, h2, h3, h4, p.section-title { break-after: avoid; }
+
+          /* Keep each card/tile intact */
+          section { break-inside: avoid-page; }
+          tr { break-inside: avoid; }
+
+          /* Keep diagram label + diagram together */
+          .mermaid-wrap { break-inside: avoid; }
         }
       `}</style>
 

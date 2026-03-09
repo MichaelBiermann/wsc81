@@ -70,7 +70,7 @@ export default function MermaidDiagram({ chart, title }: MermaidDiagramProps) {
 
   return (
     <>
-      <div className="rounded-lg border border-gray-200 bg-white p-4">
+      <div className="mermaid-wrap rounded-lg border border-gray-200 bg-white p-4">
         {title && <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">{title}</p>}
         {error ? (
           <p className="text-red-500 text-xs">{error}</p>
