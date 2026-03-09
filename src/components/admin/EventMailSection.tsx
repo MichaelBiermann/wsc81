@@ -38,7 +38,7 @@ export default function EventMailSection({
   bookings,
   initialMails,
 }: EventMailSectionProps) {
-  const { t, locale } = useAdminI18n();
+  const { t } = useAdminI18n();
   const em = t.eventMail;
 
   function formatDateRange() {
@@ -51,11 +51,13 @@ export default function EventMailSection({
   const [purpose, setPurpose] = useState("Kick Off");
   const [subject, setSubject] = useState(`${eventTitleDe} ${em.dateRangeVom} ${formatDateRange()}`);
   const [body, setBody] = useState("");
+  const [mailLang, setMailLang] = useState<"de" | "en">("de");
   const [targetBookingId, setTargetBookingId] = useState<string>("all");
   const [sending, setSending] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [feedback, setFeedback] = useState<{ ok: boolean; msg: string } | null>(null);
   const [sentMails, setSentMails] = useState<SentMail[]>(initialMails);
+  const [showPreview, setShowPreview] = useState(false);
 
   // Prompt review state: null = hidden, string = editable prompt shown
   const [promptDraft, setPromptDraft] = useState<string | null>(null);
@@ -89,7 +91,7 @@ export default function EventMailSection({
         body: JSON.stringify({
           text: promptDraft,
           action: "generate_event_mail",
-          locale,
+          locale: mailLang,
         }),
       });
       if (!res.ok) return;
@@ -126,7 +128,6 @@ export default function EventMailSection({
       const saved: SentMail = await res.json();
       setSentMails((prev) => [saved, ...prev]);
       setFeedback({ ok: true, msg: em.sentSuccess.replace("{n}", String(saved.recipientCount)) });
-      // Clear form for next mail
       setPurpose("");
       setSubject("");
       setBody("");
@@ -139,6 +140,9 @@ export default function EventMailSection({
   const uniqueRecipients = targetBookingId === "all"
     ? new Set(bookings.map((b) => b.email)).size
     : 1;
+
+  // Replace {{name}} with a sample name for preview
+  const previewHtml = body.replace(/\{\{name\}\}/g, "Max Mustermann");
 
   return (
     <div className="mt-10">
@@ -172,15 +176,34 @@ export default function EventMailSection({
         <div>
           <div className="flex items-center justify-between mb-1">
             <label className="block text-xs font-medium text-gray-500">{em.bodyLabel}</label>
-            <button
-              type="button"
-              onClick={handleOpenPromptReview}
-              disabled={generating || !purpose.trim()}
-              className="inline-flex items-center gap-1 text-xs text-[#4577ac] hover:underline disabled:opacity-40 disabled:no-underline"
-            >
-              <span className="material-symbols-rounded text-sm">auto_awesome</span>
-              {em.generateAi}
-            </button>
+            <div className="flex items-center gap-2">
+              {/* DE/EN toggle */}
+              <div className="flex rounded-md border border-gray-200 overflow-hidden text-xs">
+                <button
+                  type="button"
+                  onClick={() => setMailLang("de")}
+                  className={`px-2 py-0.5 font-medium transition-colors ${mailLang === "de" ? "bg-[#4577ac] text-white" : "text-gray-500 hover:bg-gray-50"}`}
+                >
+                  DE
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMailLang("en")}
+                  className={`px-2 py-0.5 font-medium transition-colors ${mailLang === "en" ? "bg-[#4577ac] text-white" : "text-gray-500 hover:bg-gray-50"}`}
+                >
+                  EN
+                </button>
+              </div>
+              <button
+                type="button"
+                onClick={handleOpenPromptReview}
+                disabled={generating || !purpose.trim()}
+                className="inline-flex items-center gap-1 text-xs text-[#4577ac] hover:underline disabled:opacity-40 disabled:no-underline"
+              >
+                <span className="material-symbols-rounded text-sm">auto_awesome</span>
+                {em.generateAi}
+              </button>
+            </div>
           </div>
 
           {/* Prompt review panel */}
@@ -204,7 +227,7 @@ export default function EventMailSection({
                   className="inline-flex items-center gap-1.5 rounded bg-[#4577ac] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#3a6699] disabled:opacity-50 transition-colors"
                 >
                   <span className="material-symbols-rounded text-sm">{generating ? "progress_activity" : "auto_awesome"}</span>
-                  {generating ? em.generating : em.generate}
+                  {generating ? em.generating : `${em.generate} (${mailLang.toUpperCase()})`}
                 </button>
                 <button
                   type="button"
@@ -223,7 +246,19 @@ export default function EventMailSection({
             rows={8}
             className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#4577ac] resize-y"
           />
-          <p className="mt-1 text-xs text-gray-400">{em.namePlaceholderHint}</p>
+          <div className="mt-1 flex items-center justify-between">
+            <p className="text-xs text-gray-400">{em.namePlaceholderHint}</p>
+            {body.trim() && (
+              <button
+                type="button"
+                onClick={() => setShowPreview(true)}
+                className="inline-flex items-center gap-1 text-xs text-[#4577ac] hover:underline"
+              >
+                <span className="material-symbols-rounded text-sm">preview</span>
+                {em.previewBtn}
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Recipient selector */}
@@ -295,6 +330,44 @@ export default function EventMailSection({
           </div>
         )}
       </div>
+
+      {/* Preview modal */}
+      {showPreview && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          onClick={(e) => { if (e.target === e.currentTarget) setShowPreview(false); }}
+        >
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col">
+            <div className="flex items-center justify-between px-5 py-3 border-b border-gray-200">
+              <div>
+                <p className="text-xs text-gray-400 mb-0.5">{em.subjectLabel}: <span className="font-medium text-gray-700">{subject}</span></p>
+                <h3 className="text-sm font-semibold text-gray-900">{em.previewTitle}</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowPreview(false)}
+                className="text-gray-400 hover:text-gray-600"
+                aria-label={em.previewClose}
+              >
+                <span className="material-symbols-rounded">close</span>
+              </button>
+            </div>
+            <div
+              className="overflow-y-auto p-6 prose prose-sm max-w-none text-gray-800"
+              dangerouslySetInnerHTML={{ __html: previewHtml }}
+            />
+            <div className="px-5 py-3 border-t border-gray-100 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setShowPreview(false)}
+                className="rounded-md border border-gray-300 px-4 py-1.5 text-sm text-gray-600 hover:bg-gray-50 transition-colors"
+              >
+                {em.previewClose}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

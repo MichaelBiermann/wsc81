@@ -100,6 +100,10 @@ export const ADMIN_TRANSLATIONS = {
       recipientsLabel: "Empfänger",
       namePlaceholderHint: "Tipp: {{name}} wird durch den Namen des Empfängers ersetzt.",
       dateRangeVom: "vom",
+      previewBtn: "Vorschau",
+      previewTitle: "Mail-Vorschau",
+      previewClose: "Schließen",
+      mailLangLabel: "Sprache",
     },
     eventForm: {
       titleDe: "Titel (DE)",
@@ -525,6 +529,10 @@ export const ADMIN_TRANSLATIONS = {
       recipientsLabel: "Recipients",
       namePlaceholderHint: "Tip: {{name}} is replaced with the recipient's name.",
       dateRangeVom: "from",
+      previewBtn: "Preview",
+      previewTitle: "Mail preview",
+      previewClose: "Close",
+      mailLangLabel: "Language",
     },
     eventForm: {
       titleDe: "Title (DE)",
