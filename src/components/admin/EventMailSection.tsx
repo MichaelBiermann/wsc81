@@ -40,7 +40,7 @@ export default function EventMailSection({
   const em = t.eventMail;
 
   const [purpose, setPurpose] = useState("");
-  const [subject, setSubject] = useState("");
+  const [subject, setSubject] = useState(eventTitleDe);
   const [body, setBody] = useState("");
   const [targetBookingId, setTargetBookingId] = useState<string>("all");
   const [sending, setSending] = useState(false);
@@ -48,23 +48,37 @@ export default function EventMailSection({
   const [feedback, setFeedback] = useState<{ ok: boolean; msg: string } | null>(null);
   const [sentMails, setSentMails] = useState<SentMail[]>(initialMails);
 
-  async function handleGenerate() {
+  // Prompt review state: null = hidden, string = editable prompt shown
+  const [promptDraft, setPromptDraft] = useState<string | null>(null);
+
+  function buildPromptText() {
+    const desc = eventDescriptionDe.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 800);
+    return [
+      `Veranstaltung: ${eventTitleDe}`,
+      `Ort: ${eventLocation}`,
+      `Datum: ${new Date(eventStartDate).toLocaleDateString("de-DE")}`,
+      `Zweck der Mail: ${purpose.trim()}`,
+      ``,
+      `Veranstaltungsbeschreibung:`,
+      desc,
+    ].join("\n");
+  }
+
+  function handleOpenPromptReview() {
     if (!purpose.trim()) return;
+    setPromptDraft(buildPromptText());
+  }
+
+  async function handleGenerate() {
+    if (!promptDraft) return;
     setGenerating(true);
     setFeedback(null);
     try {
-      const eventData = {
-        title: eventTitleDe,
-        description: eventDescriptionDe.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 800),
-        location: eventLocation,
-        startDate: new Date(eventStartDate).toLocaleDateString("de-DE"),
-        purpose: purpose.trim(),
-      };
       const res = await fetch("/api/admin/ai", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          text: JSON.stringify(eventData),
+          text: promptDraft,
           action: "generate_event_mail",
           locale,
         }),
@@ -72,10 +86,10 @@ export default function EventMailSection({
       if (!res.ok) return;
       const { suggestion } = await res.json();
       setBody(suggestion);
-      // Auto-fill subject if empty
-      if (!subject.trim()) {
+      if (subject === eventTitleDe || !subject.trim()) {
         setSubject(`${purpose.trim()}: ${eventTitleDe}`);
       }
+      setPromptDraft(null);
     } finally {
       setGenerating(false);
     }
@@ -151,14 +165,51 @@ export default function EventMailSection({
             <label className="block text-xs font-medium text-gray-500">{em.bodyLabel}</label>
             <button
               type="button"
-              onClick={handleGenerate}
+              onClick={handleOpenPromptReview}
               disabled={generating || !purpose.trim()}
               className="inline-flex items-center gap-1 text-xs text-[#4577ac] hover:underline disabled:opacity-40 disabled:no-underline"
             >
-              <span className="material-symbols-rounded text-sm">{generating ? "progress_activity" : "auto_awesome"}</span>
+              <span className="material-symbols-rounded text-sm">auto_awesome</span>
               {em.generateAi}
             </button>
           </div>
+
+          {/* Prompt review panel */}
+          {promptDraft !== null && (
+            <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 p-3">
+              <div className="flex items-start gap-2 mb-2">
+                <span className="material-symbols-rounded text-amber-500 text-base mt-0.5">edit_note</span>
+                <p className="text-xs text-amber-800 leading-snug">
+                  <strong>Prompt prüfen:</strong> Ergänze persönliche Details, spezifische Hinweise oder einen besonderen Ton, um dem Text eine persönliche Note zu geben.
+                </p>
+              </div>
+              <textarea
+                value={promptDraft}
+                onChange={(e) => setPromptDraft(e.target.value)}
+                rows={6}
+                className="w-full rounded border border-amber-200 bg-white px-2 py-1.5 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-amber-400 resize-y"
+              />
+              <div className="flex items-center gap-2 mt-2">
+                <button
+                  type="button"
+                  onClick={handleGenerate}
+                  disabled={generating}
+                  className="inline-flex items-center gap-1.5 rounded bg-[#4577ac] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#3a6699] disabled:opacity-50 transition-colors"
+                >
+                  <span className="material-symbols-rounded text-sm">{generating ? "progress_activity" : "auto_awesome"}</span>
+                  {generating ? "Generiere…" : "Generieren"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPromptDraft(null)}
+                  className="text-xs text-gray-400 hover:text-gray-600"
+                >
+                  Abbrechen
+                </button>
+              </div>
+            </div>
+          )}
+
           <textarea
             value={body}
             onChange={(e) => setBody(e.target.value)}

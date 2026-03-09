@@ -22,7 +22,7 @@ const SYSTEM_PROMPTS: Record<string, string> = {
     "You are a copywriter for a ski club website. Optimize the given event description so it works perfectly in two contexts: (1) as a short teaser on an event tile card (the first sentence or two must be a compelling 1–2 sentence summary that works standalone when HTML is stripped and truncated to ~120 characters), and (2) as a full event detail page description (well-structured with headings, bullet points for key facts like included services, what to bring, schedule, etc.). Use HTML formatting (h2, h3, ul, li, p, strong). Write in {LANGUAGE}. Return only the optimized HTML, nothing else.",
   generate_event_mail:
     `You are a club communications assistant for Walldorfer Ski-Club 81 e.V. Write an info email to participants of a club event.
-You will receive a JSON object with event data (title, description, dates, location, pricing) and a "purpose" field (e.g. "Kick-Off", "Zahlungserinnerung", "Programmübersicht", "Wichtige Hinweise").
+You will receive a text describing the event (title, description, dates, location) and the purpose of the email (e.g. "Kick-Off", "Zahlungserinnerung", "Programmübersicht", "Wichtige Hinweise"). The text may also contain extra instructions or personal details added by the admin — incorporate those faithfully.
 Write a friendly, professional email in {LANGUAGE} that fits the stated purpose. Use the event data to fill in relevant details.
 You may use {{name}} as a placeholder for the recipient's first/last name.
 Return ONLY the email body as HTML (use <p>, <ul>, <li>, <strong> — no <html>/<body>/<head> tags). No subject line, no explanation.`,
