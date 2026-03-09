@@ -22,6 +22,14 @@ export const PUBLIC_CHAT_TOOLS: Anthropic.Tool[] = [
     },
   },
   {
+    name: "list_regular_activities",
+    description: "List regular/recurring club activities (non-bookable events like weekly sports, fitness classes, walking groups). Use this when asked about regular offerings, fitness programs, weekly activities, or recurring events.",
+    input_schema: {
+      type: "object" as const,
+      properties: {},
+    },
+  },
+  {
     name: "list_news",
     description: "List published news articles. Returns id, slug, title, publishedAt.",
     input_schema: {
@@ -171,6 +179,28 @@ export async function executePublicTool(name: string, input: Record<string, any>
         roomSingleSurcharge: Number(event.roomSingleSurcharge),
         roomDoubleSurcharge: Number(event.roomDoubleSurcharge),
       };
+    }
+
+    case "list_regular_activities": {
+      const events = await prisma.event.findMany({
+        where: { bookable: false },
+        orderBy: { titleDe: "asc" },
+        select: {
+          id: true,
+          titleDe: true,
+          titleEn: true,
+          descriptionDe: true,
+          descriptionEn: true,
+          location: true,
+        },
+      });
+      return events.map((e) => ({
+        id: e.id,
+        title: locale === "en" ? e.titleEn : e.titleDe,
+        description: locale === "en" ? e.descriptionEn : e.descriptionDe,
+        location: e.location,
+        url: `/${locale}/events/${e.id}`,
+      }));
     }
 
     case "list_news": {
