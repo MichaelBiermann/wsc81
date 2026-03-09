@@ -53,9 +53,11 @@ const EMPTY: EventFormData = {
 export default function EventForm({
   initial = EMPTY,
   eventId,
+  onOrgChange,
 }: {
   initial?: EventFormData;
   eventId?: string;
+  onOrgChange?: (org: { organisation: string; organisationEmail: string; organisationPhone: string }) => void;
 }) {
   const { t } = useAdminI18n();
   const router = useRouter();
@@ -64,8 +66,15 @@ export default function EventForm({
   const [error, setError] = useState("");
   const [derivingPrices, setDerivingPrices] = useState(false);
 
-  const set = (field: keyof EventFormData) => (e: React.ChangeEvent<HTMLInputElement>) =>
-    setForm((f) => ({ ...f, [field]: e.target.value }));
+  const set = (field: keyof EventFormData) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm((f) => {
+      const next = { ...f, [field]: e.target.value };
+      if ((field === "organisation" || field === "organisationEmail" || field === "organisationPhone") && onOrgChange) {
+        onOrgChange({ organisation: next.organisation, organisationEmail: next.organisationEmail, organisationPhone: next.organisationPhone });
+      }
+      return next;
+    });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -157,6 +166,13 @@ export default function EventForm({
         ...(parsed.organisationEmail != null && { organisationEmail: String(parsed.organisationEmail) }),
         ...(parsed.organisationPhone != null && { organisationPhone: String(parsed.organisationPhone) }),
       }));
+      if (onOrgChange) {
+        onOrgChange({
+          organisation: parsed.organisation != null ? String(parsed.organisation) : (form.organisation),
+          organisationEmail: parsed.organisationEmail != null ? String(parsed.organisationEmail) : (form.organisationEmail),
+          organisationPhone: parsed.organisationPhone != null ? String(parsed.organisationPhone) : (form.organisationPhone),
+        });
+      }
     } catch {
       // silently ignore parse errors
     } finally {

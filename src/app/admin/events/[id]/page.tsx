@@ -77,13 +77,21 @@ export default function EditEventPage() {
   const [event, setEvent] = useState<EventDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [sentMails, setSentMails] = useState<SentMail[]>([]);
+  const [orgContact, setOrgContact] = useState({ organisation: "", organisationEmail: "", organisationPhone: "" });
 
   useEffect(() => {
     Promise.all([
       fetch(`/api/admin/events/${id}`).then((r) => { if (!r.ok) { notFound(); return null; } return r.json(); }),
       fetch(`/api/admin/events/${id}/mail`).then((r) => r.ok ? r.json() : []),
     ]).then(([eventData, mailData]) => {
-      if (eventData) setEvent(eventData);
+      if (eventData) {
+        setEvent(eventData);
+        setOrgContact({
+          organisation: eventData.organisation ?? "",
+          organisationEmail: eventData.organisationEmail ?? "",
+          organisationPhone: eventData.organisationPhone ?? "",
+        });
+      }
       setSentMails(mailData ?? []);
       setLoading(false);
     });
@@ -105,6 +113,7 @@ export default function EditEventPage() {
 
       <EventForm
         eventId={id}
+        onOrgChange={setOrgContact}
         initial={{
           titleDe: event.titleDe,
           titleEn: event.titleEn,
@@ -317,9 +326,9 @@ export default function EditEventPage() {
         eventLocation={event.location}
         eventStartDate={event.startDate}
         eventEndDate={event.endDate}
-        organisation={event.organisation}
-        organisationEmail={event.organisationEmail}
-        organisationPhone={event.organisationPhone}
+        organisation={orgContact.organisation}
+        organisationEmail={orgContact.organisationEmail}
+        organisationPhone={orgContact.organisationPhone}
         bookings={event.bookings.map((b) => ({ id: b.id, person1Name: b.person1Name, email: b.email }))}
         initialMails={sentMails}
       />
