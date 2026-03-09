@@ -40,6 +40,9 @@ interface EventDetail {
   descriptionDe: string;
   descriptionEn: string;
   location: string;
+  organisation: string | null;
+  organisationEmail: string | null;
+  organisationPhone: string | null;
   startDate: string;
   endDate: string;
   depositAmount: string;
@@ -108,6 +111,9 @@ export default function EditEventPage() {
           descriptionDe: event.descriptionDe,
           descriptionEn: event.descriptionEn,
           location: event.location,
+          organisation: event.organisation ?? "",
+          organisationEmail: event.organisationEmail ?? "",
+          organisationPhone: event.organisationPhone ?? "",
           startDate: toDatetimeLocal(event.startDate),
           endDate: toDatetimeLocal(event.endDate),
           depositAmount: String(event.depositAmount),
@@ -311,6 +317,9 @@ export default function EditEventPage() {
         eventLocation={event.location}
         eventStartDate={event.startDate}
         eventEndDate={event.endDate}
+        organisation={event.organisation}
+        organisationEmail={event.organisationEmail}
+        organisationPhone={event.organisationPhone}
         bookings={event.bookings.map((b) => ({ id: b.id, person1Name: b.person1Name, email: b.email }))}
         initialMails={sentMails}
       />

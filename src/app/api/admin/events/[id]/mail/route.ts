@@ -35,6 +35,7 @@ export async function POST(
   if (!(await requireAdmin())) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const { id } = await params;
 
+  try {
   const body = await req.json();
   const { purpose, subject, mailBody, bookingId } = body as {
     purpose: string;
@@ -99,4 +100,8 @@ export async function POST(
   });
 
   return NextResponse.json(saved, { status: 201 });
+  } catch (err) {
+    console.error("Mail route unexpected error:", err);
+    return NextResponse.json({ error: "Internal error", detail: String(err) }, { status: 500 });
+  }
 }

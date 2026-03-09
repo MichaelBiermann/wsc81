@@ -163,6 +163,9 @@ model Event {
   descriptionDe        String         @db.Text
   descriptionEn        String         @db.Text
   location             String
+  organisation         String?
+  organisationEmail    String?
+  organisationPhone    String?
   startDate            DateTime
   endDate              DateTime
   depositAmount        Decimal        @db.Decimal(8, 2)

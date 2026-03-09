@@ -28,10 +28,16 @@ You may use {{name}} as a placeholder for the recipient's first/last name.
 Pricing rules — strictly follow these:
 - DO NOT mention the event participation price, deposit (Anzahlung), room prices (Einzelzimmer, Doppelzimmer), or non-member surcharges. These are handled separately.
 - DO include prices for external services that participants need to arrange themselves, such as ski passes (Skipass), lift tickets, rental equipment, excursion fees, or similar third-party costs mentioned in the description.
+Signature rules:
+- If the input contains an "Anmeldung & Kontakt" section, you MUST end the email with a signature block using exactly those contact details (name, email, phone as available). Do NOT add "Euer Walldorfer Ski-Club 81 e.V." or any other generic club closing — the contact person's details ARE the signature.
+- If no "Anmeldung & Kontakt" section is present, end with a generic friendly closing.
 Return ONLY the email body as HTML (use <p>, <ul>, <li>, <strong> — no <html>/<body>/<head> tags). No subject line, no explanation.`,
   extract_surcharges:
     `You are a pricing assistant for a German ski club. Read the event description (HTML) and extract any price or surcharge amounts mentioned. Return ONLY a raw JSON object with exactly these keys. Do NOT wrap in markdown code fences. No explanation, no markdown, just the raw JSON object:
 {
+  "organisation": <string|null>,
+  "organisationEmail": <string|null>,
+  "organisationPhone": <string|null>,
   "depositAmount": <number|null>,
   "surchargeNonMemberAdult": <number|null>,
   "surchargeNonMemberChild": <number|null>,
@@ -43,6 +49,9 @@ Return ONLY the email body as HTML (use <p>, <ul>, <li>, <strong> — no <html>/
   "bookable": <boolean>
 }
 Field rules:
+- "organisation": extract the contact person or organisation responsible for registration, as mentioned in sections like "Anmeldung", "Kontakt", "Ansprechpartner", or similar. Use the name of the person or club listed there (e.g. "Max Mustermann", "DAV Ortsgruppe Muster"). If multiple are listed, use the primary one. If no registration contact is mentioned, fall back to any organising club or third party mentioned in the description. Do NOT use "Walldorfer Ski-Club 81 e.V." itself. Set to null if nothing found.
+- "organisationEmail": the email address of the registration contact found above. Set to null if not mentioned.
+- "organisationPhone": the phone number of the registration contact found above. Set to null if not mentioned.
 - "depositAmount": ONLY set this if an explicit deposit or down-payment (Anzahlung) is mentioned in the text. If no deposit is mentioned, set to null. Do NOT use room prices or base prices as depositAmount.
 - "roomSingleSurcharge": the full per-person price for a single room. If only a delta above double is given, add it to the double room price to get the full single room price.
 - "roomDoubleSurcharge": the full per-person price for a double room. Always populate this if any double room price is mentioned.

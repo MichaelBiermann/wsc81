@@ -25,6 +25,9 @@ interface EventMailSectionProps {
   eventLocation: string;
   eventStartDate: string;
   eventEndDate: string;
+  organisation?: string | null;
+  organisationEmail?: string | null;
+  organisationPhone?: string | null;
   bookings: Booking[];
   initialMails: SentMail[];
 }
@@ -36,6 +39,9 @@ export default function EventMailSection({
   eventLocation,
   eventStartDate,
   eventEndDate,
+  organisation,
+  organisationEmail,
+  organisationPhone,
   bookings,
   initialMails,
 }: EventMailSectionProps) {
@@ -96,15 +102,23 @@ export default function EventMailSection({
 
   function buildPromptText() {
     const desc = eventDescriptionDe.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 800);
-    return [
+    const lines = [
       `Veranstaltung: ${eventTitleDe}`,
       `Ort: ${eventLocation}`,
       `Datum: ${new Date(eventStartDate).toLocaleDateString("de-DE")}`,
       `Zweck der Mail: ${purpose.trim()}`,
-      ``,
-      `Veranstaltungsbeschreibung:`,
-      desc,
-    ].join("\n");
+    ];
+    if (organisation || organisationEmail || organisationPhone) {
+      lines.push(``);
+      lines.push(`Anmeldung & Kontakt (für die Signatur am Ende der Mail verwenden):`);
+      if (organisation) lines.push(`Kontakt: ${organisation}`);
+      if (organisationEmail) lines.push(`E-Mail: ${organisationEmail}`);
+      if (organisationPhone) lines.push(`Tel: ${organisationPhone}`);
+    }
+    lines.push(``);
+    lines.push(`Veranstaltungsbeschreibung:`);
+    lines.push(desc);
+    return lines.join("\n");
   }
 
   function handleOpenPromptReview() {

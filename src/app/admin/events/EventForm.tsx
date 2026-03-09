@@ -16,6 +16,9 @@ interface EventFormData {
   titleDe: string; titleEn: string;
   descriptionDe: string; descriptionEn: string;
   location: string; startDate: string; endDate: string;
+  organisation: string;
+  organisationEmail: string;
+  organisationPhone: string;
   depositAmount: string;
   maxParticipants: string; registrationDeadline: string;
   imageUrl: string;
@@ -32,6 +35,9 @@ interface EventFormData {
 const EMPTY: EventFormData = {
   titleDe: "", titleEn: "", descriptionDe: "", descriptionEn: "",
   location: "", startDate: "", endDate: "",
+  organisation: "",
+  organisationEmail: "",
+  organisationPhone: "",
   depositAmount: "", maxParticipants: "", registrationDeadline: "",
   imageUrl: "",
   bookable: true,
@@ -68,6 +74,9 @@ export default function EventForm({
       ...form,
       bookable: form.bookable,
       soldOut: form.soldOut,
+      organisation: form.organisation || null,
+      organisationEmail: form.organisationEmail || null,
+      organisationPhone: form.organisationPhone || null,
       depositAmount: Number(form.depositAmount),
       maxParticipants: form.maxParticipants ? Number(form.maxParticipants) : null,
       registrationDeadline: form.registrationDeadline ? new Date(form.registrationDeadline).toISOString() : null,
@@ -144,6 +153,9 @@ export default function EventForm({
         ...(parsed.soldOut === true && { soldOut: true }),
         ...(parsed.bookable === false && { bookable: false }),
         ...(parsed.bookable === true && { bookable: true }),
+        ...(parsed.organisation != null && { organisation: String(parsed.organisation) }),
+        ...(parsed.organisationEmail != null && { organisationEmail: String(parsed.organisationEmail) }),
+        ...(parsed.organisationPhone != null && { organisationPhone: String(parsed.organisationPhone) }),
       }));
     } catch {
       // silently ignore parse errors
@@ -162,6 +174,16 @@ export default function EventForm({
           <Input value={form.titleEn} onChange={set("titleEn")} required />
         </FormField>
       </div>
+
+      <button
+        type="button"
+        onClick={handleDeriveSurcharges}
+        disabled={derivingPrices || (!form.descriptionDe && !form.descriptionEn)}
+        className="self-start inline-flex items-center gap-1.5 text-sm text-[#4577ac] hover:underline disabled:opacity-40 disabled:no-underline"
+      >
+        <span className="material-symbols-rounded text-base">{derivingPrices ? "progress_activity" : "auto_awesome"}</span>
+        {t.eventForm.deriveSurcharges}
+      </button>
 
       <FormField label={t.eventForm.descriptionDe} required>
         <RichTextEditor
@@ -199,21 +221,26 @@ export default function EventForm({
         </FormField>
       </div>
 
+      <div>
+        <p className="text-sm font-semibold text-gray-700 mb-3">{t.eventForm.organisationSection}</p>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <FormField label={t.eventForm.organisation}>
+            <Input value={form.organisation} onChange={set("organisation")} />
+          </FormField>
+          <FormField label={t.eventForm.organisationEmail}>
+            <Input type="email" value={form.organisationEmail} onChange={set("organisationEmail")} />
+          </FormField>
+          <FormField label={t.eventForm.organisationPhone}>
+            <Input type="tel" value={form.organisationPhone} onChange={set("organisationPhone")} />
+          </FormField>
+        </div>
+      </div>
+
       <AdminImageUpload
         label={t.eventForm.imageUrl}
         value={form.imageUrl}
         onChange={(url) => setForm((f) => ({ ...f, imageUrl: url }))}
       />
-
-      <button
-        type="button"
-        onClick={handleDeriveSurcharges}
-        disabled={derivingPrices || (!form.descriptionDe && !form.descriptionEn)}
-        className="self-start inline-flex items-center gap-1.5 text-sm text-[#4577ac] hover:underline disabled:opacity-40 disabled:no-underline"
-      >
-        <span className="material-symbols-rounded text-base">{derivingPrices ? "progress_activity" : "auto_awesome"}</span>
-        {t.eventForm.deriveSurcharges}
-      </button>
 
       <label className="flex items-center gap-3 cursor-pointer select-none">
         <input
