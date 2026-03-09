@@ -310,6 +310,7 @@ export default function EditEventPage() {
         eventDescriptionDe={event.descriptionDe}
         eventLocation={event.location}
         eventStartDate={event.startDate}
+        eventEndDate={event.endDate}
         bookings={event.bookings.map((b) => ({ id: b.id, person1Name: b.person1Name, email: b.email }))}
         initialMails={sentMails}
       />

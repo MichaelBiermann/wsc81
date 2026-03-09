@@ -23,6 +23,7 @@ interface EventMailSectionProps {
   eventDescriptionDe: string;
   eventLocation: string;
   eventStartDate: string;
+  eventEndDate: string;
   bookings: Booking[];
   initialMails: SentMail[];
 }
@@ -33,14 +34,22 @@ export default function EventMailSection({
   eventDescriptionDe,
   eventLocation,
   eventStartDate,
+  eventEndDate,
   bookings,
   initialMails,
 }: EventMailSectionProps) {
   const { t, locale } = useAdminI18n();
   const em = t.eventMail;
 
+  function formatDateRange() {
+    const fmt = (d: string) => new Date(d).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" });
+    const start = fmt(eventStartDate);
+    const end = fmt(eventEndDate);
+    return start === end ? start : `${start}–${end}`;
+  }
+
   const [purpose, setPurpose] = useState("Kick Off");
-  const [subject, setSubject] = useState(eventTitleDe);
+  const [subject, setSubject] = useState(`${eventTitleDe} vom ${formatDateRange()}`);
   const [body, setBody] = useState("");
   const [targetBookingId, setTargetBookingId] = useState<string>("all");
   const [sending, setSending] = useState(false);
@@ -86,8 +95,8 @@ export default function EventMailSection({
       if (!res.ok) return;
       const { suggestion } = await res.json();
       setBody(suggestion);
-      if (subject === eventTitleDe || !subject.trim()) {
-        setSubject(`${purpose.trim()}: ${eventTitleDe}`);
+      if (subject === `${eventTitleDe} vom ${formatDateRange()}` || !subject.trim()) {
+        setSubject(`${purpose.trim()}: ${eventTitleDe} vom ${formatDateRange()}`);
       }
       setPromptDraft(null);
     } finally {
