@@ -8,6 +8,7 @@ const SupportTicketSchema = z.object({
   type: z.enum(["BUG", "FEATURE", "QUESTION", "OTHER"]),
   subject: z.string().min(1).max(200),
   body: z.string().min(1).max(2000),
+  screenshotUrl: z.string().url().optional().or(z.literal("")).transform(v => v || undefined),
 });
 
 export async function POST(request: NextRequest) {
@@ -37,6 +38,7 @@ export async function POST(request: NextRequest) {
       type: parsed.data.type,
       subject: parsed.data.subject,
       body: parsed.data.body,
+      screenshotUrl: parsed.data.screenshotUrl,
       userId: sessionUser.id,
     },
   });
@@ -49,6 +51,7 @@ export async function POST(request: NextRequest) {
       type: ticket.type,
       userName: `${user.firstName} ${user.lastName}`,
       userEmail: user.email,
+      screenshotUrl: ticket.screenshotUrl ?? undefined,
     });
   } catch {
     // Non-fatal: ticket is created, email failure shouldn't block the user

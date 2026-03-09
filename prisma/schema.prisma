@@ -362,16 +362,17 @@ model User {
 // ─── Support Tickets ──────────────────────────────────────────────────────────
 
 model SupportTicket {
-  id        String           @id @default(cuid())
-  type      TicketType       @default(OTHER)
-  subject   String
-  body      String           @db.Text
-  status    TicketStatus     @default(OPEN)
-  userId    String
-  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  messages  SupportMessage[]
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
+  id            String           @id @default(cuid())
+  type          TicketType       @default(OTHER)
+  subject       String
+  body          String           @db.Text
+  screenshotUrl String?
+  status        TicketStatus     @default(OPEN)
+  userId        String
+  user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages      SupportMessage[]
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
 
   @@index([userId])
   @@index([status])

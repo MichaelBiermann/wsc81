@@ -408,6 +408,7 @@ export async function sendTicketCreatedToAdmin({
   type,
   userName,
   userEmail,
+  screenshotUrl,
 }: {
   ticketId: string;
   subject: string;
@@ -415,11 +416,15 @@ export async function sendTicketCreatedToAdmin({
   type: string;
   userName: string;
   userEmail: string;
+  screenshotUrl?: string;
 }) {
   const adminEmail = process.env.ADMIN_EMAIL ?? FROM;
   const shortId = ticketId.slice(-8);
   const typeLabel: Record<string, string> = { BUG: "Fehler", FEATURE: "Feature", QUESTION: "Frage", OTHER: "Sonstiges" };
   const emailSubject = `[WSC 81 Support] #${shortId} — ${subject}`;
+  const screenshotHtml = screenshotUrl
+    ? `<p><strong>Screenshot:</strong><br/><a href="${screenshotUrl}">${screenshotUrl}</a><br/><img src="${screenshotUrl}" style="max-width:600px;border:1px solid #ddd;margin-top:8px" alt="Screenshot"/></p>`
+    : "";
   const html = `<p>Neue Support-Anfrage von <strong>${userName}</strong> (${userEmail}):</p>
     <table style="border-collapse:collapse;width:100%;max-width:600px;margin-bottom:12px">
       <tr><td style="padding:4px 8px;font-weight:bold;white-space:nowrap">Typ:</td><td style="padding:4px 8px">${typeLabel[type] ?? type}</td></tr>
@@ -427,6 +432,7 @@ export async function sendTicketCreatedToAdmin({
       <tr><td style="padding:4px 8px;font-weight:bold;white-space:nowrap">Ticket-ID:</td><td style="padding:4px 8px">${ticketId}</td></tr>
     </table>
     <p style="white-space:pre-wrap">${body}</p>
+    ${screenshotHtml}
     <hr style="margin:16px 0"/>
     <p style="color:#666;font-size:13px">Antworten Sie direkt auf diese E-Mail, um den Benutzer zu kontaktieren. Oder öffnen Sie das Ticket im Admin-Panel: ${BASE_URL}/admin/support</p>`;
   await sendMail({ to: adminEmail, subject: emailSubject, html, replyTo: userEmail });

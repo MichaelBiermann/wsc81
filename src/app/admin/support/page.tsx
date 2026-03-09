@@ -18,6 +18,7 @@ interface SupportTicket {
   type: TicketType;
   subject: string;
   body: string;
+  screenshotUrl?: string | null;
   status: TicketStatus;
   createdAt: string;
   user: { firstName: string; lastName: string; email: string };
@@ -214,6 +215,18 @@ export default function AdminSupportPage() {
                           <p className="text-gray-800 whitespace-pre-wrap bg-white rounded border border-gray-200 px-4 py-3 text-sm">
                             {ticket.body}
                           </p>
+                          {ticket.screenshotUrl && (
+                            <div className="mt-3">
+                              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Screenshot</p>
+                              <a href={ticket.screenshotUrl} target="_blank" rel="noopener noreferrer">
+                                <img
+                                  src={ticket.screenshotUrl}
+                                  alt="Screenshot"
+                                  className="max-w-full rounded border border-gray-200 shadow-sm hover:opacity-90 transition-opacity"
+                                />
+                              </a>
+                            </div>
+                          )}
                         </div>
 
                         {/* Message thread */}

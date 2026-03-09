@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import FormField from "@/components/ui/FormField";
 import Input from "@/components/ui/Input";
@@ -8,51 +8,117 @@ import Textarea from "@/components/ui/Textarea";
 import Button from "@/components/ui/Button";
 
 type TicketType = "BUG" | "FEATURE" | "QUESTION" | "OTHER";
+type Step = 1 | 2;
+
+const TYPE_ICONS: Record<TicketType, string> = {
+  BUG: "bug_report",
+  FEATURE: "lightbulb",
+  QUESTION: "help",
+  OTHER: "chat",
+};
 
 export default function SupportForm() {
   const t = useTranslations("Support");
   const locale = useLocale();
 
-  const [type, setType] = useState<TicketType>("BUG");
+  const [step, setStep] = useState<Step>(1);
+  const [type, setType] = useState<TicketType | null>(null);
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
-  const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const [screenshotDataUrl, setScreenshotDataUrl] = useState<string | null>(null);
+  const [screenshotUploading, setScreenshotUploading] = useState(false);
+  const [screenshotUrl, setScreenshotUrl] = useState<string | null>(null);
+  const [screenshotError, setScreenshotError] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
+  const screenshotTaken = useRef(false);
 
-  const types: { value: TicketType; label: string }[] = [
-    { value: "BUG", label: t("typeBug") },
-    { value: "FEATURE", label: t("typeFeature") },
-    { value: "QUESTION", label: t("typeQuestion") },
-    { value: "OTHER", label: t("typeOther") },
+  const types: { value: TicketType; label: string; desc: string }[] = [
+    { value: "BUG", label: t("typeBug"), desc: t("typeBugDesc") },
+    { value: "FEATURE", label: t("typeFeature"), desc: t("typeFeatureDesc") },
+    { value: "QUESTION", label: t("typeQuestion"), desc: t("typeQuestionDesc") },
+    { value: "OTHER", label: t("typeOther"), desc: t("typeOtherDesc") },
   ];
+
+  // Auto-capture screenshot when step 2 mounts (once)
+  useEffect(() => {
+    if (step !== 2 || screenshotTaken.current) return;
+    screenshotTaken.current = true;
+
+    async function capture() {
+      try {
+        setScreenshotUploading(true);
+        setScreenshotError(false);
+        // Dynamically import to avoid SSR issues
+        const html2canvas = (await import("html2canvas")).default;
+        const canvas = await html2canvas(document.body, {
+          scale: 0.5,
+          useCORS: true,
+          allowTaint: true,
+          logging: false,
+          ignoreElements: (el) => el.id === "support-wizard-overlay",
+        });
+        const dataUrl = canvas.toDataURL("image/png");
+        setScreenshotDataUrl(dataUrl);
+
+        // Upload to Vercel Blob
+        const blob = await (await fetch(dataUrl)).blob();
+        const formData = new FormData();
+        formData.append("file", blob, "screenshot.png");
+        const res = await fetch("/api/support/screenshot", { method: "POST", body: formData });
+        if (res.ok) {
+          const data = await res.json();
+          setScreenshotUrl(data.url);
+        } else {
+          setScreenshotError(true);
+        }
+      } catch {
+        setScreenshotError(true);
+      } finally {
+        setScreenshotUploading(false);
+      }
+    }
+
+    capture();
+  }, [step]);
+
+  const handleTypeSelect = (t: TicketType) => {
+    setType(t);
+    setStep(2);
+  };
+
+  const handleBack = () => {
+    setStep(1);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setStatus("submitting");
+    if (!type) return;
+    setSubmitStatus("submitting");
     setErrorMsg("");
 
     try {
       const res = await fetch("/api/support", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type, subject, body }),
+        body: JSON.stringify({ type, subject, body, screenshotUrl: screenshotUrl ?? "" }),
       });
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         setErrorMsg(data?.error ?? "Fehler beim Absenden.");
-        setStatus("error");
+        setSubmitStatus("error");
         return;
       }
 
-      setStatus("success");
+      setSubmitStatus("success");
     } catch {
       setErrorMsg("Verbindungsfehler.");
-      setStatus("error");
+      setSubmitStatus("error");
     }
   };
 
-  if (status === "success") {
+  if (submitStatus === "success") {
     return (
       <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
         <span className="material-symbols-rounded text-green-600 text-4xl" aria-hidden="true">check_circle</span>
@@ -63,59 +129,140 @@ export default function SupportForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Type selector */}
-      <div>
-        <p className="text-sm font-medium text-gray-700 mb-2">{t("typeLabel")}</p>
-        <div className="flex flex-wrap gap-2" role="group" aria-label={t("typeLabel")}>
-          {types.map(({ value, label }) => (
-            <button
-              key={value}
-              type="button"
-              onClick={() => setType(value)}
-              className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors focus:outline-none focus:ring-2 focus:ring-[#4577ac] ${
-                type === value
-                  ? "bg-[#4577ac] text-white border-[#4577ac]"
-                  : "bg-white text-gray-700 border-gray-300 hover:border-[#4577ac]"
-              }`}
-              aria-pressed={type === value}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
+    <div id="support-wizard-overlay">
+      {/* Step indicator */}
+      <div className="flex items-center gap-2 mb-6" aria-label={t("stepIndicator")}>
+        {([1, 2] as Step[]).map((s) => (
+          <div key={s} className="flex items-center gap-2">
+            <div className={`w-7 h-7 rounded-full flex items-center justify-center text-sm font-semibold transition-colors ${
+              step === s ? "bg-[#4577ac] text-white" : step > s ? "bg-green-500 text-white" : "bg-gray-200 text-gray-500"
+            }`}>
+              {step > s
+                ? <span className="material-symbols-rounded" style={{ fontSize: 16 }} aria-hidden="true">check</span>
+                : s}
+            </div>
+            <span className={`text-sm ${step === s ? "text-gray-800 font-medium" : "text-gray-400"}`}>
+              {s === 1 ? t("step1Label") : t("step2Label")}
+            </span>
+            {s < 2 && <span className="text-gray-300 mx-1">→</span>}
+          </div>
+        ))}
       </div>
 
-      <FormField htmlFor="support-subject" label={t("subjectLabel")}>
-        <Input
-          id="support-subject"
-          value={subject}
-          onChange={(e) => setSubject(e.target.value)}
-          required
-          maxLength={200}
-          placeholder=""
-        />
-      </FormField>
-
-      <FormField htmlFor="support-body" label={t("bodyLabel")}>
-        <Textarea
-          id="support-body"
-          value={body}
-          onChange={(e) => setBody(e.target.value)}
-          required
-          maxLength={2000}
-          placeholder={t("bodyPlaceholder")}
-          rows={6}
-        />
-      </FormField>
-
-      {status === "error" && (
-        <p className="text-red-600 text-sm" role="alert">{errorMsg}</p>
+      {/* Step 1: Type selection */}
+      {step === 1 && (
+        <div>
+          <p className="text-sm text-gray-600 mb-4">{t("step1Prompt")}</p>
+          <div className="grid grid-cols-2 gap-3">
+            {types.map(({ value, label, desc }) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => handleTypeSelect(value)}
+                className="flex flex-col items-start gap-2 rounded-xl border-2 border-gray-200 bg-white p-4 text-left transition-all hover:border-[#4577ac] hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-[#4577ac]"
+              >
+                <span className="material-symbols-rounded text-[#4577ac] text-2xl" aria-hidden="true">{TYPE_ICONS[value]}</span>
+                <span className="font-semibold text-gray-800 text-sm">{label}</span>
+                <span className="text-xs text-gray-500">{desc}</span>
+              </button>
+            ))}
+          </div>
+        </div>
       )}
 
-      <Button type="submit" loading={status === "submitting"}>
-        {t("submit")}
-      </Button>
-    </form>
+      {/* Step 2: Details + screenshot */}
+      {step === 2 && type && (
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Selected type badge + back */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-rounded text-[#4577ac]" style={{ fontSize: 20 }} aria-hidden="true">{TYPE_ICONS[type]}</span>
+              <span className="text-sm font-medium text-[#4577ac]">{types.find(t => t.value === type)?.label}</span>
+            </div>
+            <button
+              type="button"
+              onClick={handleBack}
+              className="text-xs text-gray-500 hover:text-gray-700 flex items-center gap-1"
+            >
+              <span className="material-symbols-rounded" style={{ fontSize: 14 }} aria-hidden="true">arrow_back</span>
+              {t("back")}
+            </button>
+          </div>
+
+          <FormField htmlFor="support-subject" label={t("subjectLabel")}>
+            <Input
+              id="support-subject"
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+              required
+              maxLength={200}
+              placeholder={t("subjectPlaceholder")}
+            />
+          </FormField>
+
+          <FormField htmlFor="support-body" label={t("bodyLabel")}>
+            <Textarea
+              id="support-body"
+              value={body}
+              onChange={(e) => setBody(e.target.value)}
+              required
+              maxLength={2000}
+              placeholder={t("bodyPlaceholder")}
+              rows={5}
+            />
+          </FormField>
+
+          {/* Screenshot preview */}
+          <div>
+            <p className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-1.5">
+              <span className="material-symbols-rounded text-gray-500" style={{ fontSize: 16 }} aria-hidden="true">screenshot</span>
+              {t("screenshotLabel")}
+            </p>
+            {screenshotUploading && (
+              <div className="flex items-center gap-2 text-sm text-gray-500 bg-gray-50 rounded-lg p-3 border border-gray-200">
+                <span className="material-symbols-rounded animate-spin text-[#4577ac]" style={{ fontSize: 18 }} aria-hidden="true">progress_activity</span>
+                {t("screenshotCapturing")}
+              </div>
+            )}
+            {!screenshotUploading && screenshotError && (
+              <p className="text-xs text-amber-600 bg-amber-50 rounded-lg p-3 border border-amber-200">
+                {t("screenshotFailed")}
+              </p>
+            )}
+            {!screenshotUploading && screenshotDataUrl && !screenshotError && (
+              <div className="relative">
+                <img
+                  src={screenshotDataUrl}
+                  alt={t("screenshotAlt")}
+                  className="w-full rounded-lg border border-gray-200 shadow-sm"
+                />
+                <button
+                  type="button"
+                  onClick={() => { setScreenshotDataUrl(null); setScreenshotUrl(null); }}
+                  className="absolute top-2 right-2 bg-white/90 rounded-full p-1 shadow text-gray-500 hover:text-red-500 transition-colors"
+                  aria-label={t("screenshotRemove")}
+                >
+                  <span className="material-symbols-rounded" style={{ fontSize: 18 }} aria-hidden="true">close</span>
+                </button>
+                {screenshotUrl && (
+                  <div className="absolute bottom-2 right-2 bg-green-500 text-white rounded-full px-2 py-0.5 text-xs flex items-center gap-1">
+                    <span className="material-symbols-rounded" style={{ fontSize: 12 }} aria-hidden="true">check</span>
+                    {t("screenshotUploaded")}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {submitStatus === "error" && (
+            <p className="text-red-600 text-sm" role="alert">{errorMsg}</p>
+          )}
+
+          <Button type="submit" loading={submitStatus === "submitting"} disabled={screenshotUploading}>
+            {t("submit")}
+          </Button>
+        </form>
+      )}
+    </div>
   );
 }

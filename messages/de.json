@@ -394,7 +394,8 @@
     "suggestions": [
       "Welche Veranstaltungen stehen an?",
       "Wie werde ich Mitglied?",
-      "Was ist der WSC 81?"
+      "Was ist der WSC 81?",
+      "Ich möchte ein Problem melden"
     ]
   },
   "General": {
@@ -435,14 +436,30 @@
   "Support": {
     "title": "Support",
     "subtitle": "Fehler melden oder Feature vorschlagen",
+    "step1Label": "Typ wählen",
+    "step2Label": "Details",
+    "step1Prompt": "Was möchtest du melden?",
+    "stepIndicator": "Fortschritt",
     "typeLabel": "Typ",
     "typeBug": "Fehler melden",
+    "typeBugDesc": "Etwas funktioniert nicht wie erwartet",
     "typeFeature": "Feature vorschlagen",
+    "typeFeatureDesc": "Eine neue Funktion oder Verbesserung",
     "typeQuestion": "Frage",
+    "typeQuestionDesc": "Du brauchst Hilfe oder hast eine Frage",
     "typeOther": "Sonstiges",
+    "typeOtherDesc": "Alles andere",
     "subjectLabel": "Betreff",
+    "subjectPlaceholder": "Kurze Zusammenfassung …",
     "bodyLabel": "Beschreibung",
     "bodyPlaceholder": "Beschreibe das Problem oder den Wunsch …",
+    "screenshotLabel": "Screenshot (automatisch erstellt)",
+    "screenshotCapturing": "Screenshot wird erstellt …",
+    "screenshotFailed": "Screenshot konnte nicht erstellt werden — wird ohne Screenshot eingereicht.",
+    "screenshotAlt": "Screenshot der aktuellen Seite",
+    "screenshotRemove": "Screenshot entfernen",
+    "screenshotUploaded": "Hochgeladen",
+    "back": "Zurück",
     "submit": "Absenden",
     "successTitle": "Vielen Dank!",
     "successBody": "Deine Anfrage wurde übermittelt. Wir melden uns per E-Mail.",
