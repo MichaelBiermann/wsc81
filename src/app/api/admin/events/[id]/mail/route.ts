@@ -66,15 +66,13 @@ export async function POST(
     }
   }
 
-  const html = mailBody; // body is already HTML from rich text or plain
-
   const messages = Array.from(uniqueEmails.entries()).map(([to, name]) => ({
     from: FROM,
     replyTo: ADMIN_EMAIL,
     to,
     subject,
-    html: html.replace(/\{\{name\}\}/g, name),
-    text: html.replace(/<[^>]+>/g, "").replace(/\n\s*\n/g, "\n").replace(/\{\{name\}\}/g, name),
+    html: mailBody.replace(/\{\{name\}\}/g, name),
+    text: mailBody.replace(/<[^>]+>/g, "").replace(/\n\s*\n/g, "\n").replace(/\{\{name\}\}/g, name),
   }));
 
   await sgMail.send(messages as Parameters<typeof sgMail.send>[0]);

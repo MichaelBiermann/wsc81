@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useAdminI18n } from "@/components/admin/AdminI18nProvider";
+import RichTextEditor from "@/components/admin/RichTextEditor";
 
 interface Booking {
   id: string;
@@ -240,11 +241,10 @@ export default function EventMailSection({
             </div>
           )}
 
-          <textarea
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
-            rows={8}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#4577ac] resize-y"
+          <RichTextEditor
+            content={body}
+            onChange={(v) => setBody(v)}
+            locale={mailLang}
           />
           <div className="mt-1 flex items-center justify-between">
             <p className="text-xs text-gray-400">{em.namePlaceholderHint}</p>
