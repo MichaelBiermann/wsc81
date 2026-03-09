@@ -233,7 +233,7 @@ export default function AdminChatPanel() {
   }
 
   return (
-    <>
+    <div data-no-print>
       {/* Floating button */}
       <button
         ref={openButtonRef}
@@ -397,6 +397,6 @@ export default function AdminChatPanel() {
           </button>
         </div>
       </div>
-    </>
+    </div>
   );
 }

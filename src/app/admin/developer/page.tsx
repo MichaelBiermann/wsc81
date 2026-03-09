@@ -347,12 +347,33 @@ export default function DeveloperPage() {
 
   return (
     <div className="max-w-5xl">
-      <div className="flex items-center gap-3 mb-8">
-        <span className="material-symbols-rounded text-emerald-700" style={{ fontSize: 32 }} aria-hidden="true">code</span>
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">{isDE ? "Entwickler-Portal" : "Developer Portal"}</h1>
-          <p className="text-sm text-gray-500 mt-0.5">{isDE ? "WSC 81 — Technische Dokumentation" : "WSC 81 — Technical Documentation"}</p>
+      {/* Print styles: hide sidebar, chat panel, and print button; expand main to full width */}
+      <style>{`
+        @media print {
+          aside, [data-no-print] { display: none !important; }
+          main { padding: 0 !important; background: white !important; }
+          .max-w-5xl { max-width: none !important; }
+          @page { margin: 15mm 12mm; size: A4; }
+        }
+      `}</style>
+
+      <div className="flex items-center justify-between gap-3 mb-8">
+        <div className="flex items-center gap-3">
+          <span className="material-symbols-rounded text-emerald-700" style={{ fontSize: 32 }} aria-hidden="true">code</span>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">{isDE ? "Entwickler-Portal" : "Developer Portal"}</h1>
+            <p className="text-sm text-gray-500 mt-0.5">{isDE ? "WSC 81 — Technische Dokumentation" : "WSC 81 — Technical Documentation"}</p>
+          </div>
         </div>
+        <button
+          data-no-print
+          onClick={() => window.print()}
+          className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm text-gray-700 shadow-sm hover:bg-gray-50 transition-colors flex-shrink-0"
+          aria-label={isDE ? "Als PDF exportieren" : "Export as PDF"}
+        >
+          <span className="material-symbols-rounded" style={{ fontSize: 18 }} aria-hidden="true">picture_as_pdf</span>
+          {isDE ? "PDF exportieren" : "Export PDF"}
+        </button>
       </div>
 
       {/* Repository Overview */}
@@ -497,7 +518,7 @@ export default function DeveloperPage() {
         </div>
       </section>
 
-      <DevChatPanel />
+      <div data-no-print><DevChatPanel /></div>
     </div>
   );
 }
