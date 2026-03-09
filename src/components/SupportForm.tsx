@@ -54,16 +54,24 @@ export default function SupportForm() {
         const canvas = await html2canvas(document.body, {
           scale: 0.5,
           useCORS: false,
-          allowTaint: true,
+          allowTaint: false,
           logging: false,
           ignoreElements: (el) => {
             // Exclude the wizard overlay itself
             if (el.id === "support-wizard-overlay") return true;
-            // Strip only cross-origin stylesheets (Google Fonts etc.) — keep same-origin Tailwind CSS
+            // Skip cross-origin stylesheets (Google Fonts etc.)
             if (el.tagName === "LINK" && (el as HTMLLinkElement).rel === "stylesheet") {
               try {
                 const href = (el as HTMLLinkElement).href;
                 return !!href && new URL(href).origin !== window.location.origin;
+              } catch { return false; }
+            }
+            // Skip cross-origin images (Vercel Blob avatars, external event images)
+            // — drawing them taints the canvas and throws a security error
+            if (el.tagName === "IMG") {
+              try {
+                const src = (el as HTMLImageElement).src;
+                return !!src && new URL(src).origin !== window.location.origin;
               } catch { return false; }
             }
             return false;
@@ -72,20 +80,22 @@ export default function SupportForm() {
         const dataUrl = canvas.toDataURL("image/png");
         setScreenshotDataUrl(dataUrl);
 
-        // Upload to server
-        const fetchRes = await fetch(dataUrl);
-        const blob = await fetchRes.blob();
-        const formData = new FormData();
-        formData.append("file", blob, "screenshot.png");
-        const res = await fetch("/api/support/screenshot", { method: "POST", body: formData });
-        if (res.ok) {
-          const data = await res.json();
-          setScreenshotUrl(data.url);
-        } else {
-          // Upload failed but we still have the local preview — not a hard error
-          setScreenshotError(true);
+        // Upload to server — failure is non-fatal, preview still shown
+        try {
+          const fetchRes = await fetch(dataUrl);
+          const blob = await fetchRes.blob();
+          const formData = new FormData();
+          formData.append("file", blob, "screenshot.png");
+          const res = await fetch("/api/support/screenshot", { method: "POST", body: formData });
+          if (res.ok) {
+            const data = await res.json();
+            setScreenshotUrl(data.url);
+          }
+        } catch {
+          // upload failed silently — ticket submitted without stored URL
         }
-      } catch {
+      } catch (err) {
+        console.error("[screenshot] capture failed:", err);
         setScreenshotError(true);
       } finally {
         setScreenshotUploading(false);
