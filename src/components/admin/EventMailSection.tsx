@@ -52,6 +52,7 @@ export default function EventMailSection({
   const [purpose, setPurpose] = useState("Kick Off");
   const [subject, setSubject] = useState(`${eventTitleDe} ${em.dateRangeVom} ${formatDateRange()}`);
   const [body, setBody] = useState("");
+  const [editorKey, setEditorKey] = useState(0);
   const [mailLang, setMailLang] = useState<"de" | "en">("de");
   const [targetBookingId, setTargetBookingId] = useState<string>("all");  const [sending, setSending] = useState(false);
   const [generating, setGenerating] = useState(false);
@@ -97,6 +98,7 @@ export default function EventMailSection({
       if (!res.ok) return;
       const { suggestion } = await res.json();
       setBody(suggestion);
+      setEditorKey((k) => k + 1);
       if (subject === `${eventTitleDe} ${em.dateRangeVom} ${formatDateRange()}` || !subject.trim()) {
         setSubject(`${purpose.trim()}: ${eventTitleDe} ${em.dateRangeVom} ${formatDateRange()}`);
       }
@@ -202,7 +204,7 @@ export default function EventMailSection({
               <textarea
                 value={promptDraft}
                 onChange={(e) => setPromptDraft(e.target.value)}
-                rows={12}
+                rows={14}
                 className="w-full rounded border border-amber-200 bg-white px-2 py-1.5 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-amber-400 resize-y"
               />
               <div className="flex items-center gap-2 mt-2">
@@ -227,6 +229,7 @@ export default function EventMailSection({
           )}
 
           <RichTextEditor
+            key={editorKey}
             content={body}
             onChange={(v) => setBody(v)}
             locale={mailLang}
