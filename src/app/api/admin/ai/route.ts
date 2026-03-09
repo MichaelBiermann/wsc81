@@ -30,7 +30,8 @@ const SYSTEM_PROMPTS: Record<string, string> = {
   "roomSingleSurcharge": <number|null>,
   "roomDoubleSurcharge": <number|null>,
   "agePrices": [{ "label": "<string>", "price": <number>, "minAge": <number|null>, "maxAge": <number|null> }],
-  "soldOut": <boolean>
+  "soldOut": <boolean>,
+  "bookable": <boolean>
 }
 Field rules:
 - "depositAmount": ONLY set this if an explicit deposit or down-payment (Anzahlung) is mentioned in the text. If no deposit is mentioned, set to null. Do NOT use room prices or base prices as depositAmount.
@@ -40,7 +41,8 @@ Field rules:
 - "surchargeNonMemberAdult": extra charge for non-members aged 18+.
 - "surchargeNonMemberChild": extra charge for non-members under 18.
 - "agePrices": array of up to 10 age-based price entries (children, teens, etc.) each with a descriptive label, the full price for that group, and the age range. For "minAge" and "maxAge": set the lower bound as minAge (null if no lower bound, e.g. babies), set the upper bound as maxAge (null if no upper bound, e.g. adults). Example: children 3–12 years → minAge: 3, maxAge: 12. Babies under 3 → minAge: null, maxAge: 2. Adults 18+ → minAge: 18, maxAge: null. Use [] if no age-based prices found.
-- "soldOut": set to true if the text contains any indication that the event is fully booked or sold out (e.g. "ausgebucht", "ausverkauft", "sold out", "fully booked", "keine freien Plätze"). Otherwise false.
+- "bookable": set to true ONLY if the description contains event participation pricing — i.e. a deposit (Anzahlung), room prices, travel/bus costs, non-member surcharges, or age-based entry fees for the event itself. Do NOT set to true for incidental item costs like certificates (Urkunde), badges (Abzeichen), merchandise, or optional add-ons that are not part of booking the event. Set to false if no such participation pricing is found.
+- "soldOut": set to true if the text contains any indication that there are no more free seats (e.g. "ausgebucht", "ausverkauft", "sold out", "fully booked", "keine freien Plätze", "keine Plätze mehr"). Otherwise false.
 - Use null for any numeric field not found in the description.`,
 };
 

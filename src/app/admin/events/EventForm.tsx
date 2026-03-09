@@ -142,6 +142,8 @@ export default function EventForm({
           })),
         }),
         ...(parsed.soldOut === true && { soldOut: true }),
+        ...(parsed.bookable === false && { bookable: false }),
+        ...(parsed.bookable === true && { bookable: true }),
       }));
     } catch {
       // silently ignore parse errors
@@ -203,6 +205,16 @@ export default function EventForm({
         onChange={(url) => setForm((f) => ({ ...f, imageUrl: url }))}
       />
 
+      <button
+        type="button"
+        onClick={handleDeriveSurcharges}
+        disabled={derivingPrices || (!form.descriptionDe && !form.descriptionEn)}
+        className="self-start inline-flex items-center gap-1.5 text-sm text-[#4577ac] hover:underline disabled:opacity-40 disabled:no-underline"
+      >
+        <span className="material-symbols-rounded text-base">{derivingPrices ? "progress_activity" : "auto_awesome"}</span>
+        {t.eventForm.deriveSurcharges}
+      </button>
+
       <label className="flex items-center gap-3 cursor-pointer select-none">
         <input
           type="checkbox"
@@ -225,17 +237,8 @@ export default function EventForm({
 
       {form.bookable && (
       <div>
-        <div className="flex items-center gap-3 mb-3">
+        <div className="mb-3">
           <p className="text-sm font-semibold text-gray-700">{t.eventForm.pricingSurchargesSection}</p>
-          <button
-            type="button"
-            onClick={handleDeriveSurcharges}
-            disabled={derivingPrices || (!form.descriptionDe && !form.descriptionEn)}
-            className="inline-flex items-center gap-1 text-xs text-[#4577ac] hover:underline disabled:opacity-40 disabled:no-underline"
-          >
-            <span className="material-symbols-rounded text-sm">{derivingPrices ? "progress_activity" : "auto_awesome"}</span>
-            {t.eventForm.deriveSurcharges}
-          </button>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <FormField label={t.eventForm.depositAmount} required>
