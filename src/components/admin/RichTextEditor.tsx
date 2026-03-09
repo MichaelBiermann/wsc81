@@ -17,12 +17,14 @@ export default function RichTextEditor({
   locale = "de",
   placeholder,
   isEventDescription = false,
+  minHeight = "160px",
 }: {
   content: string;
   onChange: (html: string) => void;
   locale?: string;
   placeholder?: string;
   isEventDescription?: boolean;
+  minHeight?: string;
 }) {
   const { t } = useAdminI18n();
   const rt = t.richText;
@@ -265,7 +267,8 @@ export default function RichTextEditor({
       {/* Editor content */}
       <EditorContent
         editor={editor}
-        className="prose prose-sm max-w-none p-4 min-h-[160px] focus-within:outline-none"
+        className="prose prose-sm max-w-none p-4 focus-within:outline-none"
+        style={{ minHeight }}
       />
     </div>
   );

@@ -202,7 +202,7 @@ export default function EventMailSection({
               <textarea
                 value={promptDraft}
                 onChange={(e) => setPromptDraft(e.target.value)}
-                rows={6}
+                rows={12}
                 className="w-full rounded border border-amber-200 bg-white px-2 py-1.5 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-amber-400 resize-y"
               />
               <div className="flex items-center gap-2 mt-2">
@@ -230,6 +230,7 @@ export default function EventMailSection({
             content={body}
             onChange={(v) => setBody(v)}
             locale={mailLang}
+            minHeight="480px"
           />
           <div className="mt-1 flex items-center justify-between">
             <p className="text-xs text-gray-400">{em.namePlaceholderHint}</p>
