@@ -364,6 +364,11 @@ export default function DeveloperPage() {
           /* Keep section heading glued to the content that follows */
           section > h2 { break-after: avoid; }
           section > h2 + * { break-before: avoid; }
+          /* Also glue the first diagram inside a flex/grid container to the heading above */
+          section > h2 + * > .mermaid-wrap:first-child { break-before: avoid; }
+
+          /* Force sequence diagrams section to always start on a new page */
+          .print-break-before { break-before: page; }
 
           /* Keep diagram title + SVG together */
           .mermaid-wrap { break-inside: avoid; }
@@ -508,7 +513,7 @@ export default function DeveloperPage() {
       </section>
 
       {/* Sequence Diagrams */}
-      <section className="mb-10">
+      <section className="mb-10 print-break-before">
         <h2 className="text-lg font-semibold text-gray-800 mb-4">{isDE ? "Sequenzdiagramme" : "Sequence Diagrams"}</h2>
         <div className="flex flex-col gap-6">
           <MermaidDiagram chart={AUTH_SEQUENCE} title={isDE ? "Authentifizierungsablauf" : "Authentication flow"} />
