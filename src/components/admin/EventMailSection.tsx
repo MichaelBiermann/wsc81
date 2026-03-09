@@ -60,20 +60,27 @@ export default function EventMailSection({
   const [feedback, setFeedback] = useState<{ ok: boolean; msg: string } | null>(null);
   const [sentMails, setSentMails] = useState<SentMail[]>(initialMails);
   const [showPreview, setShowPreview] = useState(false);
-  const [savedDraft, setSavedDraft] = useState<boolean>(() => {
-    try { return !!localStorage.getItem(`mail_draft_${eventId}`); } catch { return false; }
+  const draftKey = (lang: "de" | "en") => `mail_draft_${eventId}_${lang}`;
+
+  const [savedDraft, setSavedDraft] = useState<{ de: boolean; en: boolean }>(() => {
+    try {
+      return {
+        de: !!localStorage.getItem(draftKey("de")),
+        en: !!localStorage.getItem(draftKey("en")),
+      };
+    } catch { return { de: false, en: false }; }
   });
 
   function saveDraft() {
     try {
-      localStorage.setItem(`mail_draft_${eventId}`, JSON.stringify({ subject, body, purpose }));
-      setSavedDraft(true);
+      localStorage.setItem(draftKey(mailLang), JSON.stringify({ subject, body, purpose }));
+      setSavedDraft((s) => ({ ...s, [mailLang]: true }));
     } catch { /* ignore */ }
   }
 
   function loadDraft() {
     try {
-      const raw = localStorage.getItem(`mail_draft_${eventId}`);
+      const raw = localStorage.getItem(draftKey(mailLang));
       if (!raw) return;
       const { subject: s, body: b, purpose: p } = JSON.parse(raw);
       if (p) setPurpose(p);
@@ -308,14 +315,14 @@ export default function EventMailSection({
             )}
           </button>
           <div className="flex items-center gap-2 ml-auto">
-            {savedDraft && (
+            {savedDraft[mailLang] && (
               <button
                 type="button"
                 onClick={loadDraft}
                 className="inline-flex items-center gap-1 text-xs text-[#4577ac] hover:underline"
               >
                 <span className="material-symbols-rounded text-sm">upload</span>
-                {em.loadDraft}
+                {em.loadDraft} ({mailLang.toUpperCase()})
               </button>
             )}
             <button
@@ -324,7 +331,7 @@ export default function EventMailSection({
               className="inline-flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700 hover:underline"
             >
               <span className="material-symbols-rounded text-sm">save</span>
-              {em.saveDraft}
+              {em.saveDraft} ({mailLang.toUpperCase()})
             </button>
           </div>
           {feedback && (
