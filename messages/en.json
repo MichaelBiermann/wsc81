@@ -466,6 +466,7 @@
     "loginRequired": "Please sign in to submit a request.",
     "loginLink": "Sign in",
     "screenshotRetake": "Retake screenshot",
-    "screenshotIncludeOverlays": "Include support form / chatbot"
+    "screenshotIncludeSupport": "Include support form",
+    "screenshotIncludeChat": "Include chatbot"
   }
 }

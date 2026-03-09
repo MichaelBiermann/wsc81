@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useTranslations, useLocale } from "next-intl";
+import { useTranslations } from "next-intl";
 import FormField from "@/components/ui/FormField";
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/Textarea";
@@ -17,9 +17,15 @@ const TYPE_ICONS: Record<TicketType, string> = {
   OTHER: "chat",
 };
 
-export default function SupportForm() {
+interface Props {
+  /** Pre-captured screenshot data URL passed in from the overlay */
+  initialScreenshotDataUrl?: string | null;
+  /** Called after a successful submission (e.g. to close the overlay) */
+  onSuccess?: () => void;
+}
+
+export default function SupportForm({ initialScreenshotDataUrl, onSuccess }: Props) {
   const t = useTranslations("Support");
-  const locale = useLocale();
 
   const [step, setStep] = useState<Step>(1);
   const [type, setType] = useState<TicketType | null>(null);
@@ -31,9 +37,28 @@ export default function SupportForm() {
   const [screenshotError, setScreenshotError] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
-  const [includeOverlays, setIncludeOverlays] = useState(false);
+  const [includeSupport, setIncludeSupport] = useState(false);
+  const [includeChat, setIncludeChat] = useState(false);
 
-  async function retakeScreenshot(withOverlays: boolean) {
+  // Upload the initial screenshot provided by the overlay
+  useEffect(() => {
+    if (!initialScreenshotDataUrl) return;
+    setScreenshotDataUrl(initialScreenshotDataUrl);
+    setScreenshotUploading(true);
+    fetch(initialScreenshotDataUrl)
+      .then((r) => r.blob())
+      .then((blob) => {
+        const formData = new FormData();
+        formData.append("file", blob, "screenshot.png");
+        return fetch("/api/support/screenshot", { method: "POST", body: formData });
+      })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => { if (data?.url) setScreenshotUrl(data.url); })
+      .catch(() => { /* non-fatal */ })
+      .finally(() => setScreenshotUploading(false));
+  }, [initialScreenshotDataUrl]);
+
+  async function retakeScreenshot(withSupport: boolean, withChat: boolean) {
     setScreenshotError(false);
     setScreenshotUploading(true);
     setScreenshotDataUrl(null);
@@ -43,10 +68,9 @@ export default function SupportForm() {
       const dataUrl = await toPng(document.body, {
         pixelRatio: 0.5,
         filter: (node) => {
-          if (!withOverlays) {
-            const id = (node as HTMLElement).id;
-            if (id === "support-wizard-overlay" || id === "public-chat-panel") return false;
-          }
+          const id = (node as HTMLElement).id;
+          if (id === "support-wizard-overlay" && !withSupport) return false;
+          if (id === "public-chat-panel" && !withChat) return false;
           return true;
         },
       });
@@ -70,51 +94,6 @@ export default function SupportForm() {
     { value: "QUESTION", label: t("typeQuestion"), desc: t("typeQuestionDesc") },
     { value: "OTHER", label: t("typeOther"), desc: t("typeOtherDesc") },
   ];
-
-  // On mount: read screenshot captured by the referring page before navigation
-  useEffect(() => {
-    const stored = sessionStorage.getItem("support_screenshot");
-    if (stored) {
-      setScreenshotDataUrl(stored);
-      sessionStorage.removeItem("support_screenshot");
-      // Upload it
-      setScreenshotUploading(true);
-      fetch(stored)
-        .then((r) => r.blob())
-        .then((blob) => {
-          const formData = new FormData();
-          formData.append("file", blob, "screenshot.png");
-          return fetch("/api/support/screenshot", { method: "POST", body: formData });
-        })
-        .then((res) => res.ok ? res.json() : null)
-        .then((data) => { if (data?.url) setScreenshotUrl(data.url); })
-        .catch(() => { /* non-fatal */ })
-        .finally(() => setScreenshotUploading(false));
-    } else {
-      // No stored screenshot — capture the current page as fallback, excluding overlays
-      setScreenshotUploading(true);
-      import("html-to-image").then(({ toPng }) =>
-        toPng(document.body, {
-          pixelRatio: 0.5,
-          filter: (node) => {
-            const id = (node as HTMLElement).id;
-            return id !== "support-wizard-overlay" && id !== "public-chat-panel";
-          },
-        })
-      ).then((dataUrl) => {
-        setScreenshotDataUrl(dataUrl);
-        const formData = new FormData();
-        return fetch(dataUrl).then((r) => r.blob()).then((blob) => {
-          formData.append("file", blob, "screenshot.png");
-          return fetch("/api/support/screenshot", { method: "POST", body: formData });
-        }).then((res) => res.ok ? res.json() : null)
-          .then((data) => { if (data?.url) setScreenshotUrl(data.url); });
-      }).catch((err) => {
-        console.error("[ss] capture failed:", err);
-        setScreenshotError(true);
-      }).finally(() => setScreenshotUploading(false));
-    }
-  }, []);
 
   const handleBack = () => {
     setStep(1);
@@ -141,6 +120,8 @@ export default function SupportForm() {
       }
 
       setSubmitStatus("success");
+      // Give the user a moment to see the success message, then close
+      setTimeout(() => onSuccess?.(), 2500);
     } catch {
       setErrorMsg("Verbindungsfehler.");
       setSubmitStatus("error");
@@ -158,7 +139,7 @@ export default function SupportForm() {
   }
 
   return (
-    <div id="support-wizard-overlay">
+    <div>
       {/* Step indicator */}
       <div className="flex items-center gap-2 mb-6" aria-label={t("stepIndicator")}>
         {([1, 2] as Step[]).map((s) => (
@@ -287,15 +268,24 @@ export default function SupportForm() {
                 <label className="flex items-center gap-1.5 text-xs text-gray-500 cursor-pointer select-none">
                   <input
                     type="checkbox"
-                    checked={includeOverlays}
-                    onChange={(e) => setIncludeOverlays(e.target.checked)}
+                    checked={includeSupport}
+                    onChange={(e) => setIncludeSupport(e.target.checked)}
                     className="rounded border-gray-300 text-[#4577ac] focus:ring-[#4577ac]"
                   />
-                  {t("screenshotIncludeOverlays")}
+                  {t("screenshotIncludeSupport")}
+                </label>
+                <label className="flex items-center gap-1.5 text-xs text-gray-500 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={includeChat}
+                    onChange={(e) => setIncludeChat(e.target.checked)}
+                    className="rounded border-gray-300 text-[#4577ac] focus:ring-[#4577ac]"
+                  />
+                  {t("screenshotIncludeChat")}
                 </label>
                 <button
                   type="button"
-                  onClick={() => retakeScreenshot(includeOverlays)}
+                  onClick={() => retakeScreenshot(includeSupport, includeChat)}
                   className="inline-flex items-center gap-1 text-xs text-[#4577ac] hover:underline"
                 >
                   <span className="material-symbols-rounded" style={{ fontSize: 14 }} aria-hidden="true">refresh</span>

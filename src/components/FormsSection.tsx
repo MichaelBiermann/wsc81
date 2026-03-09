@@ -5,24 +5,6 @@ import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-async function capturePageToSessionStorage() {
-  try {
-    const { toPng } = await import("html-to-image");
-    const dataUrl = await toPng(document.body, {
-      pixelRatio: 0.5,
-      filter: (node) => {
-        const id = (node as HTMLElement).id;
-        // Exclude support overlay and chat panel from the default screenshot
-        if (id === "support-wizard-overlay" || id === "public-chat-panel") return false;
-        return true;
-      },
-    });
-    sessionStorage.setItem("support_screenshot", dataUrl);
-  } catch {
-    sessionStorage.removeItem("support_screenshot");
-  }
-}
-
 interface EventItem {
   id: number;
   titleDe: string;
@@ -244,10 +226,7 @@ export default function FormsSection() {
             <p className="font-semibold text-gray-800">{t("supportTitle")}</p>
             <p className="text-xs text-gray-500">{t("supportDesc")}</p>
             <button
-              onClick={async () => {
-                await capturePageToSessionStorage();
-                router.push(`/${locale}/support`);
-              }}
+              onClick={() => router.push("?support=open")}
               className="inline-flex items-center gap-1 text-sm text-[#4577ac] hover:underline text-left"
             >
               <span className="material-symbols-rounded text-base" aria-hidden="true">arrow_forward</span>

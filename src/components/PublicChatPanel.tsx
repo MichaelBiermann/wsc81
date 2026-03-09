@@ -329,22 +329,15 @@ export default function PublicChatPanel() {
                       {renderMarkdown(m.text, (path) => { setOpen(false); setTimeout(() => router.push(path), 50); })}
                       {m.navigateTo && m.navigateLabel && (
                         <button
-                          onClick={async () => {
-                            if (m.navigateTo!.includes("/support")) {
-                              try {
-                                const { toPng } = await import("html-to-image");
-                                const dataUrl = await toPng(document.body, {
-                                  pixelRatio: 0.5,
-                                  filter: (node) => {
-                                    const id = (node as HTMLElement).id;
-                                    return id !== "public-chat-panel" && id !== "support-wizard-overlay";
-                                  },
-                                });
-                                sessionStorage.setItem("support_screenshot", dataUrl);
-                              } catch { sessionStorage.removeItem("support_screenshot"); }
-                            }
+                          onClick={() => {
                             setOpen(false);
-                            setTimeout(() => router.push(m.navigateTo!), 50);
+                            const dest = m.navigateTo!;
+                            // Support links open the overlay on the current page instead of navigating away
+                            if (dest.includes("/support")) {
+                              setTimeout(() => router.push("?support=open"), 50);
+                            } else {
+                              setTimeout(() => router.push(dest), 50);
+                            }
                           }}
                           className="self-start inline-flex items-center gap-1.5 rounded-full bg-[#4577ac] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#2d5a8a] transition-colors"
                         >

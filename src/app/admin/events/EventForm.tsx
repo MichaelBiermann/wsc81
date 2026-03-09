@@ -20,6 +20,7 @@ interface EventFormData {
   maxParticipants: string; registrationDeadline: string;
   imageUrl: string;
   bookable: boolean;
+  soldOut: boolean;
   surchargeNonMemberAdult: string;
   surchargeNonMemberChild: string;
   busSurcharge: string;
@@ -34,6 +35,7 @@ const EMPTY: EventFormData = {
   depositAmount: "", maxParticipants: "", registrationDeadline: "",
   imageUrl: "",
   bookable: true,
+  soldOut: false,
   surchargeNonMemberAdult: "0",
   surchargeNonMemberChild: "0",
   busSurcharge: "0",
@@ -65,6 +67,7 @@ export default function EventForm({
     const body = {
       ...form,
       bookable: form.bookable,
+      soldOut: form.soldOut,
       depositAmount: Number(form.depositAmount),
       maxParticipants: form.maxParticipants ? Number(form.maxParticipants) : null,
       registrationDeadline: form.registrationDeadline ? new Date(form.registrationDeadline).toISOString() : null,
@@ -138,6 +141,7 @@ export default function EventForm({
             maxAge: ap.maxAge != null ? String(ap.maxAge) : "",
           })),
         }),
+        ...(parsed.soldOut === true && { soldOut: true }),
       }));
     } catch {
       // silently ignore parse errors
@@ -207,6 +211,16 @@ export default function EventForm({
           className="w-4 h-4 accent-[#4577ac]"
         />
         <span className="text-sm font-medium text-gray-700">{t.eventForm.bookable}</span>
+      </label>
+
+      <label className="flex items-center gap-3 cursor-pointer select-none">
+        <input
+          type="checkbox"
+          checked={form.soldOut}
+          onChange={(e) => setForm((f) => ({ ...f, soldOut: e.target.checked }))}
+          className="w-4 h-4 accent-red-500"
+        />
+        <span className="text-sm font-medium text-gray-700">{t.eventForm.soldOut}</span>
       </label>
 
       {form.bookable && (

@@ -8,6 +8,8 @@ import AuthProvider from "@/components/AuthProvider";
 import PublicChatPanel from "@/components/PublicChatPanel";
 import SponsorsStrip from "@/components/SponsorsStrip";
 import ScrollToTop from "@/components/ScrollToTop";
+import SupportOverlay from "@/components/SupportOverlay";
+import { Suspense } from "react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -42,6 +44,7 @@ export default async function LocaleLayout({
         <Footer />
         <SponsorsStrip />
         <PublicChatPanel />
+        <Suspense><SupportOverlay /></Suspense>
       </NextIntlClientProvider>
     </AuthProvider>
   );

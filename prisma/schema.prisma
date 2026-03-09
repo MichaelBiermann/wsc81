@@ -171,6 +171,7 @@ model Event {
   maxParticipants      Int?
   registrationDeadline DateTime?
   bookable                 Boolean        @default(true)
+  soldOut                  Boolean        @default(false)
   surchargeNonMemberAdult  Decimal        @default(0) @db.Decimal(8, 2)
   surchargeNonMemberChild  Decimal        @default(0) @db.Decimal(8, 2)
   busSurcharge             Decimal        @default(0) @db.Decimal(8, 2)

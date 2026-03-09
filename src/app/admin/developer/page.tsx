@@ -331,6 +331,35 @@ const MEMBERSHIP_SEQUENCE = `sequenceDiagram
     API->>ML: sendWelcomeEmail()
   end`;
 
+const SUPPORT_SEQUENCE = `sequenceDiagram
+  participant U as User Browser
+  participant OL as SupportOverlay
+  participant API as /api/support
+  participant DB as Database
+  participant ML as Mailer
+  participant ADM as Admin
+  participant AAPI as /api/admin/support/[id]/reply
+
+  U->>OL: Open overlay (?support=open)
+  OL->>OL: Capture background screenshot (html-to-image)
+  OL->>API: POST screenshot → /api/support/screenshot
+  API-->>OL: { url: blobUrl }
+  U->>OL: Select type + fill subject + body
+  U->>API: POST { type, subject, body, screenshotUrl }
+  API->>DB: Create SupportTicket (status: OPEN)
+  API->>ML: sendTicketCreatedToAdmin(replyTo: user@email)
+  API-->>OL: 201 Created
+  OL->>OL: Show success, close after 2.5s
+
+  Note over ADM,AAPI: Admin replies in /admin/support
+  ADM->>AAPI: POST { body } reply
+  AAPI->>DB: Create SupportMessage (fromAdmin: true)
+  AAPI->>DB: Update ticket status → IN_PROGRESS
+  AAPI->>ML: sendTicketReplyToUser(replyTo: ADMIN_EMAIL)
+  ML-->>U: Email with admin reply
+
+  Note over U,ADM: Direct email thread continues outside the app`;
+
 export default function DeveloperPage() {
   const { t, locale } = useAdminI18n();
   const isDE = locale === "de";
@@ -513,6 +542,7 @@ export default function DeveloperPage() {
           <MermaidDiagram chart={AUTH_SEQUENCE} title={isDE ? "Authentifizierungsablauf" : "Authentication flow"} />
           <MermaidDiagram chart={BOOKING_SEQUENCE} title={isDE ? "Buchungsablauf (Stripe)" : "Booking flow (Stripe)"} />
           <MermaidDiagram chart={MEMBERSHIP_SEQUENCE} title={isDE ? "Mitgliedschaftsablauf" : "Membership flow"} />
+          <MermaidDiagram chart={SUPPORT_SEQUENCE} title={isDE ? "Support-Ticket-Ablauf" : "Support ticket flow"} />
         </div>
       </section>
 

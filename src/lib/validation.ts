@@ -95,6 +95,7 @@ export const EventSchema = z.object({
   maxParticipants: z.number().int().min(1).optional().nullable(),
   registrationDeadline: z.string().datetime().optional().nullable(),
   bookable: z.boolean().default(true),
+  soldOut: z.boolean().default(false),
   surchargeNonMemberAdult: z.number().min(0).default(0),
   surchargeNonMemberChild: z.number().min(0).default(0),
   busSurcharge: z.number().min(0).default(0),

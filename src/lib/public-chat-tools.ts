@@ -95,7 +95,7 @@ export const PUBLIC_CHAT_TOOLS: Anthropic.Tool[] = [
       properties: {
         path: {
           type: "string",
-          description: "The public path to navigate to, e.g. /de/events/[id], /de/rueckblicke/[slug], /de/news/[slug], /de/seite/[slug], /de/membership, /de/register, /de/verein, /de/vorstand, /de/uebungsleiter, /de/sponsoren, /de/satzung, /de/agb, /de/datenschutz, /de/impressum, /de/login, /de/account, /de/account#bookings, /de/support",
+          description: "The public path to navigate to, e.g. /de/events/[id], /de/rueckblicke/[slug], /de/news/[slug], /de/seite/[slug], /de/membership, /de/register, /de/verein, /de/vorstand, /de/uebungsleiter, /de/sponsoren, /de/satzung, /de/agb, /de/datenschutz, /de/impressum, /de/login, /de/account, /de/account#bookings, ?support=open (opens support form overlay on the current page)",
         },
         label: {
           type: "string",

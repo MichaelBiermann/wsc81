@@ -166,7 +166,15 @@ export default async function EventDetailPage({
             <>
               <h2 className="text-xl font-bold text-[#4577ac] mb-2">{t("pageTitle")}</h2>
               <p className="text-gray-500 text-sm mb-6">{t("subtitle", { eventTitle: title })}</p>
-              {sessionUser?.id ? (
+              {event.soldOut ? (
+                <div className="rounded-lg border border-red-200 bg-red-50 p-6 flex items-start gap-3">
+                  <span className="material-symbols-rounded text-red-500 text-2xl flex-shrink-0" aria-hidden="true">block</span>
+                  <div>
+                    <p className="font-semibold text-red-700">{isDE ? "Diese Veranstaltung ist ausgebucht." : "This event is fully booked."}</p>
+                    <p className="text-sm text-red-600 mt-1">{isDE ? "Es sind keine Plätze mehr verfügbar." : "No spots are available anymore."}</p>
+                  </div>
+                </div>
+              ) : sessionUser?.id ? (
                 <BookingForm
                   event={{
                     id: event.id,

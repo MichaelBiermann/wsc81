@@ -40,6 +40,7 @@ export async function POST(request: NextRequest) {
       registrationDeadline: d.registrationDeadline ? new Date(d.registrationDeadline) : null,
       imageUrl: d.imageUrl ?? null,
       bookable: d.bookable,
+      soldOut: d.soldOut,
       surchargeNonMemberAdult: d.surchargeNonMemberAdult,
       surchargeNonMemberChild: d.surchargeNonMemberChild,
       busSurcharge: d.busSurcharge,

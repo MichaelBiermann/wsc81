@@ -64,13 +64,20 @@ export default function EventCalendar({ events, locale, isLoggedIn = false }: Pr
                 )}
                 {event.bookable ? (
                   <div className="flex flex-col items-end gap-1">
-                    <Link
-                      href={bookUrl}
-                      className="rounded bg-[#4577ac] px-4 py-1.5 text-sm font-medium text-white hover:bg-[#2d5a8a] transition-colors"
-                    >
-                      {isDE ? "Jetzt buchen" : "Book now"}
-                    </Link>
-                    {!isLoggedIn && (
+                    {event.soldOut ? (
+                      <span className="inline-flex items-center gap-1 rounded bg-red-100 px-3 py-1.5 text-sm font-medium text-red-700">
+                        <span className="material-symbols-rounded" style={{ fontSize: "14px" }}>block</span>
+                        {isDE ? "Ausgebucht" : "Sold out"}
+                      </span>
+                    ) : (
+                      <Link
+                        href={bookUrl}
+                        className="rounded bg-[#4577ac] px-4 py-1.5 text-sm font-medium text-white hover:bg-[#2d5a8a] transition-colors"
+                      >
+                        {isDE ? "Jetzt buchen" : "Book now"}
+                      </Link>
+                    )}
+                    {!isLoggedIn && !event.soldOut && (
                       <span className="text-xs text-gray-400">
                         {isDE ? "Anmeldung erforderlich" : "Sign-in required"}
                       </span>

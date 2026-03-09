@@ -466,6 +466,7 @@
     "loginRequired": "Bitte melde dich an, um eine Anfrage zu stellen.",
     "loginLink": "Anmelden",
     "screenshotRetake": "Neu aufnehmen",
-    "screenshotIncludeOverlays": "Support-Formular / Chatbot einschließen"
+    "screenshotIncludeSupport": "Support-Formular einschließen",
+    "screenshotIncludeChat": "Chatbot einschließen"
   }
 }

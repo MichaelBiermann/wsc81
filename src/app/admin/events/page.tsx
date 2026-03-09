@@ -10,6 +10,7 @@ interface Event {
   startDate: string;
   location: string;
   bookable: boolean;
+  soldOut: boolean;
   _count: { bookings: number };
 }
 
@@ -64,6 +65,12 @@ export default function AdminEventsPage() {
                     <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-500">
                       <span className="material-symbols-rounded" style={{ fontSize: "12px" }}>info</span>
                       {t.events.bookableNo}
+                    </span>
+                  )}
+                  {event.soldOut && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-600 mt-1">
+                      <span className="material-symbols-rounded" style={{ fontSize: "12px" }}>block</span>
+                      {t.events.soldOut}
                     </span>
                   )}
                 </td>

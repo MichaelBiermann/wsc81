@@ -47,6 +47,7 @@ interface EventDetail {
   registrationDeadline: string | null;
   imageUrl: string | null;
   bookable: boolean;
+  soldOut: boolean;
   surchargeNonMemberAdult: string;
   surchargeNonMemberChild: string;
   busSurcharge: string;
@@ -102,6 +103,7 @@ export default function EditEventPage() {
           registrationDeadline: event.registrationDeadline ? toDatetimeLocal(event.registrationDeadline) : "",
           imageUrl: event.imageUrl ?? "",
           bookable: event.bookable,
+          soldOut: event.soldOut,
           surchargeNonMemberAdult: String(event.surchargeNonMemberAdult),
           surchargeNonMemberChild: String(event.surchargeNonMemberChild),
           busSurcharge: String(event.busSurcharge),
