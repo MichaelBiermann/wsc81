@@ -53,8 +53,7 @@ export default function EventMailSection({
   const [subject, setSubject] = useState(`${eventTitleDe} ${em.dateRangeVom} ${formatDateRange()}`);
   const [body, setBody] = useState("");
   const [mailLang, setMailLang] = useState<"de" | "en">("de");
-  const [targetBookingId, setTargetBookingId] = useState<string>("all");
-  const [sending, setSending] = useState(false);
+  const [targetBookingId, setTargetBookingId] = useState<string>("all");  const [sending, setSending] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [feedback, setFeedback] = useState<{ ok: boolean; msg: string } | null>(null);
   const [sentMails, setSentMails] = useState<SentMail[]>(initialMails);
@@ -178,32 +177,18 @@ export default function EventMailSection({
           <div className="flex items-center justify-between mb-1">
             <label className="block text-xs font-medium text-gray-500">{em.bodyLabel}</label>
             <div className="flex items-center gap-2">
-              {/* DE/EN toggle */}
-              <div className="flex rounded-md border border-gray-200 overflow-hidden text-xs">
+              {(["de", "en"] as const).map((lang) => (
                 <button
+                  key={lang}
                   type="button"
-                  onClick={() => setMailLang("de")}
-                  className={`px-2 py-0.5 font-medium transition-colors ${mailLang === "de" ? "bg-[#4577ac] text-white" : "text-gray-500 hover:bg-gray-50"}`}
+                  onClick={() => { setMailLang(lang); handleOpenPromptReview(); }}
+                  disabled={generating || !purpose.trim()}
+                  className="inline-flex items-center gap-1 text-xs text-[#4577ac] hover:underline disabled:opacity-40 disabled:no-underline"
                 >
-                  DE
+                  <span className="material-symbols-rounded text-sm">auto_awesome</span>
+                  {em.generateAi} ({lang.toUpperCase()})
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setMailLang("en")}
-                  className={`px-2 py-0.5 font-medium transition-colors ${mailLang === "en" ? "bg-[#4577ac] text-white" : "text-gray-500 hover:bg-gray-50"}`}
-                >
-                  EN
-                </button>
-              </div>
-              <button
-                type="button"
-                onClick={handleOpenPromptReview}
-                disabled={generating || !purpose.trim()}
-                className="inline-flex items-center gap-1 text-xs text-[#4577ac] hover:underline disabled:opacity-40 disabled:no-underline"
-              >
-                <span className="material-symbols-rounded text-sm">auto_awesome</span>
-                {em.generateAi}
-              </button>
+              ))}
             </div>
           </div>
 
