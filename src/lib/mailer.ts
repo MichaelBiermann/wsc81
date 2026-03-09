@@ -5,9 +5,9 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY ?? "");
 const FROM = process.env.SENDGRID_FROM ?? "michbier@gmail.com";
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
 
-async function sendMail({ to, subject, html }: { to: string; subject: string; html: string }) {
+async function sendMail({ to, subject, html, replyTo }: { to: string; subject: string; html: string; replyTo?: string }) {
   const text = html.replace(/<[^>]+>/g, "").replace(/\n\s*\n/g, "\n");
-  await sgMail.send({ from: FROM, to, subject, html, text });
+  await sgMail.send({ from: FROM, to, subject, html, text, ...(replyTo ? { replyTo } : {}) });
 }
 
 // ─── Membership Confirmation ──────────────────────────────────────────────────
@@ -399,7 +399,75 @@ export async function sendUserWelcome({
   await sendMail({ to, subject, html });
 }
 
-// ─── Remaining Balance Reminder ───────────────────────────────────────────────
+// ─── Support Tickets ──────────────────────────────────────────────────────────
+
+export async function sendTicketCreatedToAdmin({
+  ticketId,
+  subject,
+  body,
+  type,
+  userName,
+  userEmail,
+}: {
+  ticketId: string;
+  subject: string;
+  body: string;
+  type: string;
+  userName: string;
+  userEmail: string;
+}) {
+  const adminEmail = process.env.ADMIN_EMAIL ?? FROM;
+  const shortId = ticketId.slice(-8);
+  const typeLabel: Record<string, string> = { BUG: "Fehler", FEATURE: "Feature", QUESTION: "Frage", OTHER: "Sonstiges" };
+  const emailSubject = `[WSC 81 Support] #${shortId} — ${subject}`;
+  const html = `<p>Neue Support-Anfrage von <strong>${userName}</strong> (${userEmail}):</p>
+    <table style="border-collapse:collapse;width:100%;max-width:600px;margin-bottom:12px">
+      <tr><td style="padding:4px 8px;font-weight:bold;white-space:nowrap">Typ:</td><td style="padding:4px 8px">${typeLabel[type] ?? type}</td></tr>
+      <tr><td style="padding:4px 8px;font-weight:bold;white-space:nowrap">Betreff:</td><td style="padding:4px 8px">${subject}</td></tr>
+      <tr><td style="padding:4px 8px;font-weight:bold;white-space:nowrap">Ticket-ID:</td><td style="padding:4px 8px">${ticketId}</td></tr>
+    </table>
+    <p style="white-space:pre-wrap">${body}</p>
+    <hr style="margin:16px 0"/>
+    <p style="color:#666;font-size:13px">Antworten Sie direkt auf diese E-Mail, um den Benutzer zu kontaktieren. Oder öffnen Sie das Ticket im Admin-Panel: ${BASE_URL}/admin/support</p>`;
+  await sendMail({ to: adminEmail, subject: emailSubject, html, replyTo: userEmail });
+}
+
+export async function sendTicketReplyToUser({
+  to,
+  userName,
+  ticketSubject,
+  ticketId,
+  adminReply,
+  locale,
+}: {
+  to: string;
+  userName: string;
+  ticketSubject: string;
+  ticketId: string;
+  adminReply: string;
+  locale: string;
+}) {
+  const adminEmail = process.env.ADMIN_EMAIL ?? FROM;
+  const shortId = ticketId.slice(-8);
+  const isDE = locale === "de";
+  const emailSubject = `Re: [WSC 81 Support] #${shortId} — ${ticketSubject}`;
+  const html = isDE
+    ? `<p>Hallo ${userName},</p>
+       <p>der Admin hat auf Ihre Support-Anfrage geantwortet:</p>
+       <blockquote style="border-left:3px solid #4577ac;padding-left:12px;margin:12px 0;color:#333">
+         <p style="white-space:pre-wrap">${adminReply}</p>
+       </blockquote>
+       <p>Sie können direkt auf diese E-Mail antworten.</p>
+       <p style="color:#666;font-size:13px">Ticket-ID: ${ticketId}</p>`
+    : `<p>Hello ${userName},</p>
+       <p>The admin has replied to your support request:</p>
+       <blockquote style="border-left:3px solid #4577ac;padding-left:12px;margin:12px 0;color:#333">
+         <p style="white-space:pre-wrap">${adminReply}</p>
+       </blockquote>
+       <p>You can reply directly to this email.</p>
+       <p style="color:#666;font-size:13px">Ticket ID: ${ticketId}</p>`;
+  await sendMail({ to, subject: emailSubject, html, replyTo: adminEmail });
+}
 
 export async function sendRemainingBalanceReminder({
   to,

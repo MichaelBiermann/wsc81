@@ -5,6 +5,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 interface MermaidDiagramProps {
   chart: string;
   title?: string;
+  fontSize?: number;
 }
 
 /** Strip fixed width/height from the SVG root and make it fill its container. */
@@ -23,7 +24,7 @@ function makeFluidSvg(container: HTMLDivElement) {
   svg.style.height = "100%";
 }
 
-export default function MermaidDiagram({ chart, title }: MermaidDiagramProps) {
+export default function MermaidDiagram({ chart, title, fontSize }: MermaidDiagramProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [rendered, setRendered] = useState(false);
@@ -37,7 +38,7 @@ export default function MermaidDiagram({ chart, title }: MermaidDiagramProps) {
     async function render() {
       try {
         const mermaid = (await import("mermaid")).default;
-        mermaid.initialize({ startOnLoad: false, theme: "default", securityLevel: "loose" });
+        mermaid.initialize({ startOnLoad: false, theme: "default", securityLevel: "loose", fontSize: fontSize ?? 14 });
         const id = `mermaid-${Math.random().toString(36).slice(2)}`;
         const { svg } = await mermaid.render(id, chart);
         if (!cancelled && ref.current) {

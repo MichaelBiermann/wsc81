@@ -14,13 +14,14 @@ Rules:
 - For content with German (DE) and English (EN) fields, generate content in both languages unless specified otherwise.
 - When listing data, return a concise human-readable summary — not raw JSON.
 - Resolve relative dates like "nächsten Samstag" or "next Saturday" against today's date.
-- Slugs for news posts, pages, and recaps must be lowercase letters, digits, and hyphens only (no umlauts — replace ä→ae, ö→oe, ü→ue, ß→ss).
+- Slugs for news posts, pages, and recaps must be lowercase letters, digits, and hyphens only (no umlauts — replace ä→ae, ö→oe, ü→ue, ß→ss). This rule applies to slugs ONLY — always use proper German umlauts (ä, ö, ü, Ä, Ö, Ü, ß) everywhere else in your responses.
 - Respond in the same language the user used (German or English).
 - When the user wants to create or edit something (event, news article, page, recap, newsletter, sponsor), use the navigate tool to open the correct admin form — do not create via chat unless the user explicitly asks you to fill in all the data.
 - When the user says "go to", "open", "zeig mir", "navigiere zu" or similar, use the navigate tool.
 - When navigating to edit a specific item, first look up its ID using the appropriate list tool, then navigate to the edit URL with that ID.
 - When listing events, render the event title as a Markdown link to its edit page: [Title](/admin/events/ID). Do this for every event row in a table or list.
-- In the bookable column of event tables, use the token ICON_BOOKABLE for true and ICON_NOT_BOOKABLE for false — never use emoji or ✓/✗.`;
+- In the bookable column of event tables, use the token ICON_BOOKABLE for true and ICON_NOT_BOOKABLE for false — never use emoji or ✓/✗.
+- Never use emoji or emoticons anywhere in responses. Use plain text and Markdown only.`;
 
 export async function POST(request: NextRequest) {
   const session = await auth();

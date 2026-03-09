@@ -6,7 +6,8 @@ import { useAdminI18n } from "@/components/admin/AdminI18nProvider";
 
 const MermaidDiagram = dynamic(() => import("@/components/admin/MermaidDiagram"), { ssr: false });
 
-const COMPONENT_DIAGRAM = `graph TD
+const COMPONENT_DIAGRAM = `%%{init: {"theme": "default", "fontSize": 18}}%%
+graph LR
   subgraph Public["Public Site"]
     PL["layout.tsx - Nav + PublicChatPanel"]
     HP["page.tsx - Homepage"]
@@ -33,6 +34,8 @@ const COMPONENT_DIAGRAM = `graph TD
     PCH["chat/route.ts"]
     SRCH["search/route.ts"]
     FE["forms/events/route.ts"]
+    SUP["support/route.ts"]
+    ASUP["admin/support/[id]/route.ts"]
   end
 
   subgraph Lib["Shared Libraries"]
@@ -66,10 +69,14 @@ const COMPONENT_DIAGRAM = `graph TD
   ACH --> CT
   PCH --> PCT
   SRCH --> SCH
+  SUP --> PR
+  SUP --> ML
+  ASUP --> PR
+  ASUP --> ML
   CT --> PR
   PCT --> PR`;
 
-const DB_DIAGRAM = `erDiagram
+const DB_DIAGRAM_USERS = `erDiagram
   AdminUser {
     string id PK
     string email UK
@@ -81,44 +88,32 @@ const DB_DIAGRAM = `erDiagram
   User {
     string id PK
     string email UK
-    string passwordHash
     string firstName
     string lastName
     date dob
     string street
-    string postalCode
     string city
-    string phone
     boolean emailVerified
     string verificationToken UK
-    datetime tokenExpiresAt
     string memberId UK "FK -> Member"
     string pendingEmail
-    string pendingEmailToken UK
-    datetime pendingEmailExpiresAt
     string passwordResetToken UK
-    datetime passwordResetExpiresAt
     string avatarUrl
-    boolean mustChangePassword
     datetime createdAt
   }
 
   Member {
     string id PK
     int memberNumber UK
-    string category "FAMILIE|ERWACHSENE|JUGENDLICHE|SENIOREN|GDB"
+    string category "FAMILIE|ERWACHSENE|JUGENDLICHE|..."
     string person1Name
     date person1Dob
     string personNName "person2..10 optional"
     string street
-    string postalCode
     string city
-    string phone
     string email UK
-    string bankName
     string ibanEncrypted
     string ibanLast4
-    string bic
     boolean feesPaid
     datetime activatedAt
     datetime createdAt
@@ -131,34 +126,62 @@ const DB_DIAGRAM = `erDiagram
     date person1Dob
     string personNName "person2..10 optional"
     string street
-    string postalCode
     string city
-    string phone
     string email UK
-    string bankName
     string ibanEncrypted
     string ibanLast4
-    string bic
     boolean consentData
-    boolean consentCancellation
     boolean consentBylaws
     string activationToken UK
     datetime tokenExpiresAt
     datetime createdAt
   }
 
+  ClubSettings {
+    string id PK
+    string bankName
+    string ibanEncrypted
+    string ibanLast4
+    string bic
+    int feeCollectionDay
+    int feeCollectionMonth
+    int paymentReminderWeeks
+    datetime updatedAt
+  }
+
+  User ||--o| Member : "memberId"
+  User ||--o{ SupportTicket : "userId"
+  SupportTicket ||--o{ SupportMessage : "ticketId (cascade delete)"
+
+  SupportTicket {
+    string id PK
+    string type "BUG|FEATURE|QUESTION|OTHER"
+    string subject
+    string body
+    string status "OPEN|IN_PROGRESS|CLOSED"
+    string userId FK
+    datetime createdAt
+  }
+
+  SupportMessage {
+    string id PK
+    string ticketId FK
+    boolean fromAdmin
+    string body
+    datetime createdAt
+  }
+`;
+
+const DB_DIAGRAM_EVENTS = `erDiagram
   Event {
     string id PK
     string titleDe
     string titleEn
-    string descriptionDe
-    string descriptionEn
     string location
     datetime startDate
     datetime endDate
     decimal depositAmount
     decimal totalAmount
-    string imageUrl
     int maxParticipants
     datetime registrationDeadline
     boolean bookable
@@ -169,7 +192,6 @@ const DB_DIAGRAM = `erDiagram
     decimal roomDoubleSurcharge
     json agePrices
     datetime createdAt
-    datetime updatedAt
   }
 
   EventBooking {
@@ -178,13 +200,8 @@ const DB_DIAGRAM = `erDiagram
     string person1Name
     date person1Dob
     string personNName "person2..10 optional"
-    string street
-    string postalCode
-    string city
-    string phone
     string email
     boolean isMember
-    string remarks
     int roomsSingle
     int roomsDouble
     string stripePaymentIntentId
@@ -199,12 +216,9 @@ const DB_DIAGRAM = `erDiagram
     string slug UK
     string titleDe
     string titleEn
-    string bodyDe
-    string bodyEn
     string status "DRAFT|PUBLISHED"
     datetime publishedAt
     datetime createdAt
-    datetime updatedAt
   }
 
   Page {
@@ -212,12 +226,9 @@ const DB_DIAGRAM = `erDiagram
     string slug UK
     string titleDe
     string titleEn
-    string bodyDe
-    string bodyEn
     string status "DRAFT|PUBLISHED"
     datetime publishedAt
     datetime createdAt
-    datetime updatedAt
   }
 
   Recap {
@@ -225,27 +236,20 @@ const DB_DIAGRAM = `erDiagram
     string slug UK
     string titleDe
     string titleEn
-    string bodyDe
-    string bodyEn
     date eventDate
     string imageUrl
     string status "DRAFT|PUBLISHED"
-    datetime publishedAt
     datetime createdAt
-    datetime updatedAt
   }
 
   Newsletter {
     string id PK
     string subjectDe
     string subjectEn
-    string bodyDe
-    string bodyEn
     string status "DRAFT|SENT"
     datetime sentAt
     int recipientCount
     datetime createdAt
-    datetime updatedAt
   }
 
   Sponsor {
@@ -255,22 +259,8 @@ const DB_DIAGRAM = `erDiagram
     string imageUrl
     int displayOrder
     datetime createdAt
-    datetime updatedAt
   }
 
-  ClubSettings {
-    string id PK
-    string bankName
-    string ibanEncrypted
-    string ibanLast4
-    string bic
-    int feeCollectionDay
-    int feeCollectionMonth
-    datetime updatedAt
-  }
-
-  User ||--o| Member : "memberId (optional link)"
-  User ||--o{ EventBooking : "userId (optional)"
   Event ||--o{ EventBooking : "eventId (cascade delete)"
 `;
 
@@ -377,7 +367,7 @@ export default function DeveloperPage() {
 
           /* Scale tall diagrams to fit the page height — never overflow */
           .mermaid-wrap svg {
-            max-height: 160mm;
+            max-height: 140mm;
             width: 100% !important;
             height: auto !important;
           }
@@ -450,6 +440,7 @@ export default function DeveloperPage() {
               <li>• {isDE ? "Newsletter-Editor (TipTap + KI)" : "Newsletter editor (TipTap + AI)"}</li>
               <li>• {isDE ? "Inhalte: News & statische Seiten" : "Content: news & static pages"}</li>
               <li>• {isDE ? "Rückblicke, Sponsoren, Einstellungen" : "Recaps, sponsors, settings"}</li>
+              <li>• {isDE ? "Support-Ticket-Verwaltung (Lesen/Antworten)" : "Support ticket management (read/reply)"}</li>
               <li>• {isDE ? "KI-Assistent für DB-Operationen" : "AI assistant for DB operations"}</li>
             </ul>
           </div>
@@ -507,9 +498,12 @@ export default function DeveloperPage() {
       </section>
 
       {/* Sequence Diagrams */}
-      <section className="mb-10">
+      <section className="mb-10 print-break-before">
         <h2 className="text-lg font-semibold text-gray-800 mb-4">{isDE ? "Datenbankschema" : "Database Schema"}</h2>
-        <MermaidDiagram chart={DB_DIAGRAM} title={isDE ? "Tabellen, Attribute & Fremdschlüssel" : "Tables, attributes & foreign keys"} />
+        <div className="flex flex-col gap-4">
+          <MermaidDiagram chart={DB_DIAGRAM_USERS} title={isDE ? "Benutzer & Mitgliedschaft" : "Users & Membership"} />
+          <MermaidDiagram chart={DB_DIAGRAM_EVENTS} title={isDE ? "Veranstaltungen & Inhalte" : "Events & Content"} />
+        </div>
       </section>
 
       {/* Sequence Diagrams */}
@@ -552,6 +546,10 @@ export default function DeveloperPage() {
                 [isDE ? "Öffentlicher Chat UI" : "Public chat UI", "src/components/PublicChatPanel.tsx"],
                 [isDE ? "Buchungsformular" : "Booking form", "src/components/BookingForm.tsx"],
                 [isDE ? "Formulare-Abschnitt" : "Forms section", "src/components/FormsSection.tsx"],
+                [isDE ? "Support (öffentlich)" : "Support (public)", "src/app/[locale]/support/page.tsx, src/components/SupportForm.tsx"],
+                [isDE ? "Support API (Benutzer)" : "Support API (user)", "src/app/api/support/route.ts"],
+                [isDE ? "Support API (Admin)" : "Support API (admin)", "src/app/api/admin/support/[id]/route.ts, .../reply/route.ts"],
+                [isDE ? "Support (Admin UI)" : "Support (admin UI)", "src/app/admin/support/page.tsx"],
               ].map(([area, path]) => (
                 <tr key={area} className="border-b border-gray-100 hover:bg-gray-50">
                   <td className="px-3 py-1.5 text-gray-700">{area}</td>

@@ -20,6 +20,7 @@
     "hello": "Hallo, {name}",
     "myAccount": "Mein Konto",
     "myBookings": "Meine Buchungen",
+    "support": "Support",
     "signOut": "Abmelden"
   },
   "Hero": {
@@ -426,5 +427,22 @@
       "title": "Ungültiger Link",
       "message": "Dieser Bestätigungslink ist ungültig."
     }
+  },
+  "Support": {
+    "title": "Support",
+    "subtitle": "Fehler melden oder Feature vorschlagen",
+    "typeLabel": "Typ",
+    "typeBug": "Fehler melden",
+    "typeFeature": "Feature vorschlagen",
+    "typeQuestion": "Frage",
+    "typeOther": "Sonstiges",
+    "subjectLabel": "Betreff",
+    "bodyLabel": "Beschreibung",
+    "bodyPlaceholder": "Beschreibe das Problem oder den Wunsch …",
+    "submit": "Absenden",
+    "successTitle": "Vielen Dank!",
+    "successBody": "Deine Anfrage wurde übermittelt. Wir melden uns per E-Mail.",
+    "loginRequired": "Bitte melde dich an, um eine Anfrage zu stellen.",
+    "loginLink": "Anmelden"
   }
 }

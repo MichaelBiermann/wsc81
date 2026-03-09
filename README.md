@@ -15,6 +15,7 @@ Homepage for **Walldorfer Ski-Club 81 e.V.**, built with Next.js 16 (App Router)
 - **Full-text search** — PostgreSQL tsvector across events, news, recaps and pages
 - **Rückblicke** — event recap reports with photo galleries
 - **Admin area** — manage events, memberships, bookings (PDF export), newsletter, content, sponsors, settings
+- **Support tickets** — logged-in users submit bug reports / feature requests at `/support`; admin reads and replies at `/admin/support`; email thread uses `replyTo` so replies stay in normal inboxes
 - **AI assistants** — public chat panel + admin chat panel (Claude API with tool use)
 - **Accessibility** — Section 508 / WCAG 2.1 AA: skip link, focus traps, ARIA roles, keyboard navigation
 
@@ -50,7 +51,7 @@ Default admin login: `admin@wsc81.de` / `admin123` (change after first login).
 ## Testing & Quality
 
 ```bash
-npm test                # run all 360 tests
+npm test                # run all 377 tests
 npm run test:coverage   # with coverage report
 ```
 
@@ -74,7 +75,7 @@ npm run test:coverage   # with coverage report
 | `chat-route.test.ts` | Public chat API — tool-use loop, locale, navigation |
 | `crypto.test.ts` | AES-256-GCM IBAN encryption/decryption |
 | `forms-events-route.test.ts` | Forms events API |
-| `mailer.test.ts` | All 11 email functions — DE/EN subjects, HTML content |
+| `mailer.test.ts` | All 13 `send*` functions — DE/EN subjects, HTML content, replyTo headers |
 | `pdf-utils.test.ts` | Booking PDF generation |
 | `public-chat-tools.test.ts` | All public chat tool handlers (`src/lib/public-chat-tools.ts`) |
 | `search-lib.test.ts` | Full-text search query building |

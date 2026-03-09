@@ -143,8 +143,20 @@ Protected by `role === "admin"`. All i18n via `src/lib/admin-i18n.ts` (DE + EN).
 - **Content** — create/edit News articles and static Pages with TipTap + AI rephrase (`POST /api/admin/ai`); slug field shows `open_in_new` link to live public URL
 - **Rückblicke** — create/edit event recap reports with TipTap + AI actions; `eventDate` and `imageUrl` optional; image field uses `AdminImageUpload`
 - **Settings** — club bank account (IBAN encrypted), annual fee collection day/month, payment reminder weeks (triggers cron reminder emails for outstanding `balanceDue`)
+- **Support** — ticket list with status filters (Offen/In Bearbeitung/Geschlossen); inline detail panel with message thread, reply form, and status controls; `GET /api/admin/support`, `GET/PATCH /api/admin/support/[id]`, `POST /api/admin/support/[id]/reply`
 - **AI Chat Assistant** — floating panel (bottom-right) on all admin pages; natural language commands mapped to Prisma operations via Claude tool use (`POST /api/admin/chat`); tools in `src/lib/chat-tools.ts`; `navigate` tool opens admin UI pages directly
 - **RichTextEditor AI buttons** — fully localized via `admin-i18n.ts` (`richText` namespace); `optimize_event` uses explicit locale so EN editors always produce English output
+
+### 11. Support Tickets
+Logged-in users report bugs / request features / ask questions at `/[locale]/support`.
+
+- Submit at `/[locale]/support` — type selector (Bug/Feature/Question/Other), subject, body; login required; admins redirected away
+- `POST /api/support` — Zod validation, creates `SupportTicket`; sends email to `ADMIN_EMAIL` with `replyTo: userEmail` (admin can reply directly from inbox)
+- Admin views and replies at `/admin/support` — ticket table with filter tabs, inline expandable detail panel, message thread (user left / admin right bubbles)
+- `POST /api/admin/support/[id]/reply` — creates `SupportMessage`, advances `OPEN → IN_PROGRESS`, emails user with `replyTo: ADMIN_EMAIL`
+- Status flow: `OPEN → IN_PROGRESS` (first admin reply) → `CLOSED` (manual); admin can reopen
+- **Email thread design**: both notification emails set `replyTo` so the entire follow-up exchange can happen outside the app in normal email clients
+- Nav: "Support" link in the logged-in user account dropdown (desktop + mobile)
 
 ## Database Models
 
@@ -160,6 +172,8 @@ Protected by `role === "admin"`. All i18n via `src/lib/admin-i18n.ts` (DE + EN).
 | `NewsPost` + `Page` | CMS content; search uses runtime `to_tsvector()` (no stored tsvector column) |
 | `Recap` | Event recap reports (slug, title/body DE+EN, eventDate, imageUrl, status); also included in search |
 | `ClubSettings` | Single-row global settings (bank account, fee day/month, `paymentReminderWeeks`) |
+| `SupportTicket` | User-submitted support tickets (type BUG/FEATURE/QUESTION/OTHER, status OPEN/IN_PROGRESS/CLOSED, `userId` FK) |
+| `SupportMessage` | Admin replies on a ticket (`fromAdmin` flag, `ticketId` FK, cascade delete) |
 
 ## Auth Details
 
@@ -198,6 +212,10 @@ Protected by `role === "admin"`. All i18n via `src/lib/admin-i18n.ts` (DE + EN).
 | Content (admin) | `src/app/admin/content/` |
 | Forms section | `src/components/FormsSection.tsx` |
 | Forms API | `src/app/api/forms/events/route.ts` |
+| Support (public) | `src/app/[locale]/support/page.tsx`, `src/components/SupportForm.tsx` |
+| Support API (user) | `src/app/api/support/route.ts` |
+| Support API (admin) | `src/app/api/admin/support/[id]/route.ts`, `.../reply/route.ts` |
+| Support (admin UI) | `src/app/admin/support/page.tsx` |
 | Sponsors strip | `src/components/SponsorsStrip.tsx` (server component, shown after footer on all locale pages) |
 | RegularActivities | `src/components/RegularActivities.tsx` (static fallback) |
 
@@ -244,7 +262,7 @@ npm run test:coverage     # with coverage report
 ```
 
 ### Test suite
-**360 tests across 14 test files** — all in `src/__tests__/`.
+**377 tests across 15 test files** — all in `src/__tests__/`.
 
 | File | What it covers |
 |------|---------------|
@@ -254,8 +272,9 @@ npm run test:coverage     # with coverage report
 | `admin-image-upload.test.ts` | `POST/DELETE /api/admin/images` — upload, crop, delete |
 | `chat-route.test.ts` | `POST /api/chat` — tool-use loop, navigate capture, locale handling |
 | `crypto.test.ts` | `encryptIBAN` / `decryptIBAN` round-trip, random IV, `ibanLast4` |
+| `developer-chat-route.test.ts` | `POST /api/admin/developer-chat` — auth, tool-use loop |
 | `forms-events-route.test.ts` | `GET /api/forms/events` — filters, ordering |
-| `mailer.test.ts` | All 11 `send*` functions in `src/lib/mailer.ts` — DE/EN subjects, HTML content |
+| `mailer.test.ts` | All 13 `send*` functions in `src/lib/mailer.ts` — DE/EN subjects, HTML content, replyTo headers |
 | `pdf-utils.test.ts` | PDF generation for event booking lists |
 | `public-chat-tools.test.ts` | All `executePublicTool` cases in `src/lib/public-chat-tools.ts` |
 | `search-lib.test.ts` | `src/lib/search.ts` — full-text query building |
