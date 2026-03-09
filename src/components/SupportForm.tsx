@@ -53,16 +53,23 @@ export default function SupportForm() {
         const html2canvas = (await import("html2canvas")).default;
         const canvas = await html2canvas(document.body, {
           scale: 0.5,
-          useCORS: true,
+          useCORS: false,
           allowTaint: true,
           logging: false,
-          ignoreElements: (el) => el.id === "support-wizard-overlay",
+          ignoreElements: (el) => {
+            // Exclude the wizard overlay itself
+            if (el.id === "support-wizard-overlay") return true;
+            // Strip external stylesheets (Google Fonts etc.) that cause CORS errors
+            if (el.tagName === "LINK" && (el as HTMLLinkElement).rel === "stylesheet") return true;
+            return false;
+          },
         });
         const dataUrl = canvas.toDataURL("image/png");
         setScreenshotDataUrl(dataUrl);
 
-        // Upload to Vercel Blob
-        const blob = await (await fetch(dataUrl)).blob();
+        // Upload to server
+        const fetchRes = await fetch(dataUrl);
+        const blob = await fetchRes.blob();
         const formData = new FormData();
         formData.append("file", blob, "screenshot.png");
         const res = await fetch("/api/support/screenshot", { method: "POST", body: formData });
@@ -70,6 +77,7 @@ export default function SupportForm() {
           const data = await res.json();
           setScreenshotUrl(data.url);
         } else {
+          // Upload failed but we still have the local preview — not a hard error
           setScreenshotError(true);
         }
       } catch {
