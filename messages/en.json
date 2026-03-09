@@ -464,6 +464,8 @@
     "successTitle": "Thank you!",
     "successBody": "Your request has been submitted. We will get back to you by email.",
     "loginRequired": "Please sign in to submit a request.",
-    "loginLink": "Sign in"
+    "loginLink": "Sign in",
+    "screenshotRetake": "Retake screenshot",
+    "screenshotIncludeOverlays": "Include support form / chatbot"
   }
 }

@@ -31,6 +31,38 @@ export default function SupportForm() {
   const [screenshotError, setScreenshotError] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
+  const [includeOverlays, setIncludeOverlays] = useState(false);
+
+  async function retakeScreenshot(withOverlays: boolean) {
+    setScreenshotError(false);
+    setScreenshotUploading(true);
+    setScreenshotDataUrl(null);
+    setScreenshotUrl(null);
+    try {
+      const { toPng } = await import("html-to-image");
+      const dataUrl = await toPng(document.body, {
+        pixelRatio: 0.5,
+        filter: (node) => {
+          if (!withOverlays) {
+            const id = (node as HTMLElement).id;
+            if (id === "support-wizard-overlay" || id === "public-chat-panel") return false;
+          }
+          return true;
+        },
+      });
+      setScreenshotDataUrl(dataUrl);
+      const blob = await (await fetch(dataUrl)).blob();
+      const formData = new FormData();
+      formData.append("file", blob, "screenshot.png");
+      const res = await fetch("/api/support/screenshot", { method: "POST", body: formData });
+      if (res.ok) { const d = await res.json(); if (d?.url) setScreenshotUrl(d.url); }
+    } catch (err) {
+      console.error("[ss] retake failed:", err);
+      setScreenshotError(true);
+    } finally {
+      setScreenshotUploading(false);
+    }
+  }
 
   const types: { value: TicketType; label: string; desc: string }[] = [
     { value: "BUG", label: t("typeBug"), desc: t("typeBugDesc") },
@@ -59,10 +91,16 @@ export default function SupportForm() {
         .catch(() => { /* non-fatal */ })
         .finally(() => setScreenshotUploading(false));
     } else {
-      // No stored screenshot — capture the current page as fallback
+      // No stored screenshot — capture the current page as fallback, excluding overlays
       setScreenshotUploading(true);
       import("html-to-image").then(({ toPng }) =>
-        toPng(document.body, { pixelRatio: 0.5 })
+        toPng(document.body, {
+          pixelRatio: 0.5,
+          filter: (node) => {
+            const id = (node as HTMLElement).id;
+            return id !== "support-wizard-overlay" && id !== "public-chat-panel";
+          },
+        })
       ).then((dataUrl) => {
         setScreenshotDataUrl(dataUrl);
         const formData = new FormData();
@@ -241,6 +279,28 @@ export default function SupportForm() {
                     {t("screenshotUploaded")}
                   </div>
                 )}
+              </div>
+            )}
+            {/* Retake option */}
+            {!screenshotUploading && (
+              <div className="mt-2 flex flex-wrap items-center gap-3">
+                <label className="flex items-center gap-1.5 text-xs text-gray-500 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={includeOverlays}
+                    onChange={(e) => setIncludeOverlays(e.target.checked)}
+                    className="rounded border-gray-300 text-[#4577ac] focus:ring-[#4577ac]"
+                  />
+                  {t("screenshotIncludeOverlays")}
+                </label>
+                <button
+                  type="button"
+                  onClick={() => retakeScreenshot(includeOverlays)}
+                  className="inline-flex items-center gap-1 text-xs text-[#4577ac] hover:underline"
+                >
+                  <span className="material-symbols-rounded" style={{ fontSize: 14 }} aria-hidden="true">refresh</span>
+                  {t("screenshotRetake")}
+                </button>
               </div>
             )}
           </div>

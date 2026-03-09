@@ -8,7 +8,15 @@ import Link from "next/link";
 async function capturePageToSessionStorage() {
   try {
     const { toPng } = await import("html-to-image");
-    const dataUrl = await toPng(document.body, { pixelRatio: 0.5 });
+    const dataUrl = await toPng(document.body, {
+      pixelRatio: 0.5,
+      filter: (node) => {
+        const id = (node as HTMLElement).id;
+        // Exclude support overlay and chat panel from the default screenshot
+        if (id === "support-wizard-overlay" || id === "public-chat-panel") return false;
+        return true;
+      },
+    });
     sessionStorage.setItem("support_screenshot", dataUrl);
   } catch {
     sessionStorage.removeItem("support_screenshot");

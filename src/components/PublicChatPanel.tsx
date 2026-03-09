@@ -202,7 +202,7 @@ export default function PublicChatPanel() {
   const suggestions = t.raw("suggestions") as string[];
 
   return (
-    <>
+    <div id="public-chat-panel">
       {/* Floating open button */}
       <button
         ref={openButtonRef}
@@ -333,7 +333,13 @@ export default function PublicChatPanel() {
                             if (m.navigateTo!.includes("/support")) {
                               try {
                                 const { toPng } = await import("html-to-image");
-                                const dataUrl = await toPng(document.body, { pixelRatio: 0.5 });
+                                const dataUrl = await toPng(document.body, {
+                                  pixelRatio: 0.5,
+                                  filter: (node) => {
+                                    const id = (node as HTMLElement).id;
+                                    return id !== "public-chat-panel" && id !== "support-wizard-overlay";
+                                  },
+                                });
                                 sessionStorage.setItem("support_screenshot", dataUrl);
                               } catch { sessionStorage.removeItem("support_screenshot"); }
                             }
@@ -387,6 +393,6 @@ export default function PublicChatPanel() {
           </button>
         </div>
       </div>
-    </>
+    </div>
   );
 }

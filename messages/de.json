@@ -464,6 +464,8 @@
     "successTitle": "Vielen Dank!",
     "successBody": "Deine Anfrage wurde übermittelt. Wir melden uns per E-Mail.",
     "loginRequired": "Bitte melde dich an, um eine Anfrage zu stellen.",
-    "loginLink": "Anmelden"
+    "loginLink": "Anmelden",
+    "screenshotRetake": "Neu aufnehmen",
+    "screenshotIncludeOverlays": "Support-Formular / Chatbot einschließen"
   }
 }
