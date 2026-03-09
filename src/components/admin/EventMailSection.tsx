@@ -109,13 +109,13 @@ export default function EventMailSection({
       `Zweck der Mail: ${purpose.trim()}`,
       ``,
       `Anmeldung & Kontakt (diese Daten MÜSSEN als Signatur am Ende der Mail erscheinen):`,
-      `Kontakt: ${organisation || "(bitte ergänzen)"}`,
-      `E-Mail: ${organisationEmail || "(bitte ergänzen)"}`,
-      `Tel: ${organisationPhone || "(bitte ergänzen)"}`,
-      ``,
-      `Veranstaltungsbeschreibung:`,
-      desc,
     ];
+    if (organisation) lines.push(`Kontakt: ${organisation}`);
+    if (organisationEmail) lines.push(`E-Mail: ${organisationEmail}`);
+    if (organisationPhone) lines.push(`Tel: ${organisationPhone}`);
+    lines.push(``);
+    lines.push(`Veranstaltungsbeschreibung:`);
+    lines.push(desc);
     return lines.join("\n");
   }
 
