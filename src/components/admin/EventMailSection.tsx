@@ -54,11 +54,33 @@ export default function EventMailSection({
   const [body, setBody] = useState("");
   const [editorKey, setEditorKey] = useState(0);
   const [mailLang, setMailLang] = useState<"de" | "en">("de");
-  const [targetBookingId, setTargetBookingId] = useState<string>("all");  const [sending, setSending] = useState(false);
+  const [targetBookingId, setTargetBookingId] = useState<string>("all");
+  const [sending, setSending] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [feedback, setFeedback] = useState<{ ok: boolean; msg: string } | null>(null);
   const [sentMails, setSentMails] = useState<SentMail[]>(initialMails);
   const [showPreview, setShowPreview] = useState(false);
+  const [savedDraft, setSavedDraft] = useState<boolean>(() => {
+    try { return !!localStorage.getItem(`mail_draft_${eventId}`); } catch { return false; }
+  });
+
+  function saveDraft() {
+    try {
+      localStorage.setItem(`mail_draft_${eventId}`, JSON.stringify({ subject, body, purpose }));
+      setSavedDraft(true);
+    } catch { /* ignore */ }
+  }
+
+  function loadDraft() {
+    try {
+      const raw = localStorage.getItem(`mail_draft_${eventId}`);
+      if (!raw) return;
+      const { subject: s, body: b, purpose: p } = JSON.parse(raw);
+      if (p) setPurpose(p);
+      if (s) setSubject(s);
+      if (b) { setBody(b); setEditorKey((k) => k + 1); }
+    } catch { /* ignore */ }
+  }
 
   // Prompt review state: null = hidden, string = editable prompt shown
   const [promptDraft, setPromptDraft] = useState<string | null>(null);
@@ -271,8 +293,8 @@ export default function EventMailSection({
           </div>
         )}
 
-        {/* Send button + feedback */}
-        <div className="flex items-center gap-3">
+        {/* Send button + save/load + feedback */}
+        <div className="flex flex-wrap items-center gap-3">
           <button
             type="button"
             onClick={handleSend}
@@ -285,8 +307,28 @@ export default function EventMailSection({
               <span className="ml-1 text-xs opacity-75">({uniqueRecipients})</span>
             )}
           </button>
+          <div className="flex items-center gap-2 ml-auto">
+            {savedDraft && (
+              <button
+                type="button"
+                onClick={loadDraft}
+                className="inline-flex items-center gap-1 text-xs text-[#4577ac] hover:underline"
+              >
+                <span className="material-symbols-rounded text-sm">upload</span>
+                {em.loadDraft}
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={saveDraft}
+              className="inline-flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700 hover:underline"
+            >
+              <span className="material-symbols-rounded text-sm">save</span>
+              {em.saveDraft}
+            </button>
+          </div>
           {feedback && (
-            <span className={`text-sm ${feedback.ok ? "text-green-600" : "text-red-500"}`}>
+            <span className={`text-sm w-full ${feedback.ok ? "text-green-600" : "text-red-500"}`}>
               {feedback.msg}
             </span>
           )}

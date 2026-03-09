@@ -104,6 +104,9 @@ export const ADMIN_TRANSLATIONS = {
       previewTitle: "Mail-Vorschau",
       previewClose: "Schließen",
       mailLangLabel: "Sprache",
+      saveDraft: "Entwurf speichern",
+      loadDraft: "Entwurf laden",
+      draftSaved: "Gespeichert",
     },
     eventForm: {
       titleDe: "Titel (DE)",
@@ -533,6 +536,9 @@ export const ADMIN_TRANSLATIONS = {
       previewTitle: "Mail preview",
       previewClose: "Close",
       mailLangLabel: "Language",
+      saveDraft: "Save draft",
+      loadDraft: "Load draft",
+      draftSaved: "Saved",
     },
     eventForm: {
       titleDe: "Title (DE)",
