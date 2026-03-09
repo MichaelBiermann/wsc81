@@ -108,14 +108,9 @@ export default function EventMailSection({
       `Datum: ${new Date(eventStartDate).toLocaleDateString("de-DE")}`,
       `Zweck der Mail: ${purpose.trim()}`,
       ``,
-      `Anmeldung & Kontakt (diese Daten MÜSSEN als Signatur am Ende der Mail erscheinen):`,
+      `Veranstaltungsbeschreibung:`,
+      desc,
     ];
-    if (organisation) lines.push(`Kontakt: ${organisation}`);
-    if (organisationEmail) lines.push(`E-Mail: ${organisationEmail}`);
-    if (organisationPhone) lines.push(`Tel: ${organisationPhone}`);
-    lines.push(``);
-    lines.push(`Veranstaltungsbeschreibung:`);
-    lines.push(desc);
     return lines.join("\n");
   }
 
@@ -140,7 +135,17 @@ export default function EventMailSection({
       });
       if (!res.ok) return;
       const { suggestion } = await res.json();
-      setBody(suggestion);
+
+      // Append contact signature block in code — don't rely on AI to format it
+      const sigLines: string[] = [];
+      if (organisation) sigLines.push(`<strong>${organisation}</strong>`);
+      if (organisationEmail) sigLines.push(`<a href="mailto:${organisationEmail}">${organisationEmail}</a>`);
+      if (organisationPhone) sigLines.push(organisationPhone);
+      const signature = sigLines.length > 0
+        ? `<p></p><p>${sigLines.join("<br/>")}</p>`
+        : "";
+
+      setBody(suggestion + signature);
       setEditorKey((k) => k + 1);
       if (subject === `${eventTitleDe} ${em.dateRangeVom} ${formatDateRange()}` || !subject.trim()) {
         setSubject(`${purpose.trim()}: ${eventTitleDe} ${em.dateRangeVom} ${formatDateRange()}`);
