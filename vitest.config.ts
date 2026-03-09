@@ -25,6 +25,7 @@ export default defineConfig({
         "src/lib/mailer.ts",
         "src/app/api/chat/route.ts",
         "src/app/api/admin/chat/route.ts",
+        "src/app/api/admin/developer-chat/route.ts",
         "src/app/api/admin/images/route.ts",
         "src/app/api/forms/events/route.ts",
         "src/app/api/search/route.ts",
