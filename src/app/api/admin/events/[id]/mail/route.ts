@@ -43,7 +43,8 @@ export async function POST(
     bookingId?: string; // if provided: send only to this booking
   };
 
-  if (!purpose?.trim() || !subject?.trim() || !mailBody?.trim()) {
+  const bodyText = mailBody?.replace(/<[^>]+>/g, "").trim();
+  if (!purpose?.trim() || !subject?.trim() || !bodyText) {
     return NextResponse.json({ error: "purpose, subject and mailBody are required" }, { status: 400 });
   }
 
@@ -75,7 +76,8 @@ export async function POST(
     text: mailBody.replace(/<[^>]+>/g, "").replace(/\n\s*\n/g, "\n").replace(/\{\{name\}\}/g, name),
   }));
 
-  await sgMail.send(messages as Parameters<typeof sgMail.send>[0]);
+  // Send individually — sgMail.send() handles one message at a time reliably
+  await Promise.all(messages.map((msg) => sgMail.send(msg)));
 
   const saved = await prisma.eventMail.create({
     data: {
