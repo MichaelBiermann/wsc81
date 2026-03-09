@@ -59,8 +59,13 @@ export default function SupportForm() {
           ignoreElements: (el) => {
             // Exclude the wizard overlay itself
             if (el.id === "support-wizard-overlay") return true;
-            // Strip external stylesheets (Google Fonts etc.) that cause CORS errors
-            if (el.tagName === "LINK" && (el as HTMLLinkElement).rel === "stylesheet") return true;
+            // Strip only cross-origin stylesheets (Google Fonts etc.) — keep same-origin Tailwind CSS
+            if (el.tagName === "LINK" && (el as HTMLLinkElement).rel === "stylesheet") {
+              try {
+                const href = (el as HTMLLinkElement).href;
+                return !!href && new URL(href).origin !== window.location.origin;
+              } catch { return false; }
+            }
             return false;
           },
         });
