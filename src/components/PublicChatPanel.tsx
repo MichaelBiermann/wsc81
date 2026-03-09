@@ -14,12 +14,20 @@ function renderMarkdown(text: string, onNavigate: (path: string) => void): React
   let i = 0;
 
   function inlineFormat(s: string, key: string | number): React.ReactNode {
-    const parts = s.split(/(\*\*[^*]+\*\*|`[^`]+`|\[[^\]]+\]\([^)]+\)|ICON_EVENT)/g);
+    const parts = s.split(/(\*\*[^*]+\*\*|`[^`]+`|ICON_EVENT\s*\[[^\]]+\]\([^)]+\)|ICON_EVENT|\[[^\]]+\]\([^)]+\))/g);
     return (
       <span key={key}>
         {parts.map((p, j) => {
           if (p.startsWith("**") && p.endsWith("**")) return <strong key={j}>{p.slice(2, -2)}</strong>;
           if (p.startsWith("`") && p.endsWith("`")) return <code key={j} className="bg-gray-200 rounded px-1 text-xs font-mono">{p.slice(1, -1)}</code>;
+          // ICON_EVENT followed by a markdown link: render icon + hyperlink together
+          const iconLinkMatch = p.match(/^ICON_EVENT\s*\[([^\]]+)\]\(([^)]+)\)/);
+          if (iconLinkMatch) return (
+            <span key={j} className="inline-flex items-center gap-1">
+              <span className="material-symbols-rounded text-[#4577ac]" style={{ fontSize: 16, verticalAlign: "middle", fontVariationSettings: "'FILL' 0" }} aria-hidden="true">event</span>
+              <a href={iconLinkMatch[2]} onClick={(e) => { e.preventDefault(); onNavigate(iconLinkMatch[2]); }} className="text-[#4577ac] underline hover:text-[#2d5a8a]">{iconLinkMatch[1]}</a>
+            </span>
+          );
           if (p === "ICON_EVENT") return <span key={j} className="material-symbols-rounded" style={{ fontSize: 16, verticalAlign: "middle", fontVariationSettings: "'FILL' 0" }} aria-hidden="true">event</span>;
           const linkMatch = p.match(/^\[([^\]]+)\]\(([^)]+)\)/);
           if (linkMatch) return <a key={j} href={linkMatch[2]} onClick={(e) => { e.preventDefault(); onNavigate(linkMatch[2]); }} className="text-[#4577ac] underline hover:text-[#2d5a8a]">{linkMatch[1]}</a>;
