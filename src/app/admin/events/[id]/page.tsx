@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { notFound } from "next/navigation";
 import EventForm from "../EventForm";
+import EventMailSection from "@/components/admin/EventMailSection";
 import { useAdminI18n } from "@/components/admin/AdminI18nProvider";
 
 interface Booking {
@@ -57,6 +58,14 @@ interface EventDetail {
   bookings: Booking[];
 }
 
+interface SentMail {
+  id: string;
+  purpose: string;
+  subject: string;
+  recipientCount: number;
+  sentAt: string;
+}
+
 const toDatetimeLocal = (d: string) => new Date(d).toISOString().slice(0, 16);
 
 export default function EditEventPage() {
@@ -64,14 +73,17 @@ export default function EditEventPage() {
   const { id } = useParams<{ id: string }>();
   const [event, setEvent] = useState<EventDetail | null>(null);
   const [loading, setLoading] = useState(true);
+  const [sentMails, setSentMails] = useState<SentMail[]>([]);
 
   useEffect(() => {
-    fetch(`/api/admin/events/${id}`)
-      .then((r) => {
-        if (!r.ok) { notFound(); return null; }
-        return r.json();
-      })
-      .then((data) => { if (data) { setEvent(data); } setLoading(false); });
+    Promise.all([
+      fetch(`/api/admin/events/${id}`).then((r) => { if (!r.ok) { notFound(); return null; } return r.json(); }),
+      fetch(`/api/admin/events/${id}/mail`).then((r) => r.ok ? r.json() : []),
+    ]).then(([eventData, mailData]) => {
+      if (eventData) setEvent(eventData);
+      setSentMails(mailData ?? []);
+      setLoading(false);
+    });
   }, [id]);
 
   async function deleteBooking(bookingId: string) {
@@ -291,6 +303,16 @@ export default function EditEventPage() {
           </div>
         </div>
       )}
+
+      <EventMailSection
+        eventId={id}
+        eventTitleDe={event.titleDe}
+        eventDescriptionDe={event.descriptionDe}
+        eventLocation={event.location}
+        eventStartDate={event.startDate}
+        bookings={event.bookings.map((b) => ({ id: b.id, person1Name: b.person1Name, email: b.email }))}
+        initialMails={sentMails}
+      />
     </div>
   );
 }

@@ -20,6 +20,12 @@ const SYSTEM_PROMPTS: Record<string, string> = {
     "You are a professional translator. Translate the given text into English. Return only the translated text, nothing else.",
   optimize_event:
     "You are a copywriter for a ski club website. Optimize the given event description so it works perfectly in two contexts: (1) as a short teaser on an event tile card (the first sentence or two must be a compelling 1–2 sentence summary that works standalone when HTML is stripped and truncated to ~120 characters), and (2) as a full event detail page description (well-structured with headings, bullet points for key facts like included services, what to bring, schedule, etc.). Use HTML formatting (h2, h3, ul, li, p, strong). Write in {LANGUAGE}. Return only the optimized HTML, nothing else.",
+  generate_event_mail:
+    `You are a club communications assistant for Walldorfer Ski-Club 81 e.V. Write an info email to participants of a club event.
+You will receive a JSON object with event data (title, description, dates, location, pricing) and a "purpose" field (e.g. "Kick-Off", "Zahlungserinnerung", "Programmübersicht", "Wichtige Hinweise").
+Write a friendly, professional email in {LANGUAGE} that fits the stated purpose. Use the event data to fill in relevant details.
+You may use {{name}} as a placeholder for the recipient's first/last name.
+Return ONLY the email body as HTML (use <p>, <ul>, <li>, <strong> — no <html>/<body>/<head> tags). No subject line, no explanation.`,
   extract_surcharges:
     `You are a pricing assistant for a German ski club. Read the event description (HTML) and extract any price or surcharge amounts mentioned. Return ONLY a raw JSON object with exactly these keys. Do NOT wrap in markdown code fences. No explanation, no markdown, just the raw JSON object:
 {
