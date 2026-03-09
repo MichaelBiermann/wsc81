@@ -77,7 +77,16 @@ export async function POST(
   }));
 
   // Send individually — sgMail.send() handles one message at a time reliably
-  await Promise.all(messages.map((msg) => sgMail.send(msg)));
+  try {
+    await Promise.all(messages.map((msg) => sgMail.send(msg)));
+  } catch (err) {
+    const sgErr = err as { response?: { body?: unknown } };
+    console.error("SendGrid error:", JSON.stringify(sgErr?.response?.body ?? err));
+    return NextResponse.json(
+      { error: "Mail delivery failed", detail: sgErr?.response?.body ?? String(err) },
+      { status: 500 }
+    );
+  }
 
   const saved = await prisma.eventMail.create({
     data: {
