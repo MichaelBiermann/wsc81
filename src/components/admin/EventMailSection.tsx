@@ -39,7 +39,7 @@ export default function EventMailSection({
   const { t, locale } = useAdminI18n();
   const em = t.eventMail;
 
-  const [purpose, setPurpose] = useState("");
+  const [purpose, setPurpose] = useState("Kick Off");
   const [subject, setSubject] = useState(eventTitleDe);
   const [body, setBody] = useState("");
   const [targetBookingId, setTargetBookingId] = useState<string>("all");
